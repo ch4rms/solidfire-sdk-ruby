@@ -6,8 +6,8 @@ require 'solidfire/version'
 Gem::Specification.new do |spec|
   spec.name          = "solidfire"
   spec.version       = Solidfire::VERSION
-  spec.authors       = ["Ariel Hoffman", "Joel Arthur"]
-  spec.email         = ["ariel.hoffman@netapp.com", "joel.arthur@netapp.com"]
+  spec.authors       = ["Ariel Hoffman", "Adam Haid", "Joel Arthur"]
+  spec.email         = ["ariel.hoffman@netapp.com", "adam.haid@netapp.com", "joel.arthur@netapp.com"]
 
   spec.summary       = %q{This is a SDK designed to interface with SolidFire products in Ruby.}
   spec.description   = %q{This SDK interfaces with SolidFire products in Ruby. It is one of many SDKs.}
