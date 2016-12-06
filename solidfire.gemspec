@@ -1,4 +1,4 @@
-# coding: utf-8
++# coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'solidfire/version'
@@ -6,12 +6,12 @@ require 'solidfire/version'
 Gem::Specification.new do |spec|
   spec.name          = "solidfire"
   spec.version       = Solidfire::VERSION
-  spec.authors       = ["Ariel Hoffman"]
-  spec.email         = ["ariel.hoffman@netapp.com"]
+  spec.authors       = ["Ariel Hoffman", "Joel Arthur"]
+  spec.email         = ["ariel.hoffman@netapp.com", "joel.arthur@netapp.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{This is a SDK designed to interface with SolidFire products in Ruby.}
+  spec.description   = %q{This SDK interfaces with SolidFire products in Ruby. It is one of many SDKs.}
+  spec.homepage      = "https://github.com/solidfire/solidfire-sdk-ruby.git"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
