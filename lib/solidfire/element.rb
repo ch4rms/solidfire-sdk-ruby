@@ -11,35 +11,30 @@ class Element
     @host = host
     @port = port
     @connection_version = connection_version.to_f
-    if(verify_ssl)
+    if verify_ssl
       @verify_mode = OpenSSL::SSL::VERIFY_PEER
     else
       @verify_mode = OpenSSL::SSL::VERIFY_NONE
     end
     @post_ws = "/json-rpc/" + connection_version
-    if(port == "443")
-      @connectionType = "Cluster"
-    elsif(port == "442")
-      @connectionType = "Node"
-    else
-      @connectionType = ""
-    end
+    @url = "https://"+@host+":"+@port.to_s+"/json-rpc/"+@connection_version.to_s
   end
 
   def send_request(payload)
-    uri = URI.parse("https://10.117.60.15:443/json-rpc/9.0")
+    uri = URI.parse(@url)
+    uri.query = URI.encode_www_form(payload)
     https = Net::HTTP.new(uri.host,uri.port)
     https.use_ssl = true
-
-    # THIS IS BAD NEWS... We need to figure out how to fix this.
     https.verify_mode = @verify_mode
-    req = Net::HTTP::Post.new(uri.path, initheader = {'Content-Type' =>'application/json'})
-    req.body = payload
+    req = Net::HTTP::Get.new(uri.request_uri)
     req.basic_auth @user, @pass
     res = https.request(req)
+    puts(res)
+    puts(res.body)
     output = JSON.parse(res.body)
     return output["result"]
   end
+
 
   def check_connection(version, type)
     if @connection_version < version
@@ -75,17 +70,19 @@ class Element
     }
     
     if initiator_secret != nil
-      payload[initiatorSecret] = initiator_secret
+      raise "initiator_secret should be of type CHAPSecret." unless initiator_secret.class.name == "CHAPSecret"
+      payload["initiatorSecret"] = initiator_secret.secret
     end
     if target_secret != nil
-      payload[targetSecret] = target_secret
+      raise "target_secret should be of type CHAPSecret." unless target_secret.class.name == "CHAPSecret"
+      payload["targetSecret"] = target_secret.secret
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return AddAccountResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? AddAccountResult.new(raw_response) : nil
   end
 
   def get_account_by_id(account_id)
@@ -101,9 +98,9 @@ class Element
       "method" => "GetAccountByID"
     }
     
-    json_payload = payload.to_json
-
-    return GetAccountResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetAccountResult.new(raw_response) : nil
   end
 
   def get_account_by_name(username)
@@ -119,9 +116,9 @@ class Element
       "method" => "GetAccountByName"
     }
     
-    json_payload = payload.to_json
-
-    return GetAccountResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetAccountResult.new(raw_response) : nil
   end
 
   def list_accounts(start_account_id = nil,limit = nil)
@@ -139,14 +136,14 @@ class Element
     }
     
     if start_account_id != nil
-      payload[startAccountID] = start_account_id
+      payload["startAccountID"] = start_account_id
     end
     if limit != nil
-      payload[limit] = limit
+      payload["limit"] = limit
     end
-    json_payload = payload.to_json
-
-    return ListAccountsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListAccountsResult.new(raw_response) : nil
   end
 
   def modify_account(account_id,username = nil,status = nil,initiator_secret = nil,target_secret = nil,attributes = nil)
@@ -176,23 +173,25 @@ class Element
     }
     
     if username != nil
-      payload[username] = username
+      payload["username"] = username
     end
     if status != nil
-      payload[status] = status
+      payload["status"] = status
     end
     if initiator_secret != nil
-      payload[initiatorSecret] = initiator_secret
+      raise "initiator_secret should be of type CHAPSecret." unless initiator_secret.class.name == "CHAPSecret"
+      payload["initiatorSecret"] = initiator_secret.secret
     end
     if target_secret != nil
-      payload[targetSecret] = target_secret
+      raise "target_secret should be of type CHAPSecret." unless target_secret.class.name == "CHAPSecret"
+      payload["targetSecret"] = target_secret.secret
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return ModifyAccountResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyAccountResult.new(raw_response) : nil
   end
 
   def remove_account(account_id)
@@ -210,9 +209,9 @@ class Element
       "method" => "RemoveAccount"
     }
     
-    json_payload = payload.to_json
-
-    return RemoveAccountResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? RemoveAccountResult.new(raw_response) : nil
   end
 
   def get_account_efficiency(account_id,force = nil)
@@ -231,11 +230,11 @@ class Element
     }
     
     if force != nil
-      payload[force] = force
+      payload["force"] = force
     end
-    json_payload = payload.to_json
-
-    return GetEfficiencyResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetEfficiencyResult.new(raw_response) : nil
   end
 
   def create_backup_target(name,attributes = nil)
@@ -254,11 +253,11 @@ class Element
     }
     
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return CreateBackupTargetResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CreateBackupTargetResult.new(raw_response) : nil
   end
 
   def get_backup_target(backup_target_id)
@@ -274,9 +273,9 @@ class Element
       "method" => "GetBackupTarget"
     }
     
-    json_payload = payload.to_json
-
-    return GetBackupTargetResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetBackupTargetResult.new(raw_response) : nil
   end
 
   def list_backup_targets()
@@ -289,9 +288,9 @@ class Element
       "method" => "ListBackupTargets"
     }
     
-    json_payload = payload.to_json
-
-    return ListBackupTargetsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListBackupTargetsResult.new(raw_response) : nil
   end
 
   def modify_backup_target(backup_target_id,name = nil,attributes = nil)
@@ -312,14 +311,14 @@ class Element
     }
     
     if name != nil
-      payload[name] = name
+      payload["name"] = name
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return ModifyBackupTargetResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyBackupTargetResult.new(raw_response) : nil
   end
 
   def remove_backup_target(backup_target_id)
@@ -335,9 +334,9 @@ class Element
       "method" => "RemoveBackupTarget"
     }
     
-    json_payload = payload.to_json
-
-    return RemoveBackupTargetResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? RemoveBackupTargetResult.new(raw_response) : nil
   end
 
   def get_cluster_capacity()
@@ -351,9 +350,9 @@ class Element
       "method" => "GetClusterCapacity"
     }
     
-    json_payload = payload.to_json
-
-    return GetClusterCapacityResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetClusterCapacityResult.new(raw_response) : nil
   end
 
   def get_cluster_info()
@@ -366,9 +365,9 @@ class Element
       "method" => "GetClusterInfo"
     }
     
-    json_payload = payload.to_json
-
-    return GetClusterInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetClusterInfoResult.new(raw_response) : nil
   end
 
   def get_cluster_version_info()
@@ -382,9 +381,9 @@ class Element
       "method" => "GetClusterVersionInfo"
     }
     
-    json_payload = payload.to_json
-
-    return GetClusterVersionInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetClusterVersionInfoResult.new(raw_response) : nil
   end
 
   def get_limits()
@@ -397,9 +396,9 @@ class Element
       "method" => "GetLimits"
     }
     
-    json_payload = payload.to_json
-
-    return GetLimitsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetLimitsResult.new(raw_response) : nil
   end
 
   def list_events(max_events = nil,start_event_id = nil,end_event_id = nil,event_queue_type = nil)
@@ -421,20 +420,20 @@ class Element
     }
     
     if max_events != nil
-      payload[maxEvents] = max_events
+      payload["maxEvents"] = max_events
     end
     if start_event_id != nil
-      payload[startEventID] = start_event_id
+      payload["startEventID"] = start_event_id
     end
     if end_event_id != nil
-      payload[endEventID] = end_event_id
+      payload["endEventID"] = end_event_id
     end
     if event_queue_type != nil
-      payload[eventQueueType] = event_queue_type
+      payload["eventQueueType"] = event_queue_type
     end
-    json_payload = payload.to_json
-
-    return ListEventsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListEventsResult.new(raw_response) : nil
   end
 
   def list_cluster_faults(exceptions = nil,best_practices = nil,update = nil,fault_types = nil)
@@ -457,20 +456,20 @@ class Element
     }
     
     if exceptions != nil
-      payload[exceptions] = exceptions
+      payload["exceptions"] = exceptions
     end
     if best_practices != nil
-      payload[bestPractices] = best_practices
+      payload["bestPractices"] = best_practices
     end
     if update != nil
-      payload[update] = update
+      payload["update"] = update
     end
     if fault_types != nil
-      payload[faultTypes] = fault_types
+      payload["faultTypes"] = fault_types
     end
-    json_payload = payload.to_json
-
-    return ListClusterFaultsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListClusterFaultsResult.new(raw_response) : nil
   end
 
   def clear_cluster_faults(fault_types = nil)
@@ -486,11 +485,11 @@ class Element
     }
     
     if fault_types != nil
-      payload[faultTypes] = fault_types
+      payload["faultTypes"] = fault_types
     end
-    json_payload = payload.to_json
-
-    return ClearClusterFaultsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ClearClusterFaultsResult.new(raw_response) : nil
   end
 
   def get_cluster_config()
@@ -505,9 +504,9 @@ class Element
       "method" => "GetClusterConfig"
     }
     
-    json_payload = payload.to_json
-
-    return GetClusterConfigResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetClusterConfigResult.new(raw_response) : nil
   end
 
   def get_cluster_full_threshold()
@@ -520,9 +519,9 @@ class Element
       "method" => "GetClusterFullThreshold"
     }
     
-    json_payload = payload.to_json
-
-    return GetClusterFullThresholdResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetClusterFullThresholdResult.new(raw_response) : nil
   end
 
   def modify_cluster_full_threshold(stage2_aware_threshold = nil,stage3_block_threshold_percent = nil,max_metadata_over_provision_factor = nil)
@@ -542,17 +541,17 @@ class Element
     }
     
     if stage2_aware_threshold != nil
-      payload[stage2AwareThreshold] = stage2_aware_threshold
+      payload["stage2AwareThreshold"] = stage2_aware_threshold
     end
     if stage3_block_threshold_percent != nil
-      payload[stage3BlockThresholdPercent] = stage3_block_threshold_percent
+      payload["stage3BlockThresholdPercent"] = stage3_block_threshold_percent
     end
     if max_metadata_over_provision_factor != nil
-      payload[maxMetadataOverProvisionFactor] = max_metadata_over_provision_factor
+      payload["maxMetadataOverProvisionFactor"] = max_metadata_over_provision_factor
     end
-    json_payload = payload.to_json
-
-    return ModifyClusterFullThresholdResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyClusterFullThresholdResult.new(raw_response) : nil
   end
 
   def get_cluster_stats()
@@ -565,9 +564,9 @@ class Element
       "method" => "GetClusterStats"
     }
     
-    json_payload = payload.to_json
-
-    return GetClusterStatsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetClusterStatsResult.new(raw_response) : nil
   end
 
   def list_cluster_admins()
@@ -580,9 +579,9 @@ class Element
       "method" => "ListClusterAdmins"
     }
     
-    json_payload = payload.to_json
-
-    return ListClusterAdminsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListClusterAdminsResult.new(raw_response) : nil
   end
 
   def add_cluster_admin(username,password,access,accept_eula = nil,attributes = nil)
@@ -611,14 +610,14 @@ class Element
     }
     
     if accept_eula != nil
-      payload[acceptEula] = accept_eula
+      payload["acceptEula"] = accept_eula
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return AddClusterAdminResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? AddClusterAdminResult.new(raw_response) : nil
   end
 
   def modify_cluster_admin(cluster_admin_id,password = nil,access = nil,attributes = nil)
@@ -641,17 +640,17 @@ class Element
     }
     
     if password != nil
-      payload[password] = password
+      payload["password"] = password
     end
     if access != nil
-      payload[access] = access
+      payload["access"] = access
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return ModifyClusterAdminResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyClusterAdminResult.new(raw_response) : nil
   end
 
   def remove_cluster_admin(cluster_admin_id)
@@ -667,9 +666,9 @@ class Element
       "method" => "RemoveClusterAdmin"
     }
     
-    json_payload = payload.to_json
-
-    return RemoveClusterAdminResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? RemoveClusterAdminResult.new(raw_response) : nil
   end
 
   def set_cluster_config(cluster)
@@ -687,9 +686,9 @@ class Element
       "method" => "SetClusterConfig"
     }
     
-    json_payload = payload.to_json
-
-    return SetClusterConfigResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? SetClusterConfigResult.new(raw_response) : nil
   end
 
   def get_snmp_acl()
@@ -702,9 +701,9 @@ class Element
       "method" => "GetSnmpACL"
     }
     
-    json_payload = payload.to_json
-
-    return GetSnmpACLResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetSnmpACLResult.new(raw_response) : nil
   end
 
   def set_snmp_acl(networks,usm_users)
@@ -723,9 +722,9 @@ class Element
       "method" => "SetSnmpACL"
     }
     
-    json_payload = payload.to_json
-
-    return SetSnmpACLResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? SetSnmpACLResult.new(raw_response) : nil
   end
 
   def get_snmp_trap_info()
@@ -738,9 +737,9 @@ class Element
       "method" => "GetSnmpTrapInfo"
     }
     
-    json_payload = payload.to_json
-
-    return GetSnmpTrapInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetSnmpTrapInfoResult.new(raw_response) : nil
   end
 
   def set_snmp_trap_info(trap_recipients,cluster_fault_traps_enabled,cluster_fault_resolved_traps_enabled,cluster_event_traps_enabled)
@@ -765,9 +764,9 @@ class Element
       "method" => "SetSnmpTrapInfo"
     }
     
-    json_payload = payload.to_json
-
-    return SetSnmpTrapInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? SetSnmpTrapInfoResult.new(raw_response) : nil
   end
 
   def enable_snmp(snmp_v3_enabled)
@@ -783,9 +782,9 @@ class Element
       "method" => "EnableSnmp"
     }
     
-    json_payload = payload.to_json
-
-    return EnableSnmpResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? EnableSnmpResult.new(raw_response) : nil
   end
 
   def disable_snmp()
@@ -798,9 +797,9 @@ class Element
       "method" => "DisableSnmp"
     }
     
-    json_payload = payload.to_json
-
-    return DisableSnmpResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? DisableSnmpResult.new(raw_response) : nil
   end
 
   def get_snmp_info()
@@ -815,9 +814,9 @@ class Element
       "method" => "GetSnmpInfo"
     }
     
-    json_payload = payload.to_json
-
-    return GetSnmpInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetSnmpInfoResult.new(raw_response) : nil
   end
 
   def set_snmp_info(networks = nil,enabled = nil,snmp_v3_enabled = nil,usm_users = nil)
@@ -841,20 +840,20 @@ class Element
     }
     
     if networks != nil
-      payload[networks] = networks
+      payload["networks"] = networks
     end
     if enabled != nil
-      payload[enabled] = enabled
+      payload["enabled"] = enabled
     end
     if snmp_v3_enabled != nil
-      payload[snmpV3Enabled] = snmp_v3_enabled
+      payload["snmpV3Enabled"] = snmp_v3_enabled
     end
     if usm_users != nil
-      payload[usmUsers] = usm_users
+      payload["usmUsers"] = usm_users
     end
-    json_payload = payload.to_json
-
-    return SetSnmpInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? SetSnmpInfoResult.new(raw_response) : nil
   end
 
   def get_snmp_state()
@@ -869,9 +868,9 @@ class Element
       "method" => "GetSnmpState"
     }
     
-    json_payload = payload.to_json
-
-    return GetSnmpStateResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetSnmpStateResult.new(raw_response) : nil
   end
 
   def get_api()
@@ -884,9 +883,9 @@ class Element
       "method" => "GetAPI"
     }
     
-    json_payload = payload.to_json
-
-    return GetAPIResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetAPIResult.new(raw_response) : nil
   end
 
   def get_ntp_info()
@@ -899,9 +898,9 @@ class Element
       "method" => "GetNtpInfo"
     }
     
-    json_payload = payload.to_json
-
-    return GetNtpInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetNtpInfoResult.new(raw_response) : nil
   end
 
   def get_cluster_state(force = nil)
@@ -917,11 +916,11 @@ class Element
     }
     
     if force != nil
-      payload[force] = force
+      payload["force"] = force
     end
-    json_payload = payload.to_json
-
-    return GetClusterStateResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetClusterStateResult.new(raw_response) : nil
   end
 
   def get_current_cluster_admin()
@@ -934,9 +933,9 @@ class Element
       "method" => "GetCurrentClusterAdmin"
     }
     
-    json_payload = payload.to_json
-
-    return GetCurrentClusterAdminResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetCurrentClusterAdminResult.new(raw_response) : nil
   end
 
   def enable_encryption_at_rest()
@@ -951,9 +950,9 @@ class Element
       "method" => "EnableEncryptionAtRest"
     }
     
-    json_payload = payload.to_json
-
-    return EnableEncryptionAtRestResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? EnableEncryptionAtRestResult.new(raw_response) : nil
   end
 
   def disable_encryption_at_rest()
@@ -968,9 +967,9 @@ class Element
       "method" => "DisableEncryptionAtRest"
     }
     
-    json_payload = payload.to_json
-
-    return DisableEncryptionAtRestResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? DisableEncryptionAtRestResult.new(raw_response) : nil
   end
 
   def snmp_send_test_traps()
@@ -983,9 +982,9 @@ class Element
       "method" => "SnmpSendTestTraps"
     }
     
-    json_payload = payload.to_json
-
-    return SnmpSendTestTrapsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? SnmpSendTestTrapsResult.new(raw_response) : nil
   end
 
   def get_async_result(async_handle)
@@ -1009,9 +1008,9 @@ class Element
       "method" => "GetAsyncResult"
     }
     
-    json_payload = payload.to_json
-
-    return GetAsyncResultResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetAsyncResultResult.new(raw_response) : nil
   end
 
   def add_drives(drives)
@@ -1036,9 +1035,9 @@ class Element
       "method" => "AddDrives"
     }
     
-    json_payload = payload.to_json
-
-    return AddDrivesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? AddDrivesResult.new(raw_response) : nil
   end
 
   def list_drives()
@@ -1052,9 +1051,9 @@ class Element
       "method" => "ListDrives"
     }
     
-    json_payload = payload.to_json
-
-    return ListDrivesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListDrivesResult.new(raw_response) : nil
   end
 
   def get_drive_hardware_info(drive_id)
@@ -1070,9 +1069,9 @@ class Element
       "method" => "GetDriveHardwareInfo"
     }
     
-    json_payload = payload.to_json
-
-    return GetDriveHardwareInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetDriveHardwareInfoResult.new(raw_response) : nil
   end
 
   def list_drive_hardware(force)
@@ -1088,9 +1087,9 @@ class Element
       "method" => "ListDriveHardware"
     }
     
-    json_payload = payload.to_json
-
-    return ListDriveHardwareResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListDriveHardwareResult.new(raw_response) : nil
   end
 
   def reset_drives(drives,force)
@@ -1111,9 +1110,9 @@ class Element
       "method" => "ResetDrives"
     }
     
-    json_payload = payload.to_json
-
-    return ResetDrivesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ResetDrivesResult.new(raw_response) : nil
   end
 
   def test_drives(force,minutes = nil)
@@ -1136,11 +1135,11 @@ class Element
     }
     
     if minutes != nil
-      payload[minutes] = minutes
+      payload["minutes"] = minutes
     end
-    json_payload = payload.to_json
-
-    return TestDrivesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? TestDrivesResult.new(raw_response) : nil
   end
 
   def get_drive_stats(drive_id)
@@ -1157,9 +1156,9 @@ class Element
       "method" => "GetDriveStats"
     }
     
-    json_payload = payload.to_json
-
-    return GetDriveStatsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetDriveStatsResult.new(raw_response) : nil
   end
 
   def secure_erase_drives(drives)
@@ -1179,9 +1178,9 @@ class Element
       "method" => "SecureEraseDrives"
     }
     
-    json_payload = payload.to_json
-
-    return AsyncHandleResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? AsyncHandleResult.new(raw_response) : nil
   end
 
   def remove_drives(drives)
@@ -1210,9 +1209,9 @@ class Element
       "method" => "RemoveDrives"
     }
     
-    json_payload = payload.to_json
-
-    return AsyncHandleResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? AsyncHandleResult.new(raw_response) : nil
   end
 
   def get_feature_status(feature = nil)
@@ -1228,11 +1227,11 @@ class Element
     }
     
     if feature != nil
-      payload[feature] = feature
+      payload["feature"] = feature
     end
-    json_payload = payload.to_json
-
-    return GetFeatureStatusResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetFeatureStatusResult.new(raw_response) : nil
   end
 
   def enable_feature(feature)
@@ -1248,9 +1247,9 @@ class Element
       "method" => "EnableFeature"
     }
     
-    json_payload = payload.to_json
-
-    return EnableFeatureResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? EnableFeatureResult.new(raw_response) : nil
   end
 
   def list_fibre_channel_port_info()
@@ -1263,9 +1262,9 @@ class Element
       "method" => "ListFibreChannelPortInfo"
     }
     
-    json_payload = payload.to_json
-
-    return ListFibreChannelPortInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListFibreChannelPortInfoResult.new(raw_response) : nil
   end
 
   def list_node_fibre_channel_port_info(force = nil)
@@ -1281,11 +1280,11 @@ class Element
     }
     
     if force != nil
-      payload[force] = force
+      payload["force"] = force
     end
-    json_payload = payload.to_json
-
-    return ListNodeFibreChannelPortInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListNodeFibreChannelPortInfoResult.new(raw_response) : nil
   end
 
   def list_fibre_channel_sessions()
@@ -1298,9 +1297,9 @@ class Element
       "method" => "ListFibreChannelSessions"
     }
     
-    json_payload = payload.to_json
-
-    return ListFibreChannelSessionsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListFibreChannelSessionsResult.new(raw_response) : nil
   end
 
   def get_cluster_hardware_info(type = nil)
@@ -1316,11 +1315,11 @@ class Element
     }
     
     if type != nil
-      payload[type] = type
+      payload["type"] = type
     end
-    json_payload = payload.to_json
-
-    return GetClusterHardwareInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetClusterHardwareInfoResult.new(raw_response) : nil
   end
 
   def get_hardware_config()
@@ -1333,9 +1332,9 @@ class Element
       "method" => "GetHardwareConfig"
     }
     
-    json_payload = payload.to_json
-
-    return GetHardwareConfigResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetHardwareConfigResult.new(raw_response) : nil
   end
 
   def get_node_hardware_info(node_id)
@@ -1351,9 +1350,9 @@ class Element
       "method" => "GetNodeHardwareInfo"
     }
     
-    json_payload = payload.to_json
-
-    return GetNodeHardwareInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetNodeHardwareInfoResult.new(raw_response) : nil
   end
 
   def get_nvram_info()
@@ -1366,9 +1365,9 @@ class Element
       "method" => "GetNvramInfo"
     }
     
-    json_payload = payload.to_json
-
-    return GetNvramInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetNvramInfoResult.new(raw_response) : nil
   end
 
   def create_initiators(initiators)
@@ -1385,9 +1384,9 @@ class Element
       "method" => "CreateInitiators"
     }
     
-    json_payload = payload.to_json
-
-    return CreateInitiatorsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CreateInitiatorsResult.new(raw_response) : nil
   end
 
   def modify_initiators(initiators)
@@ -1404,9 +1403,9 @@ class Element
       "method" => "ModifyInitiators"
     }
     
-    json_payload = payload.to_json
-
-    return ModifyInitiatorsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyInitiatorsResult.new(raw_response) : nil
   end
 
   def delete_initiators(initiators)
@@ -1423,9 +1422,9 @@ class Element
       "method" => "DeleteInitiators"
     }
     
-    json_payload = payload.to_json
-
-    return DeleteInitiatorsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? DeleteInitiatorsResult.new(raw_response) : nil
   end
 
   def list_initiators(start_initiator_id = nil,limit = nil,initiators = nil)
@@ -1445,17 +1444,17 @@ class Element
     }
     
     if start_initiator_id != nil
-      payload[startInitiatorID] = start_initiator_id
+      payload["startInitiatorID"] = start_initiator_id
     end
     if limit != nil
-      payload[limit] = limit
+      payload["limit"] = limit
     end
     if initiators != nil
-      payload[initiators] = initiators
+      payload["initiators"] = initiators
     end
-    json_payload = payload.to_json
-
-    return ListInitiatorsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListInitiatorsResult.new(raw_response) : nil
   end
 
   def invoke_sfapi(method,parameters = nil)
@@ -1475,11 +1474,11 @@ class Element
     }
     
     if parameters != nil
-      payload[parameters] = parameters
+      payload["parameters"] = parameters
     end
-    json_payload = payload.to_json
-
-    return str.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? str.new(raw_response) : nil
   end
 
   def add_ldap_cluster_admin(username,access,accept_eula = nil,attributes = nil)
@@ -1505,14 +1504,14 @@ class Element
     }
     
     if accept_eula != nil
-      payload[acceptEula] = accept_eula
+      payload["acceptEula"] = accept_eula
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return AddLdapClusterAdminResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? AddLdapClusterAdminResult.new(raw_response) : nil
   end
 
   def test_ldap_authentication(username,password,ldap_configuration = nil)
@@ -1534,11 +1533,11 @@ class Element
     }
     
     if ldap_configuration != nil
-      payload[ldapConfiguration] = ldap_configuration
+      payload["ldapConfiguration"] = ldap_configuration
     end
-    json_payload = payload.to_json
-
-    return TestLdapAuthenticationResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? TestLdapAuthenticationResult.new(raw_response) : nil
   end
 
   def get_ldap_configuration()
@@ -1551,9 +1550,9 @@ class Element
       "method" => "GetLdapConfiguration"
     }
     
-    json_payload = payload.to_json
-
-    return GetLdapConfigurationResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetLdapConfigurationResult.new(raw_response) : nil
   end
 
   def enable_ldap_authentication(server_uris,auth_type = nil,group_search_base_dn = nil,group_search_custom_filter = nil,group_search_type = nil,search_bind_dn = nil,search_bind_password = nil,user_dntemplate = nil,user_search_base_dn = nil,user_search_filter = nil)
@@ -1588,35 +1587,35 @@ class Element
     }
     
     if auth_type != nil
-      payload[authType] = auth_type
+      payload["authType"] = auth_type
     end
     if group_search_base_dn != nil
-      payload[groupSearchBaseDN] = group_search_base_dn
+      payload["groupSearchBaseDN"] = group_search_base_dn
     end
     if group_search_custom_filter != nil
-      payload[groupSearchCustomFilter] = group_search_custom_filter
+      payload["groupSearchCustomFilter"] = group_search_custom_filter
     end
     if group_search_type != nil
-      payload[groupSearchType] = group_search_type
+      payload["groupSearchType"] = group_search_type
     end
     if search_bind_dn != nil
-      payload[searchBindDN] = search_bind_dn
+      payload["searchBindDN"] = search_bind_dn
     end
     if search_bind_password != nil
-      payload[searchBindPassword] = search_bind_password
+      payload["searchBindPassword"] = search_bind_password
     end
     if user_dntemplate != nil
-      payload[userDNTemplate] = user_dntemplate
+      payload["userDNTemplate"] = user_dntemplate
     end
     if user_search_base_dn != nil
-      payload[userSearchBaseDN] = user_search_base_dn
+      payload["userSearchBaseDN"] = user_search_base_dn
     end
     if user_search_filter != nil
-      payload[userSearchFilter] = user_search_filter
+      payload["userSearchFilter"] = user_search_filter
     end
-    json_payload = payload.to_json
-
-    return EnableLdapAuthenticationResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? EnableLdapAuthenticationResult.new(raw_response) : nil
   end
 
   def disable_ldap_authentication()
@@ -1629,9 +1628,9 @@ class Element
       "method" => "DisableLdapAuthentication"
     }
     
-    json_payload = payload.to_json
-
-    return DisableLdapAuthenticationResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? DisableLdapAuthenticationResult.new(raw_response) : nil
   end
 
   def list_active_nodes()
@@ -1644,9 +1643,9 @@ class Element
       "method" => "ListActiveNodes"
     }
     
-    json_payload = payload.to_json
-
-    return ListActiveNodesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListActiveNodesResult.new(raw_response) : nil
   end
 
   def list_all_nodes()
@@ -1659,9 +1658,9 @@ class Element
       "method" => "ListAllNodes"
     }
     
-    json_payload = payload.to_json
-
-    return ListAllNodesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListAllNodesResult.new(raw_response) : nil
   end
 
   def list_pending_nodes()
@@ -1675,9 +1674,9 @@ class Element
       "method" => "ListPendingNodes"
     }
     
-    json_payload = payload.to_json
-
-    return ListPendingNodesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListPendingNodesResult.new(raw_response) : nil
   end
 
   def add_nodes(pending_nodes)
@@ -1701,9 +1700,9 @@ class Element
       "method" => "AddNodes"
     }
     
-    json_payload = payload.to_json
-
-    return AddNodesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? AddNodesResult.new(raw_response) : nil
   end
 
   def remove_nodes(nodes)
@@ -1721,9 +1720,9 @@ class Element
       "method" => "RemoveNodes"
     }
     
-    json_payload = payload.to_json
-
-    return RemoveNodesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? RemoveNodesResult.new(raw_response) : nil
   end
 
   def get_network_config()
@@ -1738,9 +1737,9 @@ class Element
       "method" => "GetNetworkConfig"
     }
     
-    json_payload = payload.to_json
-
-    return GetNetworkConfigResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetNetworkConfigResult.new(raw_response) : nil
   end
 
   def set_config(config)
@@ -1760,9 +1759,9 @@ class Element
       "method" => "SetConfig"
     }
     
-    json_payload = payload.to_json
-
-    return SetConfigResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? SetConfigResult.new(raw_response) : nil
   end
 
   def set_network_config(network)
@@ -1782,9 +1781,9 @@ class Element
       "method" => "SetNetworkConfig"
     }
     
-    json_payload = payload.to_json
-
-    return SetNetworkConfigResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? SetNetworkConfigResult.new(raw_response) : nil
   end
 
   def get_config()
@@ -1799,9 +1798,9 @@ class Element
       "method" => "GetConfig"
     }
     
-    json_payload = payload.to_json
-
-    return GetConfigResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetConfigResult.new(raw_response) : nil
   end
 
   def get_node_stats(node_id)
@@ -1817,9 +1816,9 @@ class Element
       "method" => "GetNodeStats"
     }
     
-    json_payload = payload.to_json
-
-    return GetNodeStatsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetNodeStatsResult.new(raw_response) : nil
   end
 
   def list_node_stats()
@@ -1832,9 +1831,9 @@ class Element
       "method" => "ListNodeStats"
     }
     
-    json_payload = payload.to_json
-
-    return ListNodeStatsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListNodeStatsResult.new(raw_response) : nil
   end
 
   def list_cluster_pairs()
@@ -1848,9 +1847,9 @@ class Element
       "method" => "ListClusterPairs"
     }
     
-    json_payload = payload.to_json
-
-    return ListClusterPairsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListClusterPairsResult.new(raw_response) : nil
   end
 
   def list_active_paired_volumes()
@@ -1864,9 +1863,9 @@ class Element
       "method" => "ListActivePairedVolumes"
     }
     
-    json_payload = payload.to_json
-
-    return ListActivePairedVolumesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListActivePairedVolumesResult.new(raw_response) : nil
   end
 
   def start_cluster_pairing()
@@ -1881,9 +1880,9 @@ class Element
       "method" => "StartClusterPairing"
     }
     
-    json_payload = payload.to_json
-
-    return StartClusterPairingResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? StartClusterPairingResult.new(raw_response) : nil
   end
 
   def start_volume_pairing(volume_id,mode = nil)
@@ -1903,11 +1902,11 @@ class Element
     }
     
     if mode != nil
-      payload[mode] = mode
+      payload["mode"] = mode
     end
-    json_payload = payload.to_json
-
-    return StartVolumePairingResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? StartVolumePairingResult.new(raw_response) : nil
   end
 
   def complete_cluster_pairing(cluster_pairing_key)
@@ -1924,9 +1923,9 @@ class Element
       "method" => "CompleteClusterPairing"
     }
     
-    json_payload = payload.to_json
-
-    return CompleteClusterPairingResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CompleteClusterPairingResult.new(raw_response) : nil
   end
 
   def complete_volume_pairing(volume_pairing_key,volume_id)
@@ -1945,9 +1944,9 @@ class Element
       "method" => "CompleteVolumePairing"
     }
     
-    json_payload = payload.to_json
-
-    return CompleteVolumePairingResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CompleteVolumePairingResult.new(raw_response) : nil
   end
 
   def remove_cluster_pair(cluster_pair_id)
@@ -1964,9 +1963,9 @@ class Element
       "method" => "RemoveClusterPair"
     }
     
-    json_payload = payload.to_json
-
-    return RemoveClusterPairResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? RemoveClusterPairResult.new(raw_response) : nil
   end
 
   def remove_volume_pair(volume_id)
@@ -1984,9 +1983,9 @@ class Element
       "method" => "RemoveVolumePair"
     }
     
-    json_payload = payload.to_json
-
-    return RemoveVolumePairResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? RemoveVolumePairResult.new(raw_response) : nil
   end
 
   def modify_volume_pair(volume_id,paused_manual = nil,mode = nil)
@@ -2007,14 +2006,14 @@ class Element
     }
     
     if paused_manual != nil
-      payload[pausedManual] = paused_manual
+      payload["pausedManual"] = paused_manual
     end
     if mode != nil
-      payload[mode] = mode
+      payload["mode"] = mode
     end
-    json_payload = payload.to_json
-
-    return ModifyVolumePairResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyVolumePairResult.new(raw_response) : nil
   end
 
   def list_protocol_endpoints(protocol_endpoint_ids = nil)
@@ -2032,11 +2031,11 @@ class Element
     }
     
     if protocol_endpoint_ids != nil
-      payload[protocolEndpointIDs] = protocol_endpoint_ids
+      payload["protocolEndpointIDs"] = protocol_endpoint_ids
     end
-    json_payload = payload.to_json
-
-    return ListProtocolEndpointsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListProtocolEndpointsResult.new(raw_response) : nil
   end
 
   def create_snapshot(volume_id,snapshot_id = nil,name = nil,enable_remote_replication = nil,retention = nil,attributes = nil)
@@ -2067,23 +2066,23 @@ class Element
     }
     
     if snapshot_id != nil
-      payload[snapshotID] = snapshot_id
+      payload["snapshotID"] = snapshot_id
     end
     if name != nil
-      payload[name] = name
+      payload["name"] = name
     end
     if enable_remote_replication != nil
-      payload[enableRemoteReplication] = enable_remote_replication
+      payload["enableRemoteReplication"] = enable_remote_replication
     end
     if retention != nil
-      payload[retention] = retention
+      payload["retention"] = retention
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return CreateSnapshotResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CreateSnapshotResult.new(raw_response) : nil
   end
 
   def delete_snapshot(snapshot_id)
@@ -2102,9 +2101,9 @@ class Element
       "method" => "DeleteSnapshot"
     }
     
-    json_payload = payload.to_json
-
-    return DeleteSnapshotResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? DeleteSnapshotResult.new(raw_response) : nil
   end
 
   def list_snapshots(volume_id = nil)
@@ -2120,11 +2119,11 @@ class Element
     }
     
     if volume_id != nil
-      payload[volumeID] = volume_id
+      payload["volumeID"] = volume_id
     end
-    json_payload = payload.to_json
-
-    return ListSnapshotsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListSnapshotsResult.new(raw_response) : nil
   end
 
   def modify_snapshot(snapshot_id,expiration_time = nil,enable_remote_replication = nil)
@@ -2146,14 +2145,14 @@ class Element
     }
     
     if expiration_time != nil
-      payload[expirationTime] = expiration_time
+      payload["expirationTime"] = expiration_time
     end
     if enable_remote_replication != nil
-      payload[enableRemoteReplication] = enable_remote_replication
+      payload["enableRemoteReplication"] = enable_remote_replication
     end
-    json_payload = payload.to_json
-
-    return ModifySnapshotResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifySnapshotResult.new(raw_response) : nil
   end
 
   def rollback_to_snapshot(volume_id,snapshot_id,save_current_state,name = nil,attributes = nil)
@@ -2185,14 +2184,14 @@ class Element
     }
     
     if name != nil
-      payload[name] = name
+      payload["name"] = name
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return CreateSnapshotResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CreateSnapshotResult.new(raw_response) : nil
   end
 
   def create_group_snapshot(volumes,name = nil,enable_remote_replication = nil,retention = nil,attributes = nil)
@@ -2221,20 +2220,20 @@ class Element
     }
     
     if name != nil
-      payload[name] = name
+      payload["name"] = name
     end
     if enable_remote_replication != nil
-      payload[enableRemoteReplication] = enable_remote_replication
+      payload["enableRemoteReplication"] = enable_remote_replication
     end
     if retention != nil
-      payload[retention] = retention
+      payload["retention"] = retention
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return CreateGroupSnapshotResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CreateGroupSnapshotResult.new(raw_response) : nil
   end
 
   def delete_group_snapshot(group_snapshot_id,save_members)
@@ -2255,9 +2254,9 @@ class Element
       "method" => "DeleteGroupSnapshot"
     }
     
-    json_payload = payload.to_json
-
-    return DeleteGroupSnapshotResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? DeleteGroupSnapshotResult.new(raw_response) : nil
   end
 
   def list_group_snapshots(volume_id = nil)
@@ -2273,11 +2272,11 @@ class Element
     }
     
     if volume_id != nil
-      payload[volumeID] = volume_id
+      payload["volumeID"] = volume_id
     end
-    json_payload = payload.to_json
-
-    return ListGroupSnapshotsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListGroupSnapshotsResult.new(raw_response) : nil
   end
 
   def modify_group_snapshot(group_snapshot_id,expiration_time = nil,enable_remote_replication = nil)
@@ -2298,14 +2297,14 @@ class Element
     }
     
     if expiration_time != nil
-      payload[expirationTime] = expiration_time
+      payload["expirationTime"] = expiration_time
     end
     if enable_remote_replication != nil
-      payload[enableRemoteReplication] = enable_remote_replication
+      payload["enableRemoteReplication"] = enable_remote_replication
     end
-    json_payload = payload.to_json
-
-    return ModifyGroupSnapshotResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyGroupSnapshotResult.new(raw_response) : nil
   end
 
   def rollback_to_group_snapshot(group_snapshot_id,save_current_state,name = nil,attributes = nil)
@@ -2332,14 +2331,14 @@ class Element
     }
     
     if name != nil
-      payload[name] = name
+      payload["name"] = name
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return CreateGroupSnapshotResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CreateGroupSnapshotResult.new(raw_response) : nil
   end
 
   def get_schedule(schedule_id)
@@ -2355,9 +2354,9 @@ class Element
       "method" => "GetSchedule"
     }
     
-    json_payload = payload.to_json
-
-    return GetScheduleResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetScheduleResult.new(raw_response) : nil
   end
 
   def list_schedules()
@@ -2370,9 +2369,9 @@ class Element
       "method" => "ListSchedules"
     }
     
-    json_payload = payload.to_json
-
-    return ListSchedulesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListSchedulesResult.new(raw_response) : nil
   end
 
   def create_schedule(schedule)
@@ -2392,9 +2391,9 @@ class Element
       "method" => "CreateSchedule"
     }
     
-    json_payload = payload.to_json
-
-    return CreateScheduleResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CreateScheduleResult.new(raw_response) : nil
   end
 
   def modify_schedule(schedule)
@@ -2410,9 +2409,9 @@ class Element
       "method" => "ModifySchedule"
     }
     
-    json_payload = payload.to_json
-
-    return ModifyScheduleResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyScheduleResult.new(raw_response) : nil
   end
 
   def list_volume_stats_by_virtual_volume(virtual_volume_ids = nil)
@@ -2428,11 +2427,11 @@ class Element
     }
     
     if virtual_volume_ids != nil
-      payload[virtualVolumeIDs] = virtual_volume_ids
+      payload["virtualVolumeIDs"] = virtual_volume_ids
     end
-    json_payload = payload.to_json
-
-    return ListVolumeStatsByVirtualVolumeResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVolumeStatsByVirtualVolumeResult.new(raw_response) : nil
   end
 
   def get_raw_stats()
@@ -2446,9 +2445,9 @@ class Element
       "method" => "GetRawStats"
     }
     
-    json_payload = payload.to_json
-
-    return str.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? str.new(raw_response) : nil
   end
 
   def get_hardware_info()
@@ -2461,9 +2460,9 @@ class Element
       "method" => "GetHardwareInfo"
     }
     
-    json_payload = payload.to_json
-
-    return GetHardwareInfoResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetHardwareInfoResult.new(raw_response) : nil
   end
 
   def get_complete_stats()
@@ -2477,9 +2476,9 @@ class Element
       "method" => "GetCompleteStats"
     }
     
-    json_payload = payload.to_json
-
-    return str.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? str.new(raw_response) : nil
   end
 
   def list_drive_stats(drives = nil)
@@ -2495,11 +2494,11 @@ class Element
     }
     
     if drives != nil
-      payload[drives] = drives
+      payload["drives"] = drives
     end
-    json_payload = payload.to_json
-
-    return ListDriveStatsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListDriveStatsResult.new(raw_response) : nil
   end
 
   def list_volume_stats(volume_ids = nil)
@@ -2514,11 +2513,11 @@ class Element
     }
     
     if volume_ids != nil
-      payload[volumeIDs] = volume_ids
+      payload["volumeIDs"] = volume_ids
     end
-    json_payload = payload.to_json
-
-    return ListVolumeStatsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVolumeStatsResult.new(raw_response) : nil
   end
 
   def create_storage_container(name,initiator_secret = nil,target_secret = nil)
@@ -2539,14 +2538,14 @@ class Element
     }
     
     if initiator_secret != nil
-      payload[initiatorSecret] = initiator_secret
+      payload["initiatorSecret"] = initiator_secret
     end
     if target_secret != nil
-      payload[targetSecret] = target_secret
+      payload["targetSecret"] = target_secret
     end
-    json_payload = payload.to_json
-
-    return CreateStorageContainerResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CreateStorageContainerResult.new(raw_response) : nil
   end
 
   def delete_storage_containers(storage_container_ids)
@@ -2562,9 +2561,9 @@ class Element
       "method" => "DeleteStorageContainers"
     }
     
-    json_payload = payload.to_json
-
-    return DeleteStorageContainerResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? DeleteStorageContainerResult.new(raw_response) : nil
   end
 
   def modify_storage_container(storage_container_id,initiator_secret = nil,target_secret = nil)
@@ -2585,14 +2584,14 @@ class Element
     }
     
     if initiator_secret != nil
-      payload[initiatorSecret] = initiator_secret
+      payload["initiatorSecret"] = initiator_secret
     end
     if target_secret != nil
-      payload[targetSecret] = target_secret
+      payload["targetSecret"] = target_secret
     end
-    json_payload = payload.to_json
-
-    return ModifyStorageContainerResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyStorageContainerResult.new(raw_response) : nil
   end
 
   def list_storage_containers(storage_container_ids = nil)
@@ -2608,11 +2607,11 @@ class Element
     }
     
     if storage_container_ids != nil
-      payload[storageContainerIDs] = storage_container_ids
+      payload["storageContainerIDs"] = storage_container_ids
     end
-    json_payload = payload.to_json
-
-    return ListStorageContainersResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListStorageContainersResult.new(raw_response) : nil
   end
 
   def get_storage_container_efficiency(storage_container_id)
@@ -2628,9 +2627,9 @@ class Element
       "method" => "GetStorageContainerEfficiency"
     }
     
-    json_payload = payload.to_json
-
-    return GetStorageContainerEfficiencyResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetStorageContainerEfficiencyResult.new(raw_response) : nil
   end
 
   def list_tests()
@@ -2644,9 +2643,9 @@ class Element
       "method" => "ListTests"
     }
     
-    json_payload = payload.to_json
-
-    return ListTestsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListTestsResult.new(raw_response) : nil
   end
 
   def list_utilities()
@@ -2660,9 +2659,9 @@ class Element
       "method" => "ListUtilities"
     }
     
-    json_payload = payload.to_json
-
-    return ListUtilitiesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListUtilitiesResult.new(raw_response) : nil
   end
 
   def test_connect_ensemble(ensemble = nil)
@@ -2679,11 +2678,11 @@ class Element
     }
     
     if ensemble != nil
-      payload[ensemble] = ensemble
+      payload["ensemble"] = ensemble
     end
-    json_payload = payload.to_json
-
-    return TestConnectEnsembleResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? TestConnectEnsembleResult.new(raw_response) : nil
   end
 
   def test_connect_mvip(mvip = nil)
@@ -2700,11 +2699,11 @@ class Element
     }
     
     if mvip != nil
-      payload[mvip] = mvip
+      payload["mvip"] = mvip
     end
-    json_payload = payload.to_json
-
-    return TestConnectMvipResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? TestConnectMvipResult.new(raw_response) : nil
   end
 
   def test_connect_svip(svip = nil)
@@ -2721,11 +2720,11 @@ class Element
     }
     
     if svip != nil
-      payload[svip] = svip
+      payload["svip"] = svip
     end
-    json_payload = payload.to_json
-
-    return TestConnectSvipResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? TestConnectSvipResult.new(raw_response) : nil
   end
 
   def test_ping(attempts = nil,hosts = nil,total_timeout_sec = nil,packet_size = nil,ping_timeout_msec = nil)
@@ -2750,23 +2749,23 @@ class Element
     }
     
     if attempts != nil
-      payload[attempts] = attempts
+      payload["attempts"] = attempts
     end
     if hosts != nil
-      payload[hosts] = hosts
+      payload["hosts"] = hosts
     end
     if total_timeout_sec != nil
-      payload[totalTimeoutSec] = total_timeout_sec
+      payload["totalTimeoutSec"] = total_timeout_sec
     end
     if packet_size != nil
-      payload[packetSize] = packet_size
+      payload["packetSize"] = packet_size
     end
     if ping_timeout_msec != nil
-      payload[pingTimeoutMsec] = ping_timeout_msec
+      payload["pingTimeoutMsec"] = ping_timeout_msec
     end
-    json_payload = payload.to_json
-
-    return TestPingResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? TestPingResult.new(raw_response) : nil
   end
 
   def list_virtual_networks(virtual_network_id = nil,virtual_network_tag = nil,virtual_network_ids = nil,virtual_network_tags = nil)
@@ -2790,20 +2789,20 @@ class Element
     }
     
     if virtual_network_id != nil
-      payload[virtualNetworkID] = virtual_network_id
+      payload["virtualNetworkID"] = virtual_network_id
     end
     if virtual_network_tag != nil
-      payload[virtualNetworkTag] = virtual_network_tag
+      payload["virtualNetworkTag"] = virtual_network_tag
     end
     if virtual_network_ids != nil
-      payload[virtualNetworkIDs] = virtual_network_ids
+      payload["virtualNetworkIDs"] = virtual_network_ids
     end
     if virtual_network_tags != nil
-      payload[virtualNetworkTags] = virtual_network_tags
+      payload["virtualNetworkTags"] = virtual_network_tags
     end
-    json_payload = payload.to_json
-
-    return ListVirtualNetworksResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVirtualNetworksResult.new(raw_response) : nil
   end
 
   def add_virtual_network(virtual_network_tag,name,address_blocks,netmask,svip,gateway = nil,namespace = nil,attributes = nil)
@@ -2840,17 +2839,17 @@ class Element
     }
     
     if gateway != nil
-      payload[gateway] = gateway
+      payload["gateway"] = gateway
     end
     if namespace != nil
-      payload[namespace] = namespace
+      payload["namespace"] = namespace
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return AddVirtualNetworkResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? AddVirtualNetworkResult.new(raw_response) : nil
   end
 
   def modify_virtual_network(virtual_network_id = nil,virtual_network_tag = nil,name = nil,address_blocks = nil,netmask = nil,svip = nil,gateway = nil,namespace = nil,attributes = nil)
@@ -2884,35 +2883,35 @@ class Element
     }
     
     if virtual_network_id != nil
-      payload[virtualNetworkID] = virtual_network_id
+      payload["virtualNetworkID"] = virtual_network_id
     end
     if virtual_network_tag != nil
-      payload[virtualNetworkTag] = virtual_network_tag
+      payload["virtualNetworkTag"] = virtual_network_tag
     end
     if name != nil
-      payload[name] = name
+      payload["name"] = name
     end
     if address_blocks != nil
-      payload[addressBlocks] = address_blocks
+      payload["addressBlocks"] = address_blocks
     end
     if netmask != nil
-      payload[netmask] = netmask
+      payload["netmask"] = netmask
     end
     if svip != nil
-      payload[svip] = svip
+      payload["svip"] = svip
     end
     if gateway != nil
-      payload[gateway] = gateway
+      payload["gateway"] = gateway
     end
     if namespace != nil
-      payload[namespace] = namespace
+      payload["namespace"] = namespace
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return AddVirtualNetworkResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? AddVirtualNetworkResult.new(raw_response) : nil
   end
 
   def remove_virtual_network(virtual_network_id = nil,virtual_network_tag = nil)
@@ -2932,14 +2931,14 @@ class Element
     }
     
     if virtual_network_id != nil
-      payload[virtualNetworkID] = virtual_network_id
+      payload["virtualNetworkID"] = virtual_network_id
     end
     if virtual_network_tag != nil
-      payload[virtualNetworkTag] = virtual_network_tag
+      payload["virtualNetworkTag"] = virtual_network_tag
     end
-    json_payload = payload.to_json
-
-    return RemoveVirtualNetworkResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? RemoveVirtualNetworkResult.new(raw_response) : nil
   end
 
   def list_virtual_volumes(details = nil,limit = nil,recursive = nil,start_virtual_volume_id = nil,virtual_volume_ids = nil)
@@ -2963,23 +2962,23 @@ class Element
     }
     
     if details != nil
-      payload[details] = details
+      payload["details"] = details
     end
     if limit != nil
-      payload[limit] = limit
+      payload["limit"] = limit
     end
     if recursive != nil
-      payload[recursive] = recursive
+      payload["recursive"] = recursive
     end
     if start_virtual_volume_id != nil
-      payload[startVirtualVolumeID] = start_virtual_volume_id
+      payload["startVirtualVolumeID"] = start_virtual_volume_id
     end
     if virtual_volume_ids != nil
-      payload[virtualVolumeIDs] = virtual_volume_ids
+      payload["virtualVolumeIDs"] = virtual_volume_ids
     end
-    json_payload = payload.to_json
-
-    return ListVirtualVolumesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVirtualVolumesResult.new(raw_response) : nil
   end
 
   def prepare_virtual_snapshot(virtual_volume_id,name = nil,writable_snapshot = nil,calling_virtual_volume_host_id = nil)
@@ -3002,17 +3001,17 @@ class Element
     }
     
     if name != nil
-      payload[name] = name
+      payload["name"] = name
     end
     if writable_snapshot != nil
-      payload[writableSnapshot] = writable_snapshot
+      payload["writableSnapshot"] = writable_snapshot
     end
     if calling_virtual_volume_host_id != nil
-      payload[callingVirtualVolumeHostID] = calling_virtual_volume_host_id
+      payload["callingVirtualVolumeHostID"] = calling_virtual_volume_host_id
     end
-    json_payload = payload.to_json
-
-    return PrepareVirtualSnapshotResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? PrepareVirtualSnapshotResult.new(raw_response) : nil
   end
 
   def get_virtual_volume_unshared_chunks(virtual_volume_id,base_virtual_volume_id,segment_start,segment_length,chunk_size,calling_virtual_volume_host_id = nil)
@@ -3047,11 +3046,11 @@ class Element
     }
     
     if calling_virtual_volume_host_id != nil
-      payload[callingVirtualVolumeHostID] = calling_virtual_volume_host_id
+      payload["callingVirtualVolumeHostID"] = calling_virtual_volume_host_id
     end
-    json_payload = payload.to_json
-
-    return VirtualVolumeUnsharedChunkResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? VirtualVolumeUnsharedChunkResult.new(raw_response) : nil
   end
 
   def create_virtual_volume_host(virtual_volume_host_id,cluster_id,initiator_names = nil,visible_protocol_endpoint_ids = nil,host_address = nil,calling_virtual_volume_host_id = nil)
@@ -3079,20 +3078,20 @@ class Element
     }
     
     if initiator_names != nil
-      payload[initiatorNames] = initiator_names
+      payload["initiatorNames"] = initiator_names
     end
     if visible_protocol_endpoint_ids != nil
-      payload[visibleProtocolEndpointIDs] = visible_protocol_endpoint_ids
+      payload["visibleProtocolEndpointIDs"] = visible_protocol_endpoint_ids
     end
     if host_address != nil
-      payload[hostAddress] = host_address
+      payload["hostAddress"] = host_address
     end
     if calling_virtual_volume_host_id != nil
-      payload[callingVirtualVolumeHostID] = calling_virtual_volume_host_id
+      payload["callingVirtualVolumeHostID"] = calling_virtual_volume_host_id
     end
-    json_payload = payload.to_json
-
-    return VirtualVolumeNullResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? VirtualVolumeNullResult.new(raw_response) : nil
   end
 
   def list_virtual_volume_hosts(virtual_volume_host_ids = nil)
@@ -3108,11 +3107,11 @@ class Element
     }
     
     if virtual_volume_host_ids != nil
-      payload[virtualVolumeHostIDs] = virtual_volume_host_ids
+      payload["virtualVolumeHostIDs"] = virtual_volume_host_ids
     end
-    json_payload = payload.to_json
-
-    return ListVirtualVolumeHostsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVirtualVolumeHostsResult.new(raw_response) : nil
   end
 
   def get_virtual_volume_task_update(virtual_volume_task_id,calling_virtual_volume_host_id = nil)
@@ -3131,11 +3130,11 @@ class Element
     }
     
     if calling_virtual_volume_host_id != nil
-      payload[callingVirtualVolumeHostID] = calling_virtual_volume_host_id
+      payload["callingVirtualVolumeHostID"] = calling_virtual_volume_host_id
     end
-    json_payload = payload.to_json
-
-    return VirtualVolumeTaskResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? VirtualVolumeTaskResult.new(raw_response) : nil
   end
 
   def list_virtual_volume_tasks(virtual_volume_task_ids = nil)
@@ -3151,11 +3150,11 @@ class Element
     }
     
     if virtual_volume_task_ids != nil
-      payload[virtualVolumeTaskIDs] = virtual_volume_task_ids
+      payload["virtualVolumeTaskIDs"] = virtual_volume_task_ids
     end
-    json_payload = payload.to_json
-
-    return ListVirtualVolumeTasksResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVirtualVolumeTasksResult.new(raw_response) : nil
   end
 
   def list_virtual_volume_bindings(virtual_volume_binding_ids = nil)
@@ -3171,11 +3170,11 @@ class Element
     }
     
     if virtual_volume_binding_ids != nil
-      payload[virtualVolumeBindingIDs] = virtual_volume_binding_ids
+      payload["virtualVolumeBindingIDs"] = virtual_volume_binding_ids
     end
-    json_payload = payload.to_json
-
-    return ListVirtualVolumeBindingsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVirtualVolumeBindingsResult.new(raw_response) : nil
   end
 
   def get_virtual_volume_count()
@@ -3188,9 +3187,9 @@ class Element
       "method" => "GetVirtualVolumeCount"
     }
     
-    json_payload = payload.to_json
-
-    return GetVirtualVolumeCountResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetVirtualVolumeCountResult.new(raw_response) : nil
   end
 
   def clone_volume(volume_id,name,new_account_id = nil,new_size = nil,access = nil,snapshot_id = nil,attributes = nil)
@@ -3229,23 +3228,23 @@ class Element
     }
     
     if new_account_id != nil
-      payload[newAccountID] = new_account_id
+      payload["newAccountID"] = new_account_id
     end
     if new_size != nil
-      payload[newSize] = new_size
+      payload["newSize"] = new_size
     end
     if access != nil
-      payload[access] = access
+      payload["access"] = access
     end
     if snapshot_id != nil
-      payload[snapshotID] = snapshot_id
+      payload["snapshotID"] = snapshot_id
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return CloneVolumeResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CloneVolumeResult.new(raw_response) : nil
   end
 
   def clone_multiple_volumes(volumes,access = nil,group_snapshot_id = nil,new_account_id = nil)
@@ -3271,17 +3270,17 @@ class Element
     }
     
     if access != nil
-      payload[access] = access
+      payload["access"] = access
     end
     if group_snapshot_id != nil
-      payload[groupSnapshotID] = group_snapshot_id
+      payload["groupSnapshotID"] = group_snapshot_id
     end
     if new_account_id != nil
-      payload[newAccountID] = new_account_id
+      payload["newAccountID"] = new_account_id
     end
-    json_payload = payload.to_json
-
-    return CloneMultipleVolumesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CloneMultipleVolumesResult.new(raw_response) : nil
   end
 
   def copy_volume(volume_id,dst_volume_id,snapshot_id = nil)
@@ -3303,11 +3302,11 @@ class Element
     }
     
     if snapshot_id != nil
-      payload[snapshotID] = snapshot_id
+      payload["snapshotID"] = snapshot_id
     end
-    json_payload = payload.to_json
-
-    return CopyVolumeResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CopyVolumeResult.new(raw_response) : nil
   end
 
   def cancel_clone(clone_id)
@@ -3323,9 +3322,9 @@ class Element
       "method" => "CancelClone"
     }
     
-    json_payload = payload.to_json
-
-    return CancelCloneResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CancelCloneResult.new(raw_response) : nil
   end
 
   def cancel_group_clone(group_clone_id)
@@ -3341,9 +3340,9 @@ class Element
       "method" => "CancelGroupClone"
     }
     
-    json_payload = payload.to_json
-
-    return CancelGroupCloneResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CancelGroupCloneResult.new(raw_response) : nil
   end
 
   def list_async_results(async_result_types = nil)
@@ -3359,11 +3358,11 @@ class Element
     }
     
     if async_result_types != nil
-      payload[asyncResultTypes] = async_result_types
+      payload["asyncResultTypes"] = async_result_types
     end
-    json_payload = payload.to_json
-
-    return ListAsyncResultsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListAsyncResultsResult.new(raw_response) : nil
   end
 
   def create_volume(name,account_id,total_size,enable512e,qos = nil,attributes = nil)
@@ -3394,14 +3393,14 @@ class Element
     }
     
     if qos != nil
-      payload[qos] = qos
+      payload["qos"] = qos
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return CreateVolumeResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CreateVolumeResult.new(raw_response) : nil
   end
 
   def delete_volume(volume_id)
@@ -3431,9 +3430,9 @@ class Element
       "method" => "DeleteVolume"
     }
     
-    json_payload = payload.to_json
-
-    return DeleteVolumeResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? DeleteVolumeResult.new(raw_response) : nil
   end
 
   def delete_volumes(account_ids = nil,volume_access_group_ids = nil,volume_ids = nil)
@@ -3453,17 +3452,17 @@ class Element
     }
     
     if account_ids != nil
-      payload[accountIDs] = account_ids
+      payload["accountIDs"] = account_ids
     end
     if volume_access_group_ids != nil
-      payload[volumeAccessGroupIDs] = volume_access_group_ids
+      payload["volumeAccessGroupIDs"] = volume_access_group_ids
     end
     if volume_ids != nil
-      payload[volumeIDs] = volume_ids
+      payload["volumeIDs"] = volume_ids
     end
-    json_payload = payload.to_json
-
-    return DeleteVolumesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? DeleteVolumesResult.new(raw_response) : nil
   end
 
   def get_volume_stats(volume_id)
@@ -3480,9 +3479,9 @@ class Element
       "method" => "GetVolumeStats"
     }
     
-    json_payload = payload.to_json
-
-    return GetVolumeStatsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetVolumeStatsResult.new(raw_response) : nil
   end
 
   def get_volume_efficiency(volume_id,force = nil)
@@ -3502,11 +3501,11 @@ class Element
     }
     
     if force != nil
-      payload[force] = force
+      payload["force"] = force
     end
-    json_payload = payload.to_json
-
-    return GetVolumeEfficiencyResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetVolumeEfficiencyResult.new(raw_response) : nil
   end
 
   def list_bulk_volume_jobs()
@@ -3519,9 +3518,9 @@ class Element
       "method" => "ListBulkVolumeJobs"
     }
     
-    json_payload = payload.to_json
-
-    return ListBulkVolumeJobsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListBulkVolumeJobsResult.new(raw_response) : nil
   end
 
   def list_active_volumes(start_volume_id = nil,limit = nil)
@@ -3540,14 +3539,14 @@ class Element
     }
     
     if start_volume_id != nil
-      payload[startVolumeID] = start_volume_id
+      payload["startVolumeID"] = start_volume_id
     end
     if limit != nil
-      payload[limit] = limit
+      payload["limit"] = limit
     end
-    json_payload = payload.to_json
-
-    return ListActiveVolumesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListActiveVolumesResult.new(raw_response) : nil
   end
 
   def list_deleted_volumes()
@@ -3560,9 +3559,9 @@ class Element
       "method" => "ListDeletedVolumes"
     }
     
-    json_payload = payload.to_json
-
-    return ListDeletedVolumesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListDeletedVolumesResult.new(raw_response) : nil
   end
 
   def list_iscsisessions()
@@ -3575,9 +3574,9 @@ class Element
       "method" => "ListISCSISessions"
     }
     
-    json_payload = payload.to_json
-
-    return ListISCSISessionsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListISCSISessionsResult.new(raw_response) : nil
   end
 
   def list_volumes(start_volume_id = nil,limit = nil,volume_status = nil,accounts = nil,is_paired = nil,volume_ids = nil)
@@ -3604,26 +3603,26 @@ class Element
     }
     
     if start_volume_id != nil
-      payload[startVolumeID] = start_volume_id
+      payload["startVolumeID"] = start_volume_id
     end
     if limit != nil
-      payload[limit] = limit
+      payload["limit"] = limit
     end
     if volume_status != nil
-      payload[volumeStatus] = volume_status
+      payload["volumeStatus"] = volume_status
     end
     if accounts != nil
-      payload[accounts] = accounts
+      payload["accounts"] = accounts
     end
     if is_paired != nil
-      payload[isPaired] = is_paired
+      payload["isPaired"] = is_paired
     end
     if volume_ids != nil
-      payload[volumeIDs] = volume_ids
+      payload["volumeIDs"] = volume_ids
     end
-    json_payload = payload.to_json
-
-    return ListVolumesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVolumesResult.new(raw_response) : nil
   end
 
   def list_volumes_for_account(account_id,start_volume_id = nil,limit = nil)
@@ -3644,14 +3643,14 @@ class Element
     }
     
     if start_volume_id != nil
-      payload[startVolumeID] = start_volume_id
+      payload["startVolumeID"] = start_volume_id
     end
     if limit != nil
-      payload[limit] = limit
+      payload["limit"] = limit
     end
-    json_payload = payload.to_json
-
-    return ListVolumesForAccountResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVolumesForAccountResult.new(raw_response) : nil
   end
 
   def list_volume_stats_by_account()
@@ -3665,9 +3664,9 @@ class Element
       "method" => "ListVolumeStatsByAccount"
     }
     
-    json_payload = payload.to_json
-
-    return ListVolumeStatsByAccountResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVolumeStatsByAccountResult.new(raw_response) : nil
   end
 
   def list_volume_stats_by_volume()
@@ -3681,9 +3680,9 @@ class Element
       "method" => "ListVolumeStatsByVolume"
     }
     
-    json_payload = payload.to_json
-
-    return ListVolumeStatsByVolumeResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVolumeStatsByVolumeResult.new(raw_response) : nil
   end
 
   def list_volume_stats_by_volume_access_group(volume_access_groups = nil)
@@ -3699,11 +3698,11 @@ class Element
     }
     
     if volume_access_groups != nil
-      payload[volumeAccessGroups] = volume_access_groups
+      payload["volumeAccessGroups"] = volume_access_groups
     end
-    json_payload = payload.to_json
-
-    return ListVolumeStatsByVolumeAccessGroupResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVolumeStatsByVolumeAccessGroupResult.new(raw_response) : nil
   end
 
   def modify_volume(volume_id,account_id = nil,access = nil,qos = nil,total_size = nil,attributes = nil)
@@ -3738,23 +3737,23 @@ class Element
     }
     
     if account_id != nil
-      payload[accountID] = account_id
+      payload["accountID"] = account_id
     end
     if access != nil
-      payload[access] = access
+      payload["access"] = access
     end
     if qos != nil
-      payload[qos] = qos
+      payload["qos"] = qos
     end
     if total_size != nil
-      payload[totalSize] = total_size
+      payload["totalSize"] = total_size
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return ModifyVolumeResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyVolumeResult.new(raw_response) : nil
   end
 
   def modify_volumes(volume_ids,account_id = nil,access = nil,attributes = nil,qos = nil,total_size = nil)
@@ -3781,23 +3780,23 @@ class Element
     }
     
     if account_id != nil
-      payload[accountID] = account_id
+      payload["accountID"] = account_id
     end
     if access != nil
-      payload[access] = access
+      payload["access"] = access
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
     if qos != nil
-      payload[qos] = qos
+      payload["qos"] = qos
     end
     if total_size != nil
-      payload[totalSize] = total_size
+      payload["totalSize"] = total_size
     end
-    json_payload = payload.to_json
-
-    return ModifyVolumesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyVolumesResult.new(raw_response) : nil
   end
 
   def purge_deleted_volume(volume_id)
@@ -3815,9 +3814,9 @@ class Element
       "method" => "PurgeDeletedVolume"
     }
     
-    json_payload = payload.to_json
-
-    return PurgeDeletedVolumeResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? PurgeDeletedVolumeResult.new(raw_response) : nil
   end
 
   def purge_deleted_volumes(volume_ids = nil,account_ids = nil,volume_access_group_ids = nil)
@@ -3837,17 +3836,17 @@ class Element
     }
     
     if volume_ids != nil
-      payload[volumeIDs] = volume_ids
+      payload["volumeIDs"] = volume_ids
     end
     if account_ids != nil
-      payload[accountIDs] = account_ids
+      payload["accountIDs"] = account_ids
     end
     if volume_access_group_ids != nil
-      payload[volumeAccessGroupIDs] = volume_access_group_ids
+      payload["volumeAccessGroupIDs"] = volume_access_group_ids
     end
-    json_payload = payload.to_json
-
-    return PurgeDeletedVolumesResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? PurgeDeletedVolumesResult.new(raw_response) : nil
   end
 
   def restore_deleted_volume(volume_id)
@@ -3864,9 +3863,9 @@ class Element
       "method" => "RestoreDeletedVolume"
     }
     
-    json_payload = payload.to_json
-
-    return RestoreDeletedVolumeResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? RestoreDeletedVolumeResult.new(raw_response) : nil
   end
 
   def start_bulk_volume_read(volume_id,format,snapshot_id = nil,script = nil,script_parameters = nil,attributes = nil)
@@ -3906,20 +3905,20 @@ class Element
     }
     
     if snapshot_id != nil
-      payload[snapshotID] = snapshot_id
+      payload["snapshotID"] = snapshot_id
     end
     if script != nil
-      payload[script] = script
+      payload["script"] = script
     end
     if script_parameters != nil
-      payload[scriptParameters] = script_parameters
+      payload["scriptParameters"] = script_parameters
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return StartBulkVolumeReadResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? StartBulkVolumeReadResult.new(raw_response) : nil
   end
 
   def start_bulk_volume_write(volume_id,format,script = nil,script_parameters = nil,attributes = nil)
@@ -3949,17 +3948,17 @@ class Element
     }
     
     if script != nil
-      payload[script] = script
+      payload["script"] = script
     end
     if script_parameters != nil
-      payload[scriptParameters] = script_parameters
+      payload["scriptParameters"] = script_parameters
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return StartBulkVolumeWriteResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? StartBulkVolumeWriteResult.new(raw_response) : nil
   end
 
   def update_bulk_volume_status(key,status,percent_complete = nil,message = nil,attributes = nil)
@@ -3985,17 +3984,17 @@ class Element
     }
     
     if percent_complete != nil
-      payload[percentComplete] = percent_complete
+      payload["percentComplete"] = percent_complete
     end
     if message != nil
-      payload[message] = message
+      payload["message"] = message
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return UpdateBulkVolumeStatusResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? UpdateBulkVolumeStatusResult.new(raw_response) : nil
   end
 
   def set_default_qos(min_iops = nil,max_iops = nil,burst_iops = nil)
@@ -4015,17 +4014,17 @@ class Element
     }
     
     if min_iops != nil
-      payload[minIOPS] = min_iops
+      payload["minIOPS"] = min_iops
     end
     if max_iops != nil
-      payload[maxIOPS] = max_iops
+      payload["maxIOPS"] = max_iops
     end
     if burst_iops != nil
-      payload[burstIOPS] = burst_iops
+      payload["burstIOPS"] = burst_iops
     end
-    json_payload = payload.to_json
-
-    return SetDefaultQoSResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? SetDefaultQoSResult.new(raw_response) : nil
   end
 
   def create_volume_access_group(name,initiators = nil,volumes = nil,virtual_network_id = nil,virtual_network_tags = nil,attributes = nil)
@@ -4056,23 +4055,23 @@ class Element
     }
     
     if initiators != nil
-      payload[initiators] = initiators
+      payload["initiators"] = initiators
     end
     if volumes != nil
-      payload[volumes] = volumes
+      payload["volumes"] = volumes
     end
     if virtual_network_id != nil
-      payload[virtualNetworkID] = virtual_network_id
+      payload["virtualNetworkID"] = virtual_network_id
     end
     if virtual_network_tags != nil
-      payload[virtualNetworkTags] = virtual_network_tags
+      payload["virtualNetworkTags"] = virtual_network_tags
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return CreateVolumeAccessGroupResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CreateVolumeAccessGroupResult.new(raw_response) : nil
   end
 
   def list_volume_access_groups(start_volume_access_group_id = nil,limit = nil)
@@ -4090,14 +4089,14 @@ class Element
     }
     
     if start_volume_access_group_id != nil
-      payload[startVolumeAccessGroupID] = start_volume_access_group_id
+      payload["startVolumeAccessGroupID"] = start_volume_access_group_id
     end
     if limit != nil
-      payload[limit] = limit
+      payload["limit"] = limit
     end
-    json_payload = payload.to_json
-
-    return ListVolumeAccessGroupsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListVolumeAccessGroupsResult.new(raw_response) : nil
   end
 
   def delete_volume_access_group(volume_access_group_id)
@@ -4113,9 +4112,9 @@ class Element
       "method" => "DeleteVolumeAccessGroup"
     }
     
-    json_payload = payload.to_json
-
-    return DeleteVolumeAccessGroupResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? DeleteVolumeAccessGroupResult.new(raw_response) : nil
   end
 
   def modify_volume_access_group(volume_access_group_id,virtual_network_id = nil,virtual_network_tags = nil,name = nil,initiators = nil,volumes = nil,attributes = nil)
@@ -4153,26 +4152,26 @@ class Element
     }
     
     if virtual_network_id != nil
-      payload[virtualNetworkID] = virtual_network_id
+      payload["virtualNetworkID"] = virtual_network_id
     end
     if virtual_network_tags != nil
-      payload[virtualNetworkTags] = virtual_network_tags
+      payload["virtualNetworkTags"] = virtual_network_tags
     end
     if name != nil
-      payload[name] = name
+      payload["name"] = name
     end
     if initiators != nil
-      payload[initiators] = initiators
+      payload["initiators"] = initiators
     end
     if volumes != nil
-      payload[volumes] = volumes
+      payload["volumes"] = volumes
     end
     if attributes != nil
-      payload[attributes] = attributes
+      payload["attributes"] = attributes
     end
-    json_payload = payload.to_json
-
-    return ModifyVolumeAccessGroupResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil
   end
 
   def add_initiators_to_volume_access_group(volume_access_group_id,initiators)
@@ -4191,9 +4190,9 @@ class Element
       "method" => "AddInitiatorsToVolumeAccessGroup"
     }
     
-    json_payload = payload.to_json
-
-    return ModifyVolumeAccessGroupResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil
   end
 
   def remove_initiators_from_volume_access_group(volume_access_group_id,initiators)
@@ -4212,9 +4211,9 @@ class Element
       "method" => "RemoveInitiatorsFromVolumeAccessGroup"
     }
     
-    json_payload = payload.to_json
-
-    return ModifyVolumeAccessGroupResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil
   end
 
   def add_volumes_to_volume_access_group(volume_access_group_id,volumes)
@@ -4233,9 +4232,9 @@ class Element
       "method" => "AddVolumesToVolumeAccessGroup"
     }
     
-    json_payload = payload.to_json
-
-    return ModifyVolumeAccessGroupResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil
   end
 
   def remove_volumes_from_volume_access_group(volume_access_group_id,volumes)
@@ -4254,9 +4253,9 @@ class Element
       "method" => "RemoveVolumesFromVolumeAccessGroup"
     }
     
-    json_payload = payload.to_json
-
-    return ModifyVolumeAccessGroupResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil
   end
 
   def get_volume_access_group_efficiency(volume_access_group_id)
@@ -4272,9 +4271,9 @@ class Element
       "method" => "GetVolumeAccessGroupEfficiency"
     }
     
-    json_payload = payload.to_json
-
-    return GetEfficiencyResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetEfficiencyResult.new(raw_response) : nil
   end
 
   def get_volume_access_group_lun_assignments(volume_access_group_id)
@@ -4290,9 +4289,9 @@ class Element
       "method" => "GetVolumeAccessGroupLunAssignments"
     }
     
-    json_payload = payload.to_json
-
-    return GetVolumeAccessGroupLunAssignmentsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? GetVolumeAccessGroupLunAssignmentsResult.new(raw_response) : nil
   end
 
   def modify_volume_access_group_lun_assignments(volume_access_group_id,lun_assignments)
@@ -4317,9 +4316,9 @@ class Element
       "method" => "ModifyVolumeAccessGroupLunAssignments"
     }
     
-    json_payload = payload.to_json
-
-    return ModifyVolumeAccessGroupLunAssignmentsResult.new(send_request(json_payload))
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ModifyVolumeAccessGroupLunAssignmentsResult.new(raw_response) : nil
   end
 
 end
