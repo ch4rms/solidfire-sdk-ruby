@@ -8,4 +8,7 @@ class CHAPSecret
   def initialize(secret=nil)
     @secret = secret
   end
+  def self.auto_generate
+    return CHAPSecret.new()
+  end
 end
