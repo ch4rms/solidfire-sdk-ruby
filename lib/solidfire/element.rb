@@ -35,7 +35,6 @@ class Element
     return output["result"]
   end
 
-
   def check_connection(version, type)
     if @connection_version < version
       raise "The connection version is too low. You need a connection of at least version "+version+" to run this command."
@@ -85,6 +84,22 @@ class Element
     return raw_response ? AddAccountResult.new(raw_response) : nil
   end
 
+  def add_account_with_object(r)
+    if r.username == nil
+      raise "Before you can run this command, you need to set the param, username in the request object."
+    end
+    if r.initiator_secret == nil
+      raise "Before you can run this command, you need to set the param, initiatorSecret in the request object."
+    end
+    if r.target_secret == nil
+      raise "Before you can run this command, you need to set the param, targetSecret in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    add_account(r.username, r.initiator_secret, r.target_secret, r.attributes)
+  end
+
   def get_account_by_id(account_id)
     ######
     # Returns details about an account, given its AccountID.
@@ -103,6 +118,13 @@ class Element
     return raw_response ? GetAccountResult.new(raw_response) : nil
   end
 
+  def get_account_by_id_with_object(r)
+    if r.account_id == nil
+      raise "Before you can run this command, you need to set the param, accountID in the request object."
+    end
+    get_account_by_id(r.account_id)
+  end
+
   def get_account_by_name(username)
     ######
     # Returns details about an account, given its Username.
@@ -119,6 +141,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetAccountResult.new(raw_response) : nil
+  end
+
+  def get_account_by_name_with_object(r)
+    if r.username == nil
+      raise "Before you can run this command, you need to set the param, username in the request object."
+    end
+    get_account_by_name(r.username)
   end
 
   def list_accounts(start_account_id = nil,limit = nil)
@@ -144,6 +173,16 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListAccountsResult.new(raw_response) : nil
+  end
+
+  def list_accounts_with_object(r)
+    if r.start_account_id == nil
+      raise "Before you can run this command, you need to set the param, startAccountID in the request object."
+    end
+    if r.limit == nil
+      raise "Before you can run this command, you need to set the param, limit in the request object."
+    end
+    list_accounts(r.start_account_id, r.limit)
   end
 
   def modify_account(account_id,username = nil,status = nil,initiator_secret = nil,target_secret = nil,attributes = nil)
@@ -194,6 +233,28 @@ class Element
     return raw_response ? ModifyAccountResult.new(raw_response) : nil
   end
 
+  def modify_account_with_object(r)
+    if r.account_id == nil
+      raise "Before you can run this command, you need to set the param, accountID in the request object."
+    end
+    if r.username == nil
+      raise "Before you can run this command, you need to set the param, username in the request object."
+    end
+    if r.status == nil
+      raise "Before you can run this command, you need to set the param, status in the request object."
+    end
+    if r.initiator_secret == nil
+      raise "Before you can run this command, you need to set the param, initiatorSecret in the request object."
+    end
+    if r.target_secret == nil
+      raise "Before you can run this command, you need to set the param, targetSecret in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    modify_account(r.account_id, r.username, r.status, r.initiator_secret, r.target_secret, r.attributes)
+  end
+
   def remove_account(account_id)
     ######
     # Used to remove an existing account.
@@ -212,6 +273,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RemoveAccountResult.new(raw_response) : nil
+  end
+
+  def remove_account_with_object(r)
+    if r.account_id == nil
+      raise "Before you can run this command, you need to set the param, accountID in the request object."
+    end
+    remove_account(r.account_id)
   end
 
   def get_account_efficiency(account_id,force = nil)
@@ -237,6 +305,16 @@ class Element
     return raw_response ? GetEfficiencyResult.new(raw_response) : nil
   end
 
+  def get_account_efficiency_with_object(r)
+    if r.account_id == nil
+      raise "Before you can run this command, you need to set the param, accountID in the request object."
+    end
+    if r.force == nil
+      raise "Before you can run this command, you need to set the param, force in the request object."
+    end
+    get_account_efficiency(r.account_id, r.force)
+  end
+
   def create_backup_target(name,attributes = nil)
     ######
     # CreateBackupTarget allows you to create and store backup target information so that you do not need to re-enter it each time a backup is created.
@@ -260,6 +338,16 @@ class Element
     return raw_response ? CreateBackupTargetResult.new(raw_response) : nil
   end
 
+  def create_backup_target_with_object(r)
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    create_backup_target(r.name, r.attributes)
+  end
+
   def get_backup_target(backup_target_id)
     ######
     # GetBackupTarget allows you to return information about a specific backup target that has been created.
@@ -278,6 +366,13 @@ class Element
     return raw_response ? GetBackupTargetResult.new(raw_response) : nil
   end
 
+  def get_backup_target_with_object(r)
+    if r.backup_target_id == nil
+      raise "Before you can run this command, you need to set the param, backupTargetID in the request object."
+    end
+    get_backup_target(r.backup_target_id)
+  end
+
   def list_backup_targets()
     ######
     # You can use ListBackupTargets to retrieve information about all backup targets that have been created.######
@@ -292,6 +387,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListBackupTargetsResult.new(raw_response) : nil
   end
+
+
 
   def modify_backup_target(backup_target_id,name = nil,attributes = nil)
     ######
@@ -321,6 +418,19 @@ class Element
     return raw_response ? ModifyBackupTargetResult.new(raw_response) : nil
   end
 
+  def modify_backup_target_with_object(r)
+    if r.backup_target_id == nil
+      raise "Before you can run this command, you need to set the param, backupTargetID in the request object."
+    end
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    modify_backup_target(r.backup_target_id, r.name, r.attributes)
+  end
+
   def remove_backup_target(backup_target_id)
     ######
     # RemoveBackupTarget allows you to delete backup targets.
@@ -339,6 +449,13 @@ class Element
     return raw_response ? RemoveBackupTargetResult.new(raw_response) : nil
   end
 
+  def remove_backup_target_with_object(r)
+    if r.backup_target_id == nil
+      raise "Before you can run this command, you need to set the param, backupTargetID in the request object."
+    end
+    remove_backup_target(r.backup_target_id)
+  end
+
   def get_cluster_capacity()
     ######
     # Return the high-level capacity measurements for an entire cluster.
@@ -355,6 +472,8 @@ class Element
     return raw_response ? GetClusterCapacityResult.new(raw_response) : nil
   end
 
+
+
   def get_cluster_info()
     ######
     # Return configuration information about the cluster.######
@@ -369,6 +488,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetClusterInfoResult.new(raw_response) : nil
   end
+
+
 
   def get_cluster_version_info()
     ######
@@ -386,6 +507,8 @@ class Element
     return raw_response ? GetClusterVersionInfoResult.new(raw_response) : nil
   end
 
+
+
   def get_limits()
     ######
     # GetLimits enables you to retrieve the limit values set by the API. These values might change between releases of  Element, but do not change without an update to the system. Knowing the limit values set by the API can be useful when writing API scripts for user-facing tools.NOTE: The GetLimits method returns the limits for the current software version regardless of the API endpoint version used to pass the method.######
@@ -400,6 +523,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetLimitsResult.new(raw_response) : nil
   end
+
+
 
   def list_events(max_events = nil,start_event_id = nil,end_event_id = nil,event_queue_type = nil)
     ######
@@ -434,6 +559,22 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListEventsResult.new(raw_response) : nil
+  end
+
+  def list_events_with_object(r)
+    if r.max_events == nil
+      raise "Before you can run this command, you need to set the param, maxEvents in the request object."
+    end
+    if r.start_event_id == nil
+      raise "Before you can run this command, you need to set the param, startEventID in the request object."
+    end
+    if r.end_event_id == nil
+      raise "Before you can run this command, you need to set the param, endEventID in the request object."
+    end
+    if r.event_queue_type == nil
+      raise "Before you can run this command, you need to set the param, eventQueueType in the request object."
+    end
+    list_events(r.max_events, r.start_event_id, r.end_event_id, r.event_queue_type)
   end
 
   def list_cluster_faults(exceptions = nil,best_practices = nil,update = nil,fault_types = nil)
@@ -472,6 +613,22 @@ class Element
     return raw_response ? ListClusterFaultsResult.new(raw_response) : nil
   end
 
+  def list_cluster_faults_with_object(r)
+    if r.exceptions == nil
+      raise "Before you can run this command, you need to set the param, exceptions in the request object."
+    end
+    if r.best_practices == nil
+      raise "Before you can run this command, you need to set the param, bestPractices in the request object."
+    end
+    if r.update == nil
+      raise "Before you can run this command, you need to set the param, update in the request object."
+    end
+    if r.fault_types == nil
+      raise "Before you can run this command, you need to set the param, faultTypes in the request object."
+    end
+    list_cluster_faults(r.exceptions, r.best_practices, r.update, r.fault_types)
+  end
+
   def clear_cluster_faults(fault_types = nil)
     ######
     # ClearClusterFaults is used to clear information about both current faults that are resolved as well as faults that were previously detected and resolved can be cleared.
@@ -492,6 +649,13 @@ class Element
     return raw_response ? ClearClusterFaultsResult.new(raw_response) : nil
   end
 
+  def clear_cluster_faults_with_object(r)
+    if r.fault_types == nil
+      raise "Before you can run this command, you need to set the param, faultTypes in the request object."
+    end
+    clear_cluster_faults(r.fault_types)
+  end
+
   def get_cluster_config()
     ######
     # The GetClusterConfig API method is used to return information about the cluster configuration this node uses to communicate with the cluster it is a part of.
@@ -509,6 +673,8 @@ class Element
     return raw_response ? GetClusterConfigResult.new(raw_response) : nil
   end
 
+
+
   def get_cluster_full_threshold()
     ######
     # GetClusterFullThreshold is used to view the stages set for cluster fullness levels. All levels are returned when this method is entered.######
@@ -523,6 +689,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetClusterFullThresholdResult.new(raw_response) : nil
   end
+
+
 
   def modify_cluster_full_threshold(stage2_aware_threshold = nil,stage3_block_threshold_percent = nil,max_metadata_over_provision_factor = nil)
     ######
@@ -554,6 +722,19 @@ class Element
     return raw_response ? ModifyClusterFullThresholdResult.new(raw_response) : nil
   end
 
+  def modify_cluster_full_threshold_with_object(r)
+    if r.stage2_aware_threshold == nil
+      raise "Before you can run this command, you need to set the param, stage2AwareThreshold in the request object."
+    end
+    if r.stage3_block_threshold_percent == nil
+      raise "Before you can run this command, you need to set the param, stage3BlockThresholdPercent in the request object."
+    end
+    if r.max_metadata_over_provision_factor == nil
+      raise "Before you can run this command, you need to set the param, maxMetadataOverProvisionFactor in the request object."
+    end
+    modify_cluster_full_threshold(r.stage2_aware_threshold, r.stage3_block_threshold_percent, r.max_metadata_over_provision_factor)
+  end
+
   def get_cluster_stats()
     ######
     # GetClusterStats is used to return high-level activity measurements for the cluster. Values returned are cumulative from the creation of the cluster.######
@@ -569,6 +750,8 @@ class Element
     return raw_response ? GetClusterStatsResult.new(raw_response) : nil
   end
 
+
+
   def list_cluster_admins()
     ######
     # ListClusterAdmins returns the list of all cluster administrators for the cluster. There can be several cluster administrators that have different levels of permissions. There can be only one primary cluster administrator in the system. The primary Cluster Admin is the administrator that was created when the cluster was created. LDAP administrators can also be created when setting up an LDAP system on the cluster.######
@@ -583,6 +766,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListClusterAdminsResult.new(raw_response) : nil
   end
+
+
 
   def add_cluster_admin(username,password,access,accept_eula = nil,attributes = nil)
     ######
@@ -620,6 +805,25 @@ class Element
     return raw_response ? AddClusterAdminResult.new(raw_response) : nil
   end
 
+  def add_cluster_admin_with_object(r)
+    if r.username == nil
+      raise "Before you can run this command, you need to set the param, username in the request object."
+    end
+    if r.password == nil
+      raise "Before you can run this command, you need to set the param, password in the request object."
+    end
+    if r.access == nil
+      raise "Before you can run this command, you need to set the param, access in the request object."
+    end
+    if r.accept_eula == nil
+      raise "Before you can run this command, you need to set the param, acceptEula in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    add_cluster_admin(r.username, r.password, r.access, r.accept_eula, r.attributes)
+  end
+
   def modify_cluster_admin(cluster_admin_id,password = nil,access = nil,attributes = nil)
     ######
     # ModifyClusterAdmin is used to change the settings for a Cluster Admin or LDAP Cluster Admin. Access for the administrator Cluster Admin account cannot be changed.
@@ -653,6 +857,22 @@ class Element
     return raw_response ? ModifyClusterAdminResult.new(raw_response) : nil
   end
 
+  def modify_cluster_admin_with_object(r)
+    if r.cluster_admin_id == nil
+      raise "Before you can run this command, you need to set the param, clusterAdminID in the request object."
+    end
+    if r.password == nil
+      raise "Before you can run this command, you need to set the param, password in the request object."
+    end
+    if r.access == nil
+      raise "Before you can run this command, you need to set the param, access in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    modify_cluster_admin(r.cluster_admin_id, r.password, r.access, r.attributes)
+  end
+
   def remove_cluster_admin(cluster_admin_id)
     ######
     # RemoveClusterAdmin is used to remove a Cluster Admin. The "admin" Cluster Admin cannot be removed.
@@ -669,6 +889,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RemoveClusterAdminResult.new(raw_response) : nil
+  end
+
+  def remove_cluster_admin_with_object(r)
+    if r.cluster_admin_id == nil
+      raise "Before you can run this command, you need to set the param, clusterAdminID in the request object."
+    end
+    remove_cluster_admin(r.cluster_admin_id)
   end
 
   def set_cluster_config(cluster)
@@ -691,6 +918,13 @@ class Element
     return raw_response ? SetClusterConfigResult.new(raw_response) : nil
   end
 
+  def set_cluster_config_with_object(r)
+    if r.cluster == nil
+      raise "Before you can run this command, you need to set the param, cluster in the request object."
+    end
+    set_cluster_config(r.cluster)
+  end
+
   def get_snmp_acl()
     ######
     # GetSnmpACL is used to return the current SNMP access permissions on the cluster nodes.######
@@ -705,6 +939,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetSnmpACLResult.new(raw_response) : nil
   end
+
+
 
   def set_snmp_acl(networks,usm_users)
     ######
@@ -727,6 +963,16 @@ class Element
     return raw_response ? SetSnmpACLResult.new(raw_response) : nil
   end
 
+  def set_snmp_acl_with_object(r)
+    if r.networks == nil
+      raise "Before you can run this command, you need to set the param, networks in the request object."
+    end
+    if r.usm_users == nil
+      raise "Before you can run this command, you need to set the param, usmUsers in the request object."
+    end
+    set_snmp_acl(r.networks, r.usm_users)
+  end
+
   def get_snmp_trap_info()
     ######
     # GetSnmpTrapInfo is used to return current SNMP trap configuration information.######
@@ -741,6 +987,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetSnmpTrapInfoResult.new(raw_response) : nil
   end
+
+
 
   def set_snmp_trap_info(trap_recipients,cluster_fault_traps_enabled,cluster_fault_resolved_traps_enabled,cluster_event_traps_enabled)
     ######
@@ -769,6 +1017,22 @@ class Element
     return raw_response ? SetSnmpTrapInfoResult.new(raw_response) : nil
   end
 
+  def set_snmp_trap_info_with_object(r)
+    if r.trap_recipients == nil
+      raise "Before you can run this command, you need to set the param, trapRecipients in the request object."
+    end
+    if r.cluster_fault_traps_enabled == nil
+      raise "Before you can run this command, you need to set the param, clusterFaultTrapsEnabled in the request object."
+    end
+    if r.cluster_fault_resolved_traps_enabled == nil
+      raise "Before you can run this command, you need to set the param, clusterFaultResolvedTrapsEnabled in the request object."
+    end
+    if r.cluster_event_traps_enabled == nil
+      raise "Before you can run this command, you need to set the param, clusterEventTrapsEnabled in the request object."
+    end
+    set_snmp_trap_info(r.trap_recipients, r.cluster_fault_traps_enabled, r.cluster_fault_resolved_traps_enabled, r.cluster_event_traps_enabled)
+  end
+
   def enable_snmp(snmp_v3_enabled)
     ######
     # EnableSnmp is used to enable SNMP on the cluster nodes. The values set with this interface apply to all nodes in the cluster, and the values that are passed replace, in whole, all values set in any previous call to EnableSnmp.
@@ -787,6 +1051,13 @@ class Element
     return raw_response ? EnableSnmpResult.new(raw_response) : nil
   end
 
+  def enable_snmp_with_object(r)
+    if r.snmp_v3_enabled == nil
+      raise "Before you can run this command, you need to set the param, snmpV3Enabled in the request object."
+    end
+    enable_snmp(r.snmp_v3_enabled)
+  end
+
   def disable_snmp()
     ######
     # DisableSnmp is used to disable SNMP on the cluster nodes.######
@@ -801,6 +1072,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? DisableSnmpResult.new(raw_response) : nil
   end
+
+
 
   def get_snmp_info()
     ######
@@ -818,6 +1091,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetSnmpInfoResult.new(raw_response) : nil
   end
+
+
 
   def set_snmp_info(networks = nil,enabled = nil,snmp_v3_enabled = nil,usm_users = nil)
     ######
@@ -856,6 +1131,22 @@ class Element
     return raw_response ? SetSnmpInfoResult.new(raw_response) : nil
   end
 
+  def set_snmp_info_with_object(r)
+    if r.networks == nil
+      raise "Before you can run this command, you need to set the param, networks in the request object."
+    end
+    if r.enabled == nil
+      raise "Before you can run this command, you need to set the param, enabled in the request object."
+    end
+    if r.snmp_v3_enabled == nil
+      raise "Before you can run this command, you need to set the param, snmpV3Enabled in the request object."
+    end
+    if r.usm_users == nil
+      raise "Before you can run this command, you need to set the param, usmUsers in the request object."
+    end
+    set_snmp_info(r.networks, r.enabled, r.snmp_v3_enabled, r.usm_users)
+  end
+
   def get_snmp_state()
     ######
     # GetSnmpState is used to return the current state of the SNMP feature.
@@ -873,6 +1164,8 @@ class Element
     return raw_response ? GetSnmpStateResult.new(raw_response) : nil
   end
 
+
+
   def get_api()
     ######
     # Retrieves the current version of the API and a list of all supported versions.######
@@ -888,6 +1181,8 @@ class Element
     return raw_response ? GetAPIResult.new(raw_response) : nil
   end
 
+
+
   def get_ntp_info()
     ######
     # GetNtpInfo is used to return the current network time protocol (NTP) configuration information.######
@@ -902,6 +1197,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetNtpInfoResult.new(raw_response) : nil
   end
+
+
 
   def get_cluster_state(force = nil)
     ######
@@ -923,6 +1220,13 @@ class Element
     return raw_response ? GetClusterStateResult.new(raw_response) : nil
   end
 
+  def get_cluster_state_with_object(r)
+    if r.force == nil
+      raise "Before you can run this command, you need to set the param, force in the request object."
+    end
+    get_cluster_state(r.force)
+  end
+
   def get_current_cluster_admin()
     ######
     # GetCurrentClusterAdmin returns information for the current primary cluster administrator. The primary Cluster Admin was ncreated when the cluster was created.######
@@ -937,6 +1241,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetCurrentClusterAdminResult.new(raw_response) : nil
   end
+
+
 
   def enable_encryption_at_rest()
     ######
@@ -955,6 +1261,8 @@ class Element
     return raw_response ? EnableEncryptionAtRestResult.new(raw_response) : nil
   end
 
+
+
   def disable_encryption_at_rest()
     ######
     # The DisableEncryptionAtRest method enables you to remove the encryption that was previously applied to the cluster using the EnableEncryptionAtRest method.
@@ -972,6 +1280,8 @@ class Element
     return raw_response ? DisableEncryptionAtRestResult.new(raw_response) : nil
   end
 
+
+
   def snmp_send_test_traps()
     ######
     # SnmpSendTestTraps enables you to test SNMP functionality for a cluster. This method instructs the cluster to send test SNMP traps to the currently configured SNMP manager.######
@@ -986,6 +1296,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? SnmpSendTestTrapsResult.new(raw_response) : nil
   end
+
+
 
   def get_async_result(async_handle)
     ######
@@ -1011,6 +1323,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetAsyncResultResult.new(raw_response) : nil
+  end
+
+  def get_async_result_with_object(r)
+    if r.async_handle == nil
+      raise "Before you can run this command, you need to set the param, asyncHandle in the request object."
+    end
+    get_async_result(r.async_handle)
   end
 
   def add_drives(drives)
@@ -1040,6 +1359,13 @@ class Element
     return raw_response ? AddDrivesResult.new(raw_response) : nil
   end
 
+  def add_drives_with_object(r)
+    if r.drives == nil
+      raise "Before you can run this command, you need to set the param, drives in the request object."
+    end
+    add_drives(r.drives)
+  end
+
   def list_drives()
     ######
     # ListDrives allows you to retrieve the list of the drives that exist in the cluster's active nodes.
@@ -1055,6 +1381,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListDrivesResult.new(raw_response) : nil
   end
+
+
 
   def get_drive_hardware_info(drive_id)
     ######
@@ -1074,6 +1402,13 @@ class Element
     return raw_response ? GetDriveHardwareInfoResult.new(raw_response) : nil
   end
 
+  def get_drive_hardware_info_with_object(r)
+    if r.drive_id == nil
+      raise "Before you can run this command, you need to set the param, driveID in the request object."
+    end
+    get_drive_hardware_info(r.drive_id)
+  end
+
   def list_drive_hardware(force)
     ######
     # ListDriveHardware returns all the drives connected to a node. Use this method on the cluster to return drive hardware information for all the drives on all nodes.
@@ -1090,6 +1425,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListDriveHardwareResult.new(raw_response) : nil
+  end
+
+  def list_drive_hardware_with_object(r)
+    if r.force == nil
+      raise "Before you can run this command, you need to set the param, force in the request object."
+    end
+    list_drive_hardware(r.force)
   end
 
   def reset_drives(drives,force)
@@ -1113,6 +1455,16 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ResetDrivesResult.new(raw_response) : nil
+  end
+
+  def reset_drives_with_object(r)
+    if r.drives == nil
+      raise "Before you can run this command, you need to set the param, drives in the request object."
+    end
+    if r.force == nil
+      raise "Before you can run this command, you need to set the param, force in the request object."
+    end
+    reset_drives(r.drives, r.force)
   end
 
   def test_drives(force,minutes = nil)
@@ -1142,6 +1494,16 @@ class Element
     return raw_response ? TestDrivesResult.new(raw_response) : nil
   end
 
+  def test_drives_with_object(r)
+    if r.minutes == nil
+      raise "Before you can run this command, you need to set the param, minutes in the request object."
+    end
+    if r.force == nil
+      raise "Before you can run this command, you need to set the param, force in the request object."
+    end
+    test_drives(r.force, r.minutes)
+  end
+
   def get_drive_stats(drive_id)
     ######
     # GetDriveStats return high-level activity measurements for a single drive. Values are cumulative from the addition of the drive to the cluster. Some values are specific to Block Drives. Statistical data may not be returned for both block and metadata drives when running this method.
@@ -1159,6 +1521,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetDriveStatsResult.new(raw_response) : nil
+  end
+
+  def get_drive_stats_with_object(r)
+    if r.drive_id == nil
+      raise "Before you can run this command, you need to set the param, driveID in the request object."
+    end
+    get_drive_stats(r.drive_id)
   end
 
   def secure_erase_drives(drives)
@@ -1181,6 +1550,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? AsyncHandleResult.new(raw_response) : nil
+  end
+
+  def secure_erase_drives_with_object(r)
+    if r.drives == nil
+      raise "Before you can run this command, you need to set the param, drives in the request object."
+    end
+    secure_erase_drives(r.drives)
   end
 
   def remove_drives(drives)
@@ -1214,6 +1590,13 @@ class Element
     return raw_response ? AsyncHandleResult.new(raw_response) : nil
   end
 
+  def remove_drives_with_object(r)
+    if r.drives == nil
+      raise "Before you can run this command, you need to set the param, drives in the request object."
+    end
+    remove_drives(r.drives)
+  end
+
   def get_feature_status(feature = nil)
     ######
     # GetFeatureStatus allows you to retrieve the status of a cluster feature.
@@ -1234,6 +1617,13 @@ class Element
     return raw_response ? GetFeatureStatusResult.new(raw_response) : nil
   end
 
+  def get_feature_status_with_object(r)
+    if r.feature == nil
+      raise "Before you can run this command, you need to set the param, feature in the request object."
+    end
+    get_feature_status(r.feature)
+  end
+
   def enable_feature(feature)
     ######
     # EnableFeature allows you to enable cluster features that are disabled by default.
@@ -1252,6 +1642,13 @@ class Element
     return raw_response ? EnableFeatureResult.new(raw_response) : nil
   end
 
+  def enable_feature_with_object(r)
+    if r.feature == nil
+      raise "Before you can run this command, you need to set the param, feature in the request object."
+    end
+    enable_feature(r.feature)
+  end
+
   def list_fibre_channel_port_info()
     ######
     # The ListFibreChannelPortInfo is used to return information about the Fibre Channel ports. The API method is intended for use on individual nodes; userid and password is required for access to individual Fibre Channel nodes. However, this method can be used on the cluster if the force=true parameter is included in the method call. When used on the cluster, all Fibre Channel interfaces are listed.######
@@ -1266,6 +1663,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListFibreChannelPortInfoResult.new(raw_response) : nil
   end
+
+
 
   def list_node_fibre_channel_port_info(force = nil)
     ######
@@ -1287,6 +1686,13 @@ class Element
     return raw_response ? ListNodeFibreChannelPortInfoResult.new(raw_response) : nil
   end
 
+  def list_node_fibre_channel_port_info_with_object(r)
+    if r.force == nil
+      raise "Before you can run this command, you need to set the param, force in the request object."
+    end
+    list_node_fibre_channel_port_info(r.force)
+  end
+
   def list_fibre_channel_sessions()
     ######
     # The ListFibreChannelSessions is used to return information about the active Fibre Channel sessions on a cluster.######
@@ -1301,6 +1707,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListFibreChannelSessionsResult.new(raw_response) : nil
   end
+
+
 
   def get_cluster_hardware_info(type = nil)
     ######
@@ -1322,6 +1730,13 @@ class Element
     return raw_response ? GetClusterHardwareInfoResult.new(raw_response) : nil
   end
 
+  def get_cluster_hardware_info_with_object(r)
+    if r.type == nil
+      raise "Before you can run this command, you need to set the param, type in the request object."
+    end
+    get_cluster_hardware_info(r.type)
+  end
+
   def get_hardware_config()
     ######
     # GetHardwareConfig enables you to display the hardware configuration information for a node. NOTE: This method is available only through the per-node API endpoint 5.0 or later.######
@@ -1336,6 +1751,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetHardwareConfigResult.new(raw_response) : nil
   end
+
+
 
   def get_node_hardware_info(node_id)
     ######
@@ -1355,6 +1772,13 @@ class Element
     return raw_response ? GetNodeHardwareInfoResult.new(raw_response) : nil
   end
 
+  def get_node_hardware_info_with_object(r)
+    if r.node_id == nil
+      raise "Before you can run this command, you need to set the param, nodeID in the request object."
+    end
+    get_node_hardware_info(r.node_id)
+  end
+
   def get_nvram_info()
     ######
     # GetNvramInfo allows you to retrieve information from each node about the NVRAM card.  ######
@@ -1369,6 +1793,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetNvramInfoResult.new(raw_response) : nil
   end
+
+
 
   def create_initiators(initiators)
     ######
@@ -1387,6 +1813,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? CreateInitiatorsResult.new(raw_response) : nil
+  end
+
+  def create_initiators_with_object(r)
+    if r.initiators == nil
+      raise "Before you can run this command, you need to set the param, initiators in the request object."
+    end
+    create_initiators(r.initiators)
   end
 
   def modify_initiators(initiators)
@@ -1408,6 +1841,13 @@ class Element
     return raw_response ? ModifyInitiatorsResult.new(raw_response) : nil
   end
 
+  def modify_initiators_with_object(r)
+    if r.initiators == nil
+      raise "Before you can run this command, you need to set the param, initiators in the request object."
+    end
+    modify_initiators(r.initiators)
+  end
+
   def delete_initiators(initiators)
     ######
     # DeleteInitiators enables you to delete one or more initiators from the system (and from any associated volumes or volume access groups).
@@ -1425,6 +1865,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DeleteInitiatorsResult.new(raw_response) : nil
+  end
+
+  def delete_initiators_with_object(r)
+    if r.initiators == nil
+      raise "Before you can run this command, you need to set the param, initiators in the request object."
+    end
+    delete_initiators(r.initiators)
   end
 
   def list_initiators(start_initiator_id = nil,limit = nil,initiators = nil)
@@ -1457,6 +1904,19 @@ class Element
     return raw_response ? ListInitiatorsResult.new(raw_response) : nil
   end
 
+  def list_initiators_with_object(r)
+    if r.start_initiator_id == nil
+      raise "Before you can run this command, you need to set the param, startInitiatorID in the request object."
+    end
+    if r.limit == nil
+      raise "Before you can run this command, you need to set the param, limit in the request object."
+    end
+    if r.initiators == nil
+      raise "Before you can run this command, you need to set the param, initiators in the request object."
+    end
+    list_initiators(r.start_initiator_id, r.limit, r.initiators)
+  end
+
   def invoke_sfapi(method,parameters = nil)
     ######
     # This will invoke any API method supported by the SolidFire API for the version and port the connection is using.
@@ -1479,6 +1939,16 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? str.new(raw_response) : nil
+  end
+
+  def invoke_sfapi_with_object(r)
+    if r.method == nil
+      raise "Before you can run this command, you need to set the param, method in the request object."
+    end
+    if r.parameters == nil
+      raise "Before you can run this command, you need to set the param, parameters in the request object."
+    end
+    invoke_sfapi(r.method, r.parameters)
   end
 
   def add_ldap_cluster_admin(username,access,accept_eula = nil,attributes = nil)
@@ -1514,6 +1984,22 @@ class Element
     return raw_response ? AddLdapClusterAdminResult.new(raw_response) : nil
   end
 
+  def add_ldap_cluster_admin_with_object(r)
+    if r.username == nil
+      raise "Before you can run this command, you need to set the param, username in the request object."
+    end
+    if r.access == nil
+      raise "Before you can run this command, you need to set the param, access in the request object."
+    end
+    if r.accept_eula == nil
+      raise "Before you can run this command, you need to set the param, acceptEula in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    add_ldap_cluster_admin(r.username, r.access, r.accept_eula, r.attributes)
+  end
+
   def test_ldap_authentication(username,password,ldap_configuration = nil)
     ######
     # The TestLdapAuthentication is used to verify the currently enabled LDAP authentication configuration settings are correct. If the configuration settings are correct, the API call returns a list of the groups the tested user is a member of.
@@ -1540,6 +2026,19 @@ class Element
     return raw_response ? TestLdapAuthenticationResult.new(raw_response) : nil
   end
 
+  def test_ldap_authentication_with_object(r)
+    if r.username == nil
+      raise "Before you can run this command, you need to set the param, username in the request object."
+    end
+    if r.password == nil
+      raise "Before you can run this command, you need to set the param, password in the request object."
+    end
+    if r.ldap_configuration == nil
+      raise "Before you can run this command, you need to set the param, ldapConfiguration in the request object."
+    end
+    test_ldap_authentication(r.username, r.password, r.ldap_configuration)
+  end
+
   def get_ldap_configuration()
     ######
     # The GetLdapConfiguration is used to get the LDAP configuration currently active on the cluster.######
@@ -1554,6 +2053,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetLdapConfigurationResult.new(raw_response) : nil
   end
+
+
 
   def enable_ldap_authentication(server_uris,auth_type = nil,group_search_base_dn = nil,group_search_custom_filter = nil,group_search_type = nil,search_bind_dn = nil,search_bind_password = nil,user_dntemplate = nil,user_search_base_dn = nil,user_search_filter = nil)
     ######
@@ -1618,6 +2119,40 @@ class Element
     return raw_response ? EnableLdapAuthenticationResult.new(raw_response) : nil
   end
 
+  def enable_ldap_authentication_with_object(r)
+    if r.auth_type == nil
+      raise "Before you can run this command, you need to set the param, authType in the request object."
+    end
+    if r.group_search_base_dn == nil
+      raise "Before you can run this command, you need to set the param, groupSearchBaseDN in the request object."
+    end
+    if r.group_search_custom_filter == nil
+      raise "Before you can run this command, you need to set the param, groupSearchCustomFilter in the request object."
+    end
+    if r.group_search_type == nil
+      raise "Before you can run this command, you need to set the param, groupSearchType in the request object."
+    end
+    if r.search_bind_dn == nil
+      raise "Before you can run this command, you need to set the param, searchBindDN in the request object."
+    end
+    if r.search_bind_password == nil
+      raise "Before you can run this command, you need to set the param, searchBindPassword in the request object."
+    end
+    if r.server_uris == nil
+      raise "Before you can run this command, you need to set the param, serverURIs in the request object."
+    end
+    if r.user_dntemplate == nil
+      raise "Before you can run this command, you need to set the param, userDNTemplate in the request object."
+    end
+    if r.user_search_base_dn == nil
+      raise "Before you can run this command, you need to set the param, userSearchBaseDN in the request object."
+    end
+    if r.user_search_filter == nil
+      raise "Before you can run this command, you need to set the param, userSearchFilter in the request object."
+    end
+    enable_ldap_authentication(r.server_uris, r.auth_type, r.group_search_base_dn, r.group_search_custom_filter, r.group_search_type, r.search_bind_dn, r.search_bind_password, r.user_dntemplate, r.user_search_base_dn, r.user_search_filter)
+  end
+
   def disable_ldap_authentication()
     ######
     # The DisableLdapAuthentication method is used disable LDAP authentication and remove all LDAP configuration settings. This call will not remove any configured cluster admin accounts (user or group). However, those cluster admin accounts will no longer be able to log in.######
@@ -1632,6 +2167,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? DisableLdapAuthenticationResult.new(raw_response) : nil
   end
+
+
 
   def list_active_nodes()
     ######
@@ -1648,6 +2185,8 @@ class Element
     return raw_response ? ListActiveNodesResult.new(raw_response) : nil
   end
 
+
+
   def list_all_nodes()
     ######
     # ListAllNodes enables you to retrieve a list of active and pending nodes in the cluster.######
@@ -1662,6 +2201,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListAllNodesResult.new(raw_response) : nil
   end
+
+
 
   def list_pending_nodes()
     ######
@@ -1678,6 +2219,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListPendingNodesResult.new(raw_response) : nil
   end
+
+
 
   def add_nodes(pending_nodes)
     ######
@@ -1705,6 +2248,13 @@ class Element
     return raw_response ? AddNodesResult.new(raw_response) : nil
   end
 
+  def add_nodes_with_object(r)
+    if r.pending_nodes == nil
+      raise "Before you can run this command, you need to set the param, pendingNodes in the request object."
+    end
+    add_nodes(r.pending_nodes)
+  end
+
   def remove_nodes(nodes)
     ######
     # RemoveNodes is used to remove one or more nodes that should no longer participate in the cluster. Before removing a node, all drives it contains must first be removed with "RemoveDrives" method. A node cannot be removed until the RemoveDrives process has completed and all data has been migrated away from the node.
@@ -1725,6 +2275,13 @@ class Element
     return raw_response ? RemoveNodesResult.new(raw_response) : nil
   end
 
+  def remove_nodes_with_object(r)
+    if r.nodes == nil
+      raise "Before you can run this command, you need to set the param, nodes in the request object."
+    end
+    remove_nodes(r.nodes)
+  end
+
   def get_network_config()
     ######
     # The GetNetworkConfig API method is used to display the network configuration information for a node.
@@ -1741,6 +2298,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetNetworkConfigResult.new(raw_response) : nil
   end
+
+
 
   def set_config(config)
     ######
@@ -1762,6 +2321,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? SetConfigResult.new(raw_response) : nil
+  end
+
+  def set_config_with_object(r)
+    if r.config == nil
+      raise "Before you can run this command, you need to set the param, config in the request object."
+    end
+    set_config(r.config)
   end
 
   def set_network_config(network)
@@ -1786,6 +2352,13 @@ class Element
     return raw_response ? SetNetworkConfigResult.new(raw_response) : nil
   end
 
+  def set_network_config_with_object(r)
+    if r.network == nil
+      raise "Before you can run this command, you need to set the param, network in the request object."
+    end
+    set_network_config(r.network)
+  end
+
   def get_config()
     ######
     # The GetConfig API method is used to retrieve all the configuration information for the node. This one API method includes the same information available in both "GetClusterConfig" and "GetNetworkConfig" methods.
@@ -1802,6 +2375,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetConfigResult.new(raw_response) : nil
   end
+
+
 
   def get_node_stats(node_id)
     ######
@@ -1821,6 +2396,13 @@ class Element
     return raw_response ? GetNodeStatsResult.new(raw_response) : nil
   end
 
+  def get_node_stats_with_object(r)
+    if r.node_id == nil
+      raise "Before you can run this command, you need to set the param, nodeID in the request object."
+    end
+    get_node_stats(r.node_id)
+  end
+
   def list_node_stats()
     ######
     # ListNodeStats is used to return the high-level activity measurements for all nodes in a cluster.######
@@ -1835,6 +2417,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListNodeStatsResult.new(raw_response) : nil
   end
+
+
 
   def list_cluster_pairs()
     ######
@@ -1852,6 +2436,8 @@ class Element
     return raw_response ? ListClusterPairsResult.new(raw_response) : nil
   end
 
+
+
   def list_active_paired_volumes()
     ######
     # ListActivePairedVolumes is used to list all of the active volumes paired with a volume.
@@ -1867,6 +2453,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListActivePairedVolumesResult.new(raw_response) : nil
   end
+
+
 
   def start_cluster_pairing()
     ######
@@ -1884,6 +2472,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? StartClusterPairingResult.new(raw_response) : nil
   end
+
+
 
   def start_volume_pairing(volume_id,mode = nil)
     ######
@@ -1909,6 +2499,16 @@ class Element
     return raw_response ? StartVolumePairingResult.new(raw_response) : nil
   end
 
+  def start_volume_pairing_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    if r.mode == nil
+      raise "Before you can run this command, you need to set the param, mode in the request object."
+    end
+    start_volume_pairing(r.volume_id, r.mode)
+  end
+
   def complete_cluster_pairing(cluster_pairing_key)
     ######
     # The CompleteClusterPairing method is the second step in the cluster pairing process.
@@ -1926,6 +2526,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? CompleteClusterPairingResult.new(raw_response) : nil
+  end
+
+  def complete_cluster_pairing_with_object(r)
+    if r.cluster_pairing_key == nil
+      raise "Before you can run this command, you need to set the param, clusterPairingKey in the request object."
+    end
+    complete_cluster_pairing(r.cluster_pairing_key)
   end
 
   def complete_volume_pairing(volume_pairing_key,volume_id)
@@ -1949,6 +2556,16 @@ class Element
     return raw_response ? CompleteVolumePairingResult.new(raw_response) : nil
   end
 
+  def complete_volume_pairing_with_object(r)
+    if r.volume_pairing_key == nil
+      raise "Before you can run this command, you need to set the param, volumePairingKey in the request object."
+    end
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    complete_volume_pairing(r.volume_pairing_key, r.volume_id)
+  end
+
   def remove_cluster_pair(cluster_pair_id)
     ######
     # You can use the RemoveClusterPair method to close the open connections between two paired clusters.<br/>
@@ -1966,6 +2583,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RemoveClusterPairResult.new(raw_response) : nil
+  end
+
+  def remove_cluster_pair_with_object(r)
+    if r.cluster_pair_id == nil
+      raise "Before you can run this command, you need to set the param, clusterPairID in the request object."
+    end
+    remove_cluster_pair(r.cluster_pair_id)
   end
 
   def remove_volume_pair(volume_id)
@@ -1986,6 +2610,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RemoveVolumePairResult.new(raw_response) : nil
+  end
+
+  def remove_volume_pair_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    remove_volume_pair(r.volume_id)
   end
 
   def modify_volume_pair(volume_id,paused_manual = nil,mode = nil)
@@ -2016,6 +2647,19 @@ class Element
     return raw_response ? ModifyVolumePairResult.new(raw_response) : nil
   end
 
+  def modify_volume_pair_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    if r.paused_manual == nil
+      raise "Before you can run this command, you need to set the param, pausedManual in the request object."
+    end
+    if r.mode == nil
+      raise "Before you can run this command, you need to set the param, mode in the request object."
+    end
+    modify_volume_pair(r.volume_id, r.paused_manual, r.mode)
+  end
+
   def list_protocol_endpoints(protocol_endpoint_ids = nil)
     ######
     # Gets protocol endpoints in the system
@@ -2036,6 +2680,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListProtocolEndpointsResult.new(raw_response) : nil
+  end
+
+  def list_protocol_endpoints_with_object(r)
+    if r.protocol_endpoint_ids == nil
+      raise "Before you can run this command, you need to set the param, protocolEndpointIDs in the request object."
+    end
+    list_protocol_endpoints(r.protocol_endpoint_ids)
   end
 
   def create_snapshot(volume_id,snapshot_id = nil,name = nil,enable_remote_replication = nil,retention = nil,attributes = nil)
@@ -2085,6 +2736,28 @@ class Element
     return raw_response ? CreateSnapshotResult.new(raw_response) : nil
   end
 
+  def create_snapshot_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    if r.snapshot_id == nil
+      raise "Before you can run this command, you need to set the param, snapshotID in the request object."
+    end
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.enable_remote_replication == nil
+      raise "Before you can run this command, you need to set the param, enableRemoteReplication in the request object."
+    end
+    if r.retention == nil
+      raise "Before you can run this command, you need to set the param, retention in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    create_snapshot(r.volume_id, r.snapshot_id, r.name, r.enable_remote_replication, r.retention, r.attributes)
+  end
+
   def delete_snapshot(snapshot_id)
     ######
     # DeleteSnapshot is used to delete a snapshot.
@@ -2106,6 +2779,13 @@ class Element
     return raw_response ? DeleteSnapshotResult.new(raw_response) : nil
   end
 
+  def delete_snapshot_with_object(r)
+    if r.snapshot_id == nil
+      raise "Before you can run this command, you need to set the param, snapshotID in the request object."
+    end
+    delete_snapshot(r.snapshot_id)
+  end
+
   def list_snapshots(volume_id = nil)
     ######
     # ListSnapshots is used to return the attributes of each snapshot taken on the volume.
@@ -2124,6 +2804,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListSnapshotsResult.new(raw_response) : nil
+  end
+
+  def list_snapshots_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    list_snapshots(r.volume_id)
   end
 
   def modify_snapshot(snapshot_id,expiration_time = nil,enable_remote_replication = nil)
@@ -2153,6 +2840,19 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ModifySnapshotResult.new(raw_response) : nil
+  end
+
+  def modify_snapshot_with_object(r)
+    if r.snapshot_id == nil
+      raise "Before you can run this command, you need to set the param, snapshotID in the request object."
+    end
+    if r.expiration_time == nil
+      raise "Before you can run this command, you need to set the param, expirationTime in the request object."
+    end
+    if r.enable_remote_replication == nil
+      raise "Before you can run this command, you need to set the param, enableRemoteReplication in the request object."
+    end
+    modify_snapshot(r.snapshot_id, r.expiration_time, r.enable_remote_replication)
   end
 
   def rollback_to_snapshot(volume_id,snapshot_id,save_current_state,name = nil,attributes = nil)
@@ -2192,6 +2892,25 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? CreateSnapshotResult.new(raw_response) : nil
+  end
+
+  def rollback_to_snapshot_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    if r.snapshot_id == nil
+      raise "Before you can run this command, you need to set the param, snapshotID in the request object."
+    end
+    if r.save_current_state == nil
+      raise "Before you can run this command, you need to set the param, saveCurrentState in the request object."
+    end
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    rollback_to_snapshot(r.volume_id, r.snapshot_id, r.save_current_state, r.name, r.attributes)
   end
 
   def create_group_snapshot(volumes,name = nil,enable_remote_replication = nil,retention = nil,attributes = nil)
@@ -2236,6 +2955,25 @@ class Element
     return raw_response ? CreateGroupSnapshotResult.new(raw_response) : nil
   end
 
+  def create_group_snapshot_with_object(r)
+    if r.volumes == nil
+      raise "Before you can run this command, you need to set the param, volumes in the request object."
+    end
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.enable_remote_replication == nil
+      raise "Before you can run this command, you need to set the param, enableRemoteReplication in the request object."
+    end
+    if r.retention == nil
+      raise "Before you can run this command, you need to set the param, retention in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    create_group_snapshot(r.volumes, r.name, r.enable_remote_replication, r.retention, r.attributes)
+  end
+
   def delete_group_snapshot(group_snapshot_id,save_members)
     ######
     # DeleteGroupSnapshot is used to delete a group snapshot.
@@ -2259,6 +2997,16 @@ class Element
     return raw_response ? DeleteGroupSnapshotResult.new(raw_response) : nil
   end
 
+  def delete_group_snapshot_with_object(r)
+    if r.group_snapshot_id == nil
+      raise "Before you can run this command, you need to set the param, groupSnapshotID in the request object."
+    end
+    if r.save_members == nil
+      raise "Before you can run this command, you need to set the param, saveMembers in the request object."
+    end
+    delete_group_snapshot(r.group_snapshot_id, r.save_members)
+  end
+
   def list_group_snapshots(volume_id = nil)
     ######
     # ListGroupSnapshots is used to return information about all group snapshots that have been created.
@@ -2277,6 +3025,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListGroupSnapshotsResult.new(raw_response) : nil
+  end
+
+  def list_group_snapshots_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    list_group_snapshots(r.volume_id)
   end
 
   def modify_group_snapshot(group_snapshot_id,expiration_time = nil,enable_remote_replication = nil)
@@ -2305,6 +3060,19 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ModifyGroupSnapshotResult.new(raw_response) : nil
+  end
+
+  def modify_group_snapshot_with_object(r)
+    if r.group_snapshot_id == nil
+      raise "Before you can run this command, you need to set the param, groupSnapshotID in the request object."
+    end
+    if r.expiration_time == nil
+      raise "Before you can run this command, you need to set the param, expirationTime in the request object."
+    end
+    if r.enable_remote_replication == nil
+      raise "Before you can run this command, you need to set the param, enableRemoteReplication in the request object."
+    end
+    modify_group_snapshot(r.group_snapshot_id, r.expiration_time, r.enable_remote_replication)
   end
 
   def rollback_to_group_snapshot(group_snapshot_id,save_current_state,name = nil,attributes = nil)
@@ -2341,6 +3109,22 @@ class Element
     return raw_response ? CreateGroupSnapshotResult.new(raw_response) : nil
   end
 
+  def rollback_to_group_snapshot_with_object(r)
+    if r.group_snapshot_id == nil
+      raise "Before you can run this command, you need to set the param, groupSnapshotID in the request object."
+    end
+    if r.save_current_state == nil
+      raise "Before you can run this command, you need to set the param, saveCurrentState in the request object."
+    end
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    rollback_to_group_snapshot(r.group_snapshot_id, r.save_current_state, r.name, r.attributes)
+  end
+
   def get_schedule(schedule_id)
     ######
     # GetSchedule is used to return information about a scheduled snapshot that has been created. You can see information about a specified schedule if there are many snapshot schedules in the system. You can include more than one schedule with this method by specifying additional scheduleIDs to the parameter.
@@ -2359,6 +3143,13 @@ class Element
     return raw_response ? GetScheduleResult.new(raw_response) : nil
   end
 
+  def get_schedule_with_object(r)
+    if r.schedule_id == nil
+      raise "Before you can run this command, you need to set the param, scheduleID in the request object."
+    end
+    get_schedule(r.schedule_id)
+  end
+
   def list_schedules()
     ######
     # ListSchedule is used to return information about all scheduled snapshots that have been created.######
@@ -2373,6 +3164,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListSchedulesResult.new(raw_response) : nil
   end
+
+
 
   def create_schedule(schedule)
     ######
@@ -2396,6 +3189,13 @@ class Element
     return raw_response ? CreateScheduleResult.new(raw_response) : nil
   end
 
+  def create_schedule_with_object(r)
+    if r.schedule == nil
+      raise "Before you can run this command, you need to set the param, schedule in the request object."
+    end
+    create_schedule(r.schedule)
+  end
+
   def modify_schedule(schedule)
     ######
     # ModifySchedule is used to change the intervals at which a scheduled snapshot occurs. This allows for adjustment to the snapshot frequency and retention.<br/>
@@ -2412,6 +3212,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ModifyScheduleResult.new(raw_response) : nil
+  end
+
+  def modify_schedule_with_object(r)
+    if r.schedule == nil
+      raise "Before you can run this command, you need to set the param, schedule in the request object."
+    end
+    modify_schedule(r.schedule)
   end
 
   def list_volume_stats_by_virtual_volume(virtual_volume_ids = nil)
@@ -2434,6 +3241,13 @@ class Element
     return raw_response ? ListVolumeStatsByVirtualVolumeResult.new(raw_response) : nil
   end
 
+  def list_volume_stats_by_virtual_volume_with_object(r)
+    if r.virtual_volume_ids == nil
+      raise "Before you can run this command, you need to set the param, virtualVolumeIDs in the request object."
+    end
+    list_volume_stats_by_virtual_volume(r.virtual_volume_ids)
+  end
+
   def get_raw_stats()
     ######
     # The GetRawStats call is used by SolidFire engineering to troubleshoot new features. The data returned from GetRawStats is not documented, it changes frequently, and is not guaranteed to be accurate. It is not recommended to ever use GetRawStats for collecting performance data or any other management integration with a SolidFire cluster.
@@ -2450,6 +3264,8 @@ class Element
     return raw_response ? str.new(raw_response) : nil
   end
 
+
+
   def get_hardware_info()
     ######
     # GetHardwareInfo allows you to return hardware information and status for a single node. This generally includes manufacturers, vendors, versions, drives, and other associated hardware identification information.######
@@ -2464,6 +3280,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetHardwareInfoResult.new(raw_response) : nil
   end
+
+
 
   def get_complete_stats()
     ######
@@ -2480,6 +3298,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? str.new(raw_response) : nil
   end
+
+
 
   def list_drive_stats(drives = nil)
     ######
@@ -2501,6 +3321,13 @@ class Element
     return raw_response ? ListDriveStatsResult.new(raw_response) : nil
   end
 
+  def list_drive_stats_with_object(r)
+    if r.drives == nil
+      raise "Before you can run this command, you need to set the param, drives in the request object."
+    end
+    list_drive_stats(r.drives)
+  end
+
   def list_volume_stats(volume_ids = nil)
     ######
     # param: int volumeIDs:  
@@ -2518,6 +3345,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListVolumeStatsResult.new(raw_response) : nil
+  end
+
+  def list_volume_stats_with_object(r)
+    if r.volume_ids == nil
+      raise "Before you can run this command, you need to set the param, volumeIDs in the request object."
+    end
+    list_volume_stats(r.volume_ids)
   end
 
   def create_storage_container(name,initiator_secret = nil,target_secret = nil)
@@ -2548,6 +3382,19 @@ class Element
     return raw_response ? CreateStorageContainerResult.new(raw_response) : nil
   end
 
+  def create_storage_container_with_object(r)
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.initiator_secret == nil
+      raise "Before you can run this command, you need to set the param, initiatorSecret in the request object."
+    end
+    if r.target_secret == nil
+      raise "Before you can run this command, you need to set the param, targetSecret in the request object."
+    end
+    create_storage_container(r.name, r.initiator_secret, r.target_secret)
+  end
+
   def delete_storage_containers(storage_container_ids)
     ######
     # Deletes a storage container from the system.
@@ -2564,6 +3411,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DeleteStorageContainerResult.new(raw_response) : nil
+  end
+
+  def delete_storage_containers_with_object(r)
+    if r.storage_container_ids == nil
+      raise "Before you can run this command, you need to set the param, storageContainerIDs in the request object."
+    end
+    delete_storage_containers(r.storage_container_ids)
   end
 
   def modify_storage_container(storage_container_id,initiator_secret = nil,target_secret = nil)
@@ -2594,6 +3448,19 @@ class Element
     return raw_response ? ModifyStorageContainerResult.new(raw_response) : nil
   end
 
+  def modify_storage_container_with_object(r)
+    if r.storage_container_id == nil
+      raise "Before you can run this command, you need to set the param, storageContainerID in the request object."
+    end
+    if r.initiator_secret == nil
+      raise "Before you can run this command, you need to set the param, initiatorSecret in the request object."
+    end
+    if r.target_secret == nil
+      raise "Before you can run this command, you need to set the param, targetSecret in the request object."
+    end
+    modify_storage_container(r.storage_container_id, r.initiator_secret, r.target_secret)
+  end
+
   def list_storage_containers(storage_container_ids = nil)
     ######
     # Gets information for all storage containers currently in the system.
@@ -2614,6 +3481,13 @@ class Element
     return raw_response ? ListStorageContainersResult.new(raw_response) : nil
   end
 
+  def list_storage_containers_with_object(r)
+    if r.storage_container_ids == nil
+      raise "Before you can run this command, you need to set the param, storageContainerIDs in the request object."
+    end
+    list_storage_containers(r.storage_container_ids)
+  end
+
   def get_storage_container_efficiency(storage_container_id)
     ######
     # GetStorageContainerEfficiency enables you to retrieve efficiency information about a virtual volume storage container.
@@ -2632,6 +3506,13 @@ class Element
     return raw_response ? GetStorageContainerEfficiencyResult.new(raw_response) : nil
   end
 
+  def get_storage_container_efficiency_with_object(r)
+    if r.storage_container_id == nil
+      raise "Before you can run this command, you need to set the param, storageContainerID in the request object."
+    end
+    get_storage_container_efficiency(r.storage_container_id)
+  end
+
   def list_tests()
     ######
     # The ListTests API method is used to return the tests that are available to run on a node.
@@ -2648,6 +3529,8 @@ class Element
     return raw_response ? ListTestsResult.new(raw_response) : nil
   end
 
+
+
   def list_utilities()
     ######
     # The ListUtilities API method is used to return the tests that are available to run on a node.
@@ -2663,6 +3546,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListUtilitiesResult.new(raw_response) : nil
   end
+
+
 
   def test_connect_ensemble(ensemble = nil)
     ######
@@ -2683,6 +3568,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? TestConnectEnsembleResult.new(raw_response) : nil
+  end
+
+  def test_connect_ensemble_with_object(r)
+    if r.ensemble == nil
+      raise "Before you can run this command, you need to set the param, ensemble in the request object."
+    end
+    test_connect_ensemble(r.ensemble)
   end
 
   def test_connect_mvip(mvip = nil)
@@ -2706,6 +3598,13 @@ class Element
     return raw_response ? TestConnectMvipResult.new(raw_response) : nil
   end
 
+  def test_connect_mvip_with_object(r)
+    if r.mvip == nil
+      raise "Before you can run this command, you need to set the param, mvip in the request object."
+    end
+    test_connect_mvip(r.mvip)
+  end
+
   def test_connect_svip(svip = nil)
     ######
     # The TestConnectSvip API method is used to test the storage connection to the cluster. The test pings the SVIP using ICMP packets and when successful connects as an iSCSI initiator.
@@ -2725,6 +3624,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? TestConnectSvipResult.new(raw_response) : nil
+  end
+
+  def test_connect_svip_with_object(r)
+    if r.svip == nil
+      raise "Before you can run this command, you need to set the param, svip in the request object."
+    end
+    test_connect_svip(r.svip)
   end
 
   def test_ping(attempts = nil,hosts = nil,total_timeout_sec = nil,packet_size = nil,ping_timeout_msec = nil)
@@ -2768,6 +3674,25 @@ class Element
     return raw_response ? TestPingResult.new(raw_response) : nil
   end
 
+  def test_ping_with_object(r)
+    if r.attempts == nil
+      raise "Before you can run this command, you need to set the param, attempts in the request object."
+    end
+    if r.hosts == nil
+      raise "Before you can run this command, you need to set the param, hosts in the request object."
+    end
+    if r.total_timeout_sec == nil
+      raise "Before you can run this command, you need to set the param, totalTimeoutSec in the request object."
+    end
+    if r.packet_size == nil
+      raise "Before you can run this command, you need to set the param, packetSize in the request object."
+    end
+    if r.ping_timeout_msec == nil
+      raise "Before you can run this command, you need to set the param, pingTimeoutMsec in the request object."
+    end
+    test_ping(r.attempts, r.hosts, r.total_timeout_sec, r.packet_size, r.ping_timeout_msec)
+  end
+
   def list_virtual_networks(virtual_network_id = nil,virtual_network_tag = nil,virtual_network_ids = nil,virtual_network_tags = nil)
     ######
     # ListVirtualNetworks is used to get a list of all the configured virtual networks for the cluster. This method can be used to verify the virtual network settings in the cluster.
@@ -2803,6 +3728,22 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListVirtualNetworksResult.new(raw_response) : nil
+  end
+
+  def list_virtual_networks_with_object(r)
+    if r.virtual_network_id == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkID in the request object."
+    end
+    if r.virtual_network_tag == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkTag in the request object."
+    end
+    if r.virtual_network_ids == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkIDs in the request object."
+    end
+    if r.virtual_network_tags == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkTags in the request object."
+    end
+    list_virtual_networks(r.virtual_network_id, r.virtual_network_tag, r.virtual_network_ids, r.virtual_network_tags)
   end
 
   def add_virtual_network(virtual_network_tag,name,address_blocks,netmask,svip,gateway = nil,namespace = nil,attributes = nil)
@@ -2850,6 +3791,34 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? AddVirtualNetworkResult.new(raw_response) : nil
+  end
+
+  def add_virtual_network_with_object(r)
+    if r.virtual_network_tag == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkTag in the request object."
+    end
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.address_blocks == nil
+      raise "Before you can run this command, you need to set the param, addressBlocks in the request object."
+    end
+    if r.netmask == nil
+      raise "Before you can run this command, you need to set the param, netmask in the request object."
+    end
+    if r.svip == nil
+      raise "Before you can run this command, you need to set the param, svip in the request object."
+    end
+    if r.gateway == nil
+      raise "Before you can run this command, you need to set the param, gateway in the request object."
+    end
+    if r.namespace == nil
+      raise "Before you can run this command, you need to set the param, namespace in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    add_virtual_network(r.virtual_network_tag, r.name, r.address_blocks, r.netmask, r.svip, r.gateway, r.namespace, r.attributes)
   end
 
   def modify_virtual_network(virtual_network_id = nil,virtual_network_tag = nil,name = nil,address_blocks = nil,netmask = nil,svip = nil,gateway = nil,namespace = nil,attributes = nil)
@@ -2914,6 +3883,37 @@ class Element
     return raw_response ? AddVirtualNetworkResult.new(raw_response) : nil
   end
 
+  def modify_virtual_network_with_object(r)
+    if r.virtual_network_id == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkID in the request object."
+    end
+    if r.virtual_network_tag == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkTag in the request object."
+    end
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.address_blocks == nil
+      raise "Before you can run this command, you need to set the param, addressBlocks in the request object."
+    end
+    if r.netmask == nil
+      raise "Before you can run this command, you need to set the param, netmask in the request object."
+    end
+    if r.svip == nil
+      raise "Before you can run this command, you need to set the param, svip in the request object."
+    end
+    if r.gateway == nil
+      raise "Before you can run this command, you need to set the param, gateway in the request object."
+    end
+    if r.namespace == nil
+      raise "Before you can run this command, you need to set the param, namespace in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    modify_virtual_network(r.virtual_network_id, r.virtual_network_tag, r.name, r.address_blocks, r.netmask, r.svip, r.gateway, r.namespace, r.attributes)
+  end
+
   def remove_virtual_network(virtual_network_id = nil,virtual_network_tag = nil)
     ######
     # RemoveVirtualNetwork is used to remove a previously added virtual network.
@@ -2939,6 +3939,16 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RemoveVirtualNetworkResult.new(raw_response) : nil
+  end
+
+  def remove_virtual_network_with_object(r)
+    if r.virtual_network_id == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkID in the request object."
+    end
+    if r.virtual_network_tag == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkTag in the request object."
+    end
+    remove_virtual_network(r.virtual_network_id, r.virtual_network_tag)
   end
 
   def list_virtual_volumes(details = nil,limit = nil,recursive = nil,start_virtual_volume_id = nil,virtual_volume_ids = nil)
@@ -2981,6 +3991,25 @@ class Element
     return raw_response ? ListVirtualVolumesResult.new(raw_response) : nil
   end
 
+  def list_virtual_volumes_with_object(r)
+    if r.details == nil
+      raise "Before you can run this command, you need to set the param, details in the request object."
+    end
+    if r.limit == nil
+      raise "Before you can run this command, you need to set the param, limit in the request object."
+    end
+    if r.recursive == nil
+      raise "Before you can run this command, you need to set the param, recursive in the request object."
+    end
+    if r.start_virtual_volume_id == nil
+      raise "Before you can run this command, you need to set the param, startVirtualVolumeID in the request object."
+    end
+    if r.virtual_volume_ids == nil
+      raise "Before you can run this command, you need to set the param, virtualVolumeIDs in the request object."
+    end
+    list_virtual_volumes(r.details, r.limit, r.recursive, r.start_virtual_volume_id, r.virtual_volume_ids)
+  end
+
   def prepare_virtual_snapshot(virtual_volume_id,name = nil,writable_snapshot = nil,calling_virtual_volume_host_id = nil)
     ######
     # PrepareVirtualSnapshot is used to set up VMware Virtual Volume snapshot.
@@ -3012,6 +4041,22 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? PrepareVirtualSnapshotResult.new(raw_response) : nil
+  end
+
+  def prepare_virtual_snapshot_with_object(r)
+    if r.virtual_volume_id == nil
+      raise "Before you can run this command, you need to set the param, virtualVolumeID in the request object."
+    end
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.writable_snapshot == nil
+      raise "Before you can run this command, you need to set the param, writableSnapshot in the request object."
+    end
+    if r.calling_virtual_volume_host_id == nil
+      raise "Before you can run this command, you need to set the param, callingVirtualVolumeHostID in the request object."
+    end
+    prepare_virtual_snapshot(r.virtual_volume_id, r.name, r.writable_snapshot, r.calling_virtual_volume_host_id)
   end
 
   def get_virtual_volume_unshared_chunks(virtual_volume_id,base_virtual_volume_id,segment_start,segment_length,chunk_size,calling_virtual_volume_host_id = nil)
@@ -3051,6 +4096,28 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VirtualVolumeUnsharedChunkResult.new(raw_response) : nil
+  end
+
+  def get_virtual_volume_unshared_chunks_with_object(r)
+    if r.virtual_volume_id == nil
+      raise "Before you can run this command, you need to set the param, virtualVolumeID in the request object."
+    end
+    if r.base_virtual_volume_id == nil
+      raise "Before you can run this command, you need to set the param, baseVirtualVolumeID in the request object."
+    end
+    if r.segment_start == nil
+      raise "Before you can run this command, you need to set the param, segmentStart in the request object."
+    end
+    if r.segment_length == nil
+      raise "Before you can run this command, you need to set the param, segmentLength in the request object."
+    end
+    if r.chunk_size == nil
+      raise "Before you can run this command, you need to set the param, chunkSize in the request object."
+    end
+    if r.calling_virtual_volume_host_id == nil
+      raise "Before you can run this command, you need to set the param, callingVirtualVolumeHostID in the request object."
+    end
+    get_virtual_volume_unshared_chunks(r.virtual_volume_id, r.base_virtual_volume_id, r.segment_start, r.segment_length, r.chunk_size, r.calling_virtual_volume_host_id)
   end
 
   def create_virtual_volume_host(virtual_volume_host_id,cluster_id,initiator_names = nil,visible_protocol_endpoint_ids = nil,host_address = nil,calling_virtual_volume_host_id = nil)
@@ -3094,6 +4161,28 @@ class Element
     return raw_response ? VirtualVolumeNullResult.new(raw_response) : nil
   end
 
+  def create_virtual_volume_host_with_object(r)
+    if r.virtual_volume_host_id == nil
+      raise "Before you can run this command, you need to set the param, virtualVolumeHostID in the request object."
+    end
+    if r.cluster_id == nil
+      raise "Before you can run this command, you need to set the param, clusterID in the request object."
+    end
+    if r.initiator_names == nil
+      raise "Before you can run this command, you need to set the param, initiatorNames in the request object."
+    end
+    if r.visible_protocol_endpoint_ids == nil
+      raise "Before you can run this command, you need to set the param, visibleProtocolEndpointIDs in the request object."
+    end
+    if r.host_address == nil
+      raise "Before you can run this command, you need to set the param, hostAddress in the request object."
+    end
+    if r.calling_virtual_volume_host_id == nil
+      raise "Before you can run this command, you need to set the param, callingVirtualVolumeHostID in the request object."
+    end
+    create_virtual_volume_host(r.virtual_volume_host_id, r.cluster_id, r.initiator_names, r.visible_protocol_endpoint_ids, r.host_address, r.calling_virtual_volume_host_id)
+  end
+
   def list_virtual_volume_hosts(virtual_volume_host_ids = nil)
     ######
     # ListVirtualVolumeHosts returns a list of known ESX hosts.
@@ -3112,6 +4201,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListVirtualVolumeHostsResult.new(raw_response) : nil
+  end
+
+  def list_virtual_volume_hosts_with_object(r)
+    if r.virtual_volume_host_ids == nil
+      raise "Before you can run this command, you need to set the param, virtualVolumeHostIDs in the request object."
+    end
+    list_virtual_volume_hosts(r.virtual_volume_host_ids)
   end
 
   def get_virtual_volume_task_update(virtual_volume_task_id,calling_virtual_volume_host_id = nil)
@@ -3137,6 +4233,16 @@ class Element
     return raw_response ? VirtualVolumeTaskResult.new(raw_response) : nil
   end
 
+  def get_virtual_volume_task_update_with_object(r)
+    if r.virtual_volume_task_id == nil
+      raise "Before you can run this command, you need to set the param, virtualVolumeTaskID in the request object."
+    end
+    if r.calling_virtual_volume_host_id == nil
+      raise "Before you can run this command, you need to set the param, callingVirtualVolumeHostID in the request object."
+    end
+    get_virtual_volume_task_update(r.virtual_volume_task_id, r.calling_virtual_volume_host_id)
+  end
+
   def list_virtual_volume_tasks(virtual_volume_task_ids = nil)
     ######
     # ListVirtualVolumeTasks returns a list of VVol Async Tasks.
@@ -3155,6 +4261,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListVirtualVolumeTasksResult.new(raw_response) : nil
+  end
+
+  def list_virtual_volume_tasks_with_object(r)
+    if r.virtual_volume_task_ids == nil
+      raise "Before you can run this command, you need to set the param, virtualVolumeTaskIDs in the request object."
+    end
+    list_virtual_volume_tasks(r.virtual_volume_task_ids)
   end
 
   def list_virtual_volume_bindings(virtual_volume_binding_ids = nil)
@@ -3177,6 +4290,13 @@ class Element
     return raw_response ? ListVirtualVolumeBindingsResult.new(raw_response) : nil
   end
 
+  def list_virtual_volume_bindings_with_object(r)
+    if r.virtual_volume_binding_ids == nil
+      raise "Before you can run this command, you need to set the param, virtualVolumeBindingIDs in the request object."
+    end
+    list_virtual_volume_bindings(r.virtual_volume_binding_ids)
+  end
+
   def get_virtual_volume_count()
     ######
     # Enables retrieval of the number of virtual volumes currently in the system.######
@@ -3191,6 +4311,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? GetVirtualVolumeCountResult.new(raw_response) : nil
   end
+
+
 
   def clone_volume(volume_id,name,new_account_id = nil,new_size = nil,access = nil,snapshot_id = nil,attributes = nil)
     ######
@@ -3247,6 +4369,31 @@ class Element
     return raw_response ? CloneVolumeResult.new(raw_response) : nil
   end
 
+  def clone_volume_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.new_account_id == nil
+      raise "Before you can run this command, you need to set the param, newAccountID in the request object."
+    end
+    if r.new_size == nil
+      raise "Before you can run this command, you need to set the param, newSize in the request object."
+    end
+    if r.access == nil
+      raise "Before you can run this command, you need to set the param, access in the request object."
+    end
+    if r.snapshot_id == nil
+      raise "Before you can run this command, you need to set the param, snapshotID in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    clone_volume(r.volume_id, r.name, r.new_account_id, r.new_size, r.access, r.snapshot_id, r.attributes)
+  end
+
   def clone_multiple_volumes(volumes,access = nil,group_snapshot_id = nil,new_account_id = nil)
     ######
     # CloneMultipleVolumes is used to create a clone of a group of specified volumes. A consistent set of characteristics can be assigned to a group of multiple volume when they are cloned together.
@@ -3283,6 +4430,22 @@ class Element
     return raw_response ? CloneMultipleVolumesResult.new(raw_response) : nil
   end
 
+  def clone_multiple_volumes_with_object(r)
+    if r.volumes == nil
+      raise "Before you can run this command, you need to set the param, volumes in the request object."
+    end
+    if r.access == nil
+      raise "Before you can run this command, you need to set the param, access in the request object."
+    end
+    if r.group_snapshot_id == nil
+      raise "Before you can run this command, you need to set the param, groupSnapshotID in the request object."
+    end
+    if r.new_account_id == nil
+      raise "Before you can run this command, you need to set the param, newAccountID in the request object."
+    end
+    clone_multiple_volumes(r.volumes, r.access, r.group_snapshot_id, r.new_account_id)
+  end
+
   def copy_volume(volume_id,dst_volume_id,snapshot_id = nil)
     ######
     # Copies one volume to another.
@@ -3309,6 +4472,19 @@ class Element
     return raw_response ? CopyVolumeResult.new(raw_response) : nil
   end
 
+  def copy_volume_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    if r.dst_volume_id == nil
+      raise "Before you can run this command, you need to set the param, dstVolumeID in the request object."
+    end
+    if r.snapshot_id == nil
+      raise "Before you can run this command, you need to set the param, snapshotID in the request object."
+    end
+    copy_volume(r.volume_id, r.dst_volume_id, r.snapshot_id)
+  end
+
   def cancel_clone(clone_id)
     ######
     # Cancels a currently running clone operation. This method does not return anything.
@@ -3325,6 +4501,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? CancelCloneResult.new(raw_response) : nil
+  end
+
+  def cancel_clone_with_object(r)
+    if r.clone_id == nil
+      raise "Before you can run this command, you need to set the param, cloneID in the request object."
+    end
+    cancel_clone(r.clone_id)
   end
 
   def cancel_group_clone(group_clone_id)
@@ -3345,6 +4528,13 @@ class Element
     return raw_response ? CancelGroupCloneResult.new(raw_response) : nil
   end
 
+  def cancel_group_clone_with_object(r)
+    if r.group_clone_id == nil
+      raise "Before you can run this command, you need to set the param, groupCloneID in the request object."
+    end
+    cancel_group_clone(r.group_clone_id)
+  end
+
   def list_async_results(async_result_types = nil)
     ######
     # You can use ListAsyncResults to list the results of all currently running and completed asynchronous methods on the system. Querying asynchronous results with ListAsyncResults does not cause completed asyncHandles to expire; you can use GetAsyncResult to query any of the asyncHandles returned by ListAsyncResults.
@@ -3363,6 +4553,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListAsyncResultsResult.new(raw_response) : nil
+  end
+
+  def list_async_results_with_object(r)
+    if r.async_result_types == nil
+      raise "Before you can run this command, you need to set the param, asyncResultTypes in the request object."
+    end
+    list_async_results(r.async_result_types)
   end
 
   def create_volume(name,account_id,total_size,enable512e,qos = nil,attributes = nil)
@@ -3403,6 +4600,28 @@ class Element
     return raw_response ? CreateVolumeResult.new(raw_response) : nil
   end
 
+  def create_volume_with_object(r)
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.account_id == nil
+      raise "Before you can run this command, you need to set the param, accountID in the request object."
+    end
+    if r.total_size == nil
+      raise "Before you can run this command, you need to set the param, totalSize in the request object."
+    end
+    if r.enable512e == nil
+      raise "Before you can run this command, you need to set the param, enable512e in the request object."
+    end
+    if r.qos == nil
+      raise "Before you can run this command, you need to set the param, qos in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    create_volume(r.name, r.account_id, r.total_size, r.enable512e, r.qos, r.attributes)
+  end
+
   def delete_volume(volume_id)
     ######
     # DeleteVolume marks an active volume for deletion.
@@ -3435,6 +4654,13 @@ class Element
     return raw_response ? DeleteVolumeResult.new(raw_response) : nil
   end
 
+  def delete_volume_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    delete_volume(r.volume_id)
+  end
+
   def delete_volumes(account_ids = nil,volume_access_group_ids = nil,volume_ids = nil)
     ######
     # DeleteVolumes marks multiple (up to 500) active volumes for deletion. Once marked, the volumes are purged (permanently deleted) after the cleanup interval elapses.The cleanup interval can be set in the SetClusterSettings method. For more information on using this method, see SetClusterSettings on page 1. After making a request to delete volumes, any active iSCSI connections to the volumes are immediately terminated and no further connections are allowed while the volumes are in this state. A marked volume is not returned in target discovery requests. Any snapshots of a volume that has been marked for deletion are not affected. Snapshots are kept until the volume is purged from the system. If a volume is marked for deletion and has a bulk volume read or bulk volume write operation in progress, the bulk volume read or write operation is stopped. If the volumes you delete are paired with a volume, replication between the paired volumes is suspended and no data is transferred to them or from them while in a deleted state. The remote volumes the deleted volumes were paired with enter into a PausedMisconfigured state and data is no longer sent to them or from the deleted volumes. Until the deleted volumes are purged, they can be restored and data transfers resume. If the deleted volumes are purged from the system, the volumes they were paired with enter into a StoppedMisconfigured state and the volume pairing status is removed. The purged volumes become permanently unavailable.
@@ -3465,6 +4691,19 @@ class Element
     return raw_response ? DeleteVolumesResult.new(raw_response) : nil
   end
 
+  def delete_volumes_with_object(r)
+    if r.account_ids == nil
+      raise "Before you can run this command, you need to set the param, accountIDs in the request object."
+    end
+    if r.volume_access_group_ids == nil
+      raise "Before you can run this command, you need to set the param, volumeAccessGroupIDs in the request object."
+    end
+    if r.volume_ids == nil
+      raise "Before you can run this command, you need to set the param, volumeIDs in the request object."
+    end
+    delete_volumes(r.account_ids, r.volume_access_group_ids, r.volume_ids)
+  end
+
   def get_volume_stats(volume_id)
     ######
     # GetVolumeStats is used to retrieve high-level activity measurements for a single volume.
@@ -3482,6 +4721,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetVolumeStatsResult.new(raw_response) : nil
+  end
+
+  def get_volume_stats_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    get_volume_stats(r.volume_id)
   end
 
   def get_volume_efficiency(volume_id,force = nil)
@@ -3508,6 +4754,16 @@ class Element
     return raw_response ? GetVolumeEfficiencyResult.new(raw_response) : nil
   end
 
+  def get_volume_efficiency_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    if r.force == nil
+      raise "Before you can run this command, you need to set the param, force in the request object."
+    end
+    get_volume_efficiency(r.volume_id, r.force)
+  end
+
   def list_bulk_volume_jobs()
     ######
     # ListBulkVolumeJobs is used to return information about each bulk volume read or write operation that is occurring in the system.######
@@ -3522,6 +4778,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListBulkVolumeJobsResult.new(raw_response) : nil
   end
+
+
 
   def list_active_volumes(start_volume_id = nil,limit = nil)
     ######
@@ -3549,6 +4807,16 @@ class Element
     return raw_response ? ListActiveVolumesResult.new(raw_response) : nil
   end
 
+  def list_active_volumes_with_object(r)
+    if r.start_volume_id == nil
+      raise "Before you can run this command, you need to set the param, startVolumeID in the request object."
+    end
+    if r.limit == nil
+      raise "Before you can run this command, you need to set the param, limit in the request object."
+    end
+    list_active_volumes(r.start_volume_id, r.limit)
+  end
+
   def list_deleted_volumes()
     ######
     # ListDeletedVolumes is used to return the entire list of volumes that have been marked for deletion and is purged from the system.######
@@ -3564,6 +4832,8 @@ class Element
     return raw_response ? ListDeletedVolumesResult.new(raw_response) : nil
   end
 
+
+
   def list_iscsisessions()
     ######
     # ListISCSISessions is used to return iSCSI connection information for volumes in the cluster.######
@@ -3578,6 +4848,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListISCSISessionsResult.new(raw_response) : nil
   end
+
+
 
   def list_volumes(start_volume_id = nil,limit = nil,volume_status = nil,accounts = nil,is_paired = nil,volume_ids = nil)
     ######
@@ -3625,6 +4897,28 @@ class Element
     return raw_response ? ListVolumesResult.new(raw_response) : nil
   end
 
+  def list_volumes_with_object(r)
+    if r.start_volume_id == nil
+      raise "Before you can run this command, you need to set the param, startVolumeID in the request object."
+    end
+    if r.limit == nil
+      raise "Before you can run this command, you need to set the param, limit in the request object."
+    end
+    if r.volume_status == nil
+      raise "Before you can run this command, you need to set the param, volumeStatus in the request object."
+    end
+    if r.accounts == nil
+      raise "Before you can run this command, you need to set the param, accounts in the request object."
+    end
+    if r.is_paired == nil
+      raise "Before you can run this command, you need to set the param, isPaired in the request object."
+    end
+    if r.volume_ids == nil
+      raise "Before you can run this command, you need to set the param, volumeIDs in the request object."
+    end
+    list_volumes(r.start_volume_id, r.limit, r.volume_status, r.accounts, r.is_paired, r.volume_ids)
+  end
+
   def list_volumes_for_account(account_id,start_volume_id = nil,limit = nil)
     ######
     # ListVolumesForAccount returns the list of active AND (pending) deleted volumes for an account.
@@ -3653,6 +4947,19 @@ class Element
     return raw_response ? ListVolumesForAccountResult.new(raw_response) : nil
   end
 
+  def list_volumes_for_account_with_object(r)
+    if r.account_id == nil
+      raise "Before you can run this command, you need to set the param, accountID in the request object."
+    end
+    if r.start_volume_id == nil
+      raise "Before you can run this command, you need to set the param, startVolumeID in the request object."
+    end
+    if r.limit == nil
+      raise "Before you can run this command, you need to set the param, limit in the request object."
+    end
+    list_volumes_for_account(r.account_id, r.start_volume_id, r.limit)
+  end
+
   def list_volume_stats_by_account()
     ######
     # ListVolumeStatsByAccount returns high-level activity measurements for every account.
@@ -3669,6 +4976,8 @@ class Element
     return raw_response ? ListVolumeStatsByAccountResult.new(raw_response) : nil
   end
 
+
+
   def list_volume_stats_by_volume()
     ######
     # ListVolumeStatsByVolume returns high-level activity measurements for every volume, by volume.
@@ -3684,6 +4993,8 @@ class Element
     raw_response = send_request(json_payload)
     return raw_response ? ListVolumeStatsByVolumeResult.new(raw_response) : nil
   end
+
+
 
   def list_volume_stats_by_volume_access_group(volume_access_groups = nil)
     ######
@@ -3703,6 +5014,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListVolumeStatsByVolumeAccessGroupResult.new(raw_response) : nil
+  end
+
+  def list_volume_stats_by_volume_access_group_with_object(r)
+    if r.volume_access_groups == nil
+      raise "Before you can run this command, you need to set the param, volumeAccessGroups in the request object."
+    end
+    list_volume_stats_by_volume_access_group(r.volume_access_groups)
   end
 
   def modify_volume(volume_id,account_id = nil,access = nil,qos = nil,total_size = nil,attributes = nil)
@@ -3756,6 +5074,28 @@ class Element
     return raw_response ? ModifyVolumeResult.new(raw_response) : nil
   end
 
+  def modify_volume_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    if r.account_id == nil
+      raise "Before you can run this command, you need to set the param, accountID in the request object."
+    end
+    if r.access == nil
+      raise "Before you can run this command, you need to set the param, access in the request object."
+    end
+    if r.qos == nil
+      raise "Before you can run this command, you need to set the param, qos in the request object."
+    end
+    if r.total_size == nil
+      raise "Before you can run this command, you need to set the param, totalSize in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    modify_volume(r.volume_id, r.account_id, r.access, r.qos, r.total_size, r.attributes)
+  end
+
   def modify_volumes(volume_ids,account_id = nil,access = nil,attributes = nil,qos = nil,total_size = nil)
     ######
     # ModifyVolumes allows you to configure up to 500 existing volumes at one time. Changes take place immediately. If ModifyVolumes fails to modify any of the specified volumes, none of the specified volumes are changed.If you do not specify QoS values when you modify volumes, the QoS values for each volume remain unchanged. You can retrieve default QoS values for a newly created volume by running the GetDefaultQoS method.When you need to increase the size of volumes that are being replicated, do so in the following order to prevent replication errors:Increase the size of the "Replication Target" volume.Increase the size of the source or "Read / Write" volume. recommends that both the target and source volumes be the same size.NOTE: If you change access status to locked or replicationTarget all existing iSCSI connections are terminated.
@@ -3799,6 +5139,28 @@ class Element
     return raw_response ? ModifyVolumesResult.new(raw_response) : nil
   end
 
+  def modify_volumes_with_object(r)
+    if r.volume_ids == nil
+      raise "Before you can run this command, you need to set the param, volumeIDs in the request object."
+    end
+    if r.account_id == nil
+      raise "Before you can run this command, you need to set the param, accountID in the request object."
+    end
+    if r.access == nil
+      raise "Before you can run this command, you need to set the param, access in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    if r.qos == nil
+      raise "Before you can run this command, you need to set the param, qos in the request object."
+    end
+    if r.total_size == nil
+      raise "Before you can run this command, you need to set the param, totalSize in the request object."
+    end
+    modify_volumes(r.volume_ids, r.account_id, r.access, r.attributes, r.qos, r.total_size)
+  end
+
   def purge_deleted_volume(volume_id)
     ######
     # PurgeDeletedVolume immediately and permanently purges a volume which has been deleted.
@@ -3817,6 +5179,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? PurgeDeletedVolumeResult.new(raw_response) : nil
+  end
+
+  def purge_deleted_volume_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    purge_deleted_volume(r.volume_id)
   end
 
   def purge_deleted_volumes(volume_ids = nil,account_ids = nil,volume_access_group_ids = nil)
@@ -3849,6 +5218,19 @@ class Element
     return raw_response ? PurgeDeletedVolumesResult.new(raw_response) : nil
   end
 
+  def purge_deleted_volumes_with_object(r)
+    if r.volume_ids == nil
+      raise "Before you can run this command, you need to set the param, volumeIDs in the request object."
+    end
+    if r.account_ids == nil
+      raise "Before you can run this command, you need to set the param, accountIDs in the request object."
+    end
+    if r.volume_access_group_ids == nil
+      raise "Before you can run this command, you need to set the param, volumeAccessGroupIDs in the request object."
+    end
+    purge_deleted_volumes(r.volume_ids, r.account_ids, r.volume_access_group_ids)
+  end
+
   def restore_deleted_volume(volume_id)
     ######
     # RestoreDeletedVolume marks a deleted volume as active again.
@@ -3866,6 +5248,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RestoreDeletedVolumeResult.new(raw_response) : nil
+  end
+
+  def restore_deleted_volume_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    restore_deleted_volume(r.volume_id)
   end
 
   def start_bulk_volume_read(volume_id,format,snapshot_id = nil,script = nil,script_parameters = nil,attributes = nil)
@@ -3921,6 +5310,28 @@ class Element
     return raw_response ? StartBulkVolumeReadResult.new(raw_response) : nil
   end
 
+  def start_bulk_volume_read_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    if r.format == nil
+      raise "Before you can run this command, you need to set the param, format in the request object."
+    end
+    if r.snapshot_id == nil
+      raise "Before you can run this command, you need to set the param, snapshotID in the request object."
+    end
+    if r.script == nil
+      raise "Before you can run this command, you need to set the param, script in the request object."
+    end
+    if r.script_parameters == nil
+      raise "Before you can run this command, you need to set the param, scriptParameters in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    start_bulk_volume_read(r.volume_id, r.format, r.snapshot_id, r.script, r.script_parameters, r.attributes)
+  end
+
   def start_bulk_volume_write(volume_id,format,script = nil,script_parameters = nil,attributes = nil)
     ######
     # StartBulkVolumeWrite allows you to initialize a bulk volume write session on a specified volume.
@@ -3961,6 +5372,25 @@ class Element
     return raw_response ? StartBulkVolumeWriteResult.new(raw_response) : nil
   end
 
+  def start_bulk_volume_write_with_object(r)
+    if r.volume_id == nil
+      raise "Before you can run this command, you need to set the param, volumeID in the request object."
+    end
+    if r.format == nil
+      raise "Before you can run this command, you need to set the param, format in the request object."
+    end
+    if r.script == nil
+      raise "Before you can run this command, you need to set the param, script in the request object."
+    end
+    if r.script_parameters == nil
+      raise "Before you can run this command, you need to set the param, scriptParameters in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    start_bulk_volume_write(r.volume_id, r.format, r.script, r.script_parameters, r.attributes)
+  end
+
   def update_bulk_volume_status(key,status,percent_complete = nil,message = nil,attributes = nil)
     ######
     # You can use UpdateBulkVolumeStatus in a script to return to the SolidFire system the status of a bulk volume job that you have started with the "StartBulkVolumeRead" or "StartBulkVolumeWrite" methods.
@@ -3997,6 +5427,25 @@ class Element
     return raw_response ? UpdateBulkVolumeStatusResult.new(raw_response) : nil
   end
 
+  def update_bulk_volume_status_with_object(r)
+    if r.key == nil
+      raise "Before you can run this command, you need to set the param, key in the request object."
+    end
+    if r.status == nil
+      raise "Before you can run this command, you need to set the param, status in the request object."
+    end
+    if r.percent_complete == nil
+      raise "Before you can run this command, you need to set the param, percentComplete in the request object."
+    end
+    if r.message == nil
+      raise "Before you can run this command, you need to set the param, message in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    update_bulk_volume_status(r.key, r.status, r.percent_complete, r.message, r.attributes)
+  end
+
   def set_default_qos(min_iops = nil,max_iops = nil,burst_iops = nil)
     ######
     # SetDefaultQoS enables you to configure the default Quality of Service (QoS) values (measured in inputs and outputs per second, or IOPS) for all volumes not yet created.
@@ -4025,6 +5474,19 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? SetDefaultQoSResult.new(raw_response) : nil
+  end
+
+  def set_default_qos_with_object(r)
+    if r.min_iops == nil
+      raise "Before you can run this command, you need to set the param, minIOPS in the request object."
+    end
+    if r.max_iops == nil
+      raise "Before you can run this command, you need to set the param, maxIOPS in the request object."
+    end
+    if r.burst_iops == nil
+      raise "Before you can run this command, you need to set the param, burstIOPS in the request object."
+    end
+    set_default_qos(r.min_iops, r.max_iops, r.burst_iops)
   end
 
   def create_volume_access_group(name,initiators = nil,volumes = nil,virtual_network_id = nil,virtual_network_tags = nil,attributes = nil)
@@ -4074,6 +5536,28 @@ class Element
     return raw_response ? CreateVolumeAccessGroupResult.new(raw_response) : nil
   end
 
+  def create_volume_access_group_with_object(r)
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.initiators == nil
+      raise "Before you can run this command, you need to set the param, initiators in the request object."
+    end
+    if r.volumes == nil
+      raise "Before you can run this command, you need to set the param, volumes in the request object."
+    end
+    if r.virtual_network_id == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkID in the request object."
+    end
+    if r.virtual_network_tags == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkTags in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    create_volume_access_group(r.name, r.initiators, r.volumes, r.virtual_network_id, r.virtual_network_tags, r.attributes)
+  end
+
   def list_volume_access_groups(start_volume_access_group_id = nil,limit = nil)
     ######
     # ListVolumeAccessGroups is used to return information about the volume access groups that are currently in the system.
@@ -4099,6 +5583,16 @@ class Element
     return raw_response ? ListVolumeAccessGroupsResult.new(raw_response) : nil
   end
 
+  def list_volume_access_groups_with_object(r)
+    if r.start_volume_access_group_id == nil
+      raise "Before you can run this command, you need to set the param, startVolumeAccessGroupID in the request object."
+    end
+    if r.limit == nil
+      raise "Before you can run this command, you need to set the param, limit in the request object."
+    end
+    list_volume_access_groups(r.start_volume_access_group_id, r.limit)
+  end
+
   def delete_volume_access_group(volume_access_group_id)
     ######
     # Delete a volume access group from the system.
@@ -4115,6 +5609,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DeleteVolumeAccessGroupResult.new(raw_response) : nil
+  end
+
+  def delete_volume_access_group_with_object(r)
+    if r.volume_access_group_id == nil
+      raise "Before you can run this command, you need to set the param, volumeAccessGroupID in the request object."
+    end
+    delete_volume_access_group(r.volume_access_group_id)
   end
 
   def modify_volume_access_group(volume_access_group_id,virtual_network_id = nil,virtual_network_tags = nil,name = nil,initiators = nil,volumes = nil,attributes = nil)
@@ -4174,6 +5675,31 @@ class Element
     return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil
   end
 
+  def modify_volume_access_group_with_object(r)
+    if r.volume_access_group_id == nil
+      raise "Before you can run this command, you need to set the param, volumeAccessGroupID in the request object."
+    end
+    if r.virtual_network_id == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkID in the request object."
+    end
+    if r.virtual_network_tags == nil
+      raise "Before you can run this command, you need to set the param, virtualNetworkTags in the request object."
+    end
+    if r.name == nil
+      raise "Before you can run this command, you need to set the param, name in the request object."
+    end
+    if r.initiators == nil
+      raise "Before you can run this command, you need to set the param, initiators in the request object."
+    end
+    if r.volumes == nil
+      raise "Before you can run this command, you need to set the param, volumes in the request object."
+    end
+    if r.attributes == nil
+      raise "Before you can run this command, you need to set the param, attributes in the request object."
+    end
+    modify_volume_access_group(r.volume_access_group_id, r.virtual_network_id, r.virtual_network_tags, r.name, r.initiators, r.volumes, r.attributes)
+  end
+
   def add_initiators_to_volume_access_group(volume_access_group_id,initiators)
     ######
     # Add initiators to a volume access group.
@@ -4193,6 +5719,16 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil
+  end
+
+  def add_initiators_to_volume_access_group_with_object(r)
+    if r.volume_access_group_id == nil
+      raise "Before you can run this command, you need to set the param, volumeAccessGroupID in the request object."
+    end
+    if r.initiators == nil
+      raise "Before you can run this command, you need to set the param, initiators in the request object."
+    end
+    add_initiators_to_volume_access_group(r.volume_access_group_id, r.initiators)
   end
 
   def remove_initiators_from_volume_access_group(volume_access_group_id,initiators)
@@ -4216,6 +5752,16 @@ class Element
     return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil
   end
 
+  def remove_initiators_from_volume_access_group_with_object(r)
+    if r.volume_access_group_id == nil
+      raise "Before you can run this command, you need to set the param, volumeAccessGroupID in the request object."
+    end
+    if r.initiators == nil
+      raise "Before you can run this command, you need to set the param, initiators in the request object."
+    end
+    remove_initiators_from_volume_access_group(r.volume_access_group_id, r.initiators)
+  end
+
   def add_volumes_to_volume_access_group(volume_access_group_id,volumes)
     ######
     # Add volumes to a volume access group.
@@ -4235,6 +5781,16 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil
+  end
+
+  def add_volumes_to_volume_access_group_with_object(r)
+    if r.volume_access_group_id == nil
+      raise "Before you can run this command, you need to set the param, volumeAccessGroupID in the request object."
+    end
+    if r.volumes == nil
+      raise "Before you can run this command, you need to set the param, volumes in the request object."
+    end
+    add_volumes_to_volume_access_group(r.volume_access_group_id, r.volumes)
   end
 
   def remove_volumes_from_volume_access_group(volume_access_group_id,volumes)
@@ -4258,6 +5814,16 @@ class Element
     return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil
   end
 
+  def remove_volumes_from_volume_access_group_with_object(r)
+    if r.volume_access_group_id == nil
+      raise "Before you can run this command, you need to set the param, volumeAccessGroupID in the request object."
+    end
+    if r.volumes == nil
+      raise "Before you can run this command, you need to set the param, volumes in the request object."
+    end
+    remove_volumes_from_volume_access_group(r.volume_access_group_id, r.volumes)
+  end
+
   def get_volume_access_group_efficiency(volume_access_group_id)
     ######
     # GetVolumeAccessGroupEfficiency is used to retrieve efficiency information about a volume access group. Only the volume access group provided as parameters in this API method is used to compute the capacity.
@@ -4276,6 +5842,13 @@ class Element
     return raw_response ? GetEfficiencyResult.new(raw_response) : nil
   end
 
+  def get_volume_access_group_efficiency_with_object(r)
+    if r.volume_access_group_id == nil
+      raise "Before you can run this command, you need to set the param, volumeAccessGroupID in the request object."
+    end
+    get_volume_access_group_efficiency(r.volume_access_group_id)
+  end
+
   def get_volume_access_group_lun_assignments(volume_access_group_id)
     ######
     # The GetVolumeAccessGroupLunAssignments is used to return information LUN mappings of a specified volume access group.
@@ -4292,6 +5865,13 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetVolumeAccessGroupLunAssignmentsResult.new(raw_response) : nil
+  end
+
+  def get_volume_access_group_lun_assignments_with_object(r)
+    if r.volume_access_group_id == nil
+      raise "Before you can run this command, you need to set the param, volumeAccessGroupID in the request object."
+    end
+    get_volume_access_group_lun_assignments(r.volume_access_group_id)
   end
 
   def modify_volume_access_group_lun_assignments(volume_access_group_id,lun_assignments)
@@ -4319,6 +5899,16 @@ class Element
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ModifyVolumeAccessGroupLunAssignmentsResult.new(raw_response) : nil
+  end
+
+  def modify_volume_access_group_lun_assignments_with_object(r)
+    if r.volume_access_group_id == nil
+      raise "Before you can run this command, you need to set the param, volumeAccessGroupID in the request object."
+    end
+    if r.lun_assignments == nil
+      raise "Before you can run this command, you need to set the param, lunAssignments in the request object."
+    end
+    modify_volume_access_group_lun_assignments(r.volume_access_group_id, r.lun_assignments)
   end
 
 end

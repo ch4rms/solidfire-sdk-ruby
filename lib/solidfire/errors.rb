@@ -1,0 +1,2 @@
+class SdkOperationError < RuntimeError
+end
