@@ -28,6 +28,9 @@ class ServiceBase
     req.basic_auth @user, @pass
     res = https.request(req)
     output = JSON.parse(res.body)
+    if output.keys.include? "error"
+      raise ApiServiceError.new(payload['method'], output['error'])
+    end
     return output["result"]
   end
 
