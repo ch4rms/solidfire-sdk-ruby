@@ -3,48 +3,11 @@ require 'net/https'
 require 'uri'
 require 'rubygems'
 require 'json'
+require_relative 'service_base'
 
-class Element
+class Element < ServiceBase
   def initialize(host, port, username, password, connection_version, verify_ssl)
-    @user = username
-    @pass = password
-    @host = host
-    @port = port
-    @connection_version = connection_version.to_f
-    if verify_ssl
-      @verify_mode = OpenSSL::SSL::VERIFY_PEER
-    else
-      @verify_mode = OpenSSL::SSL::VERIFY_NONE
-    end
-    @post_ws = "/json-rpc/" + connection_version
-    @url = "https://"+@host+":"+@port.to_s+"/json-rpc/"+@connection_version.to_s
-  end
-
-  def send_request(payload)
-    uri = URI.parse(@url)
-    uri.query = URI.encode_www_form(payload)
-    https = Net::HTTP.new(uri.host,uri.port)
-    https.use_ssl = true
-    https.verify_mode = @verify_mode
-    req = Net::HTTP::Get.new(uri.request_uri)
-    req.basic_auth @user, @pass
-    res = https.request(req)
-    puts(res)
-    puts(res.body)
-    output = JSON.parse(res.body)
-    return output["result"]
-  end
-
-  def check_connection(version, type)
-    if @connection_version < version
-      raise "The connection version is too low. You need a connection of at least version "+version+" to run this command."
-    end
-    if(type == "Cluster" && @port == "442")
-      raise "This command can only be run on a Cluster connection. You tried to run it on a Node connection."
-    end
-    if(type == "Node" && @port == "443")
-      raise "This command can only be run on a Node connection. You tried to run it on a Cluster connection."
-    end
+    super(host, port, username, password, connection_version, verify_ssl)
   end
 
   def add_account(username,initiator_secret = nil,target_secret = nil,attributes = nil)
@@ -61,23 +24,26 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(username, 'username', 'str')
+    
     payload ={ 
-      "username" => username,
-      "method" => "AddAccount"
+      'username' => username,
+      'method' => 'AddAccount'
     }
     
     if initiator_secret != nil
-      raise "initiator_secret should be of type CHAPSecret." unless initiator_secret.class.name == "CHAPSecret"
+      check_parameter(initiator_secret, 'initiator_secret', 'CHAPSecret')
       payload["initiatorSecret"] = initiator_secret.secret
     end
     if target_secret != nil
-      raise "target_secret should be of type CHAPSecret." unless target_secret.class.name == "CHAPSecret"
+      check_parameter(target_secret, 'target_secret', 'CHAPSecret')
       payload["targetSecret"] = target_secret.secret
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -106,11 +72,13 @@ class Element
     # param: int accountID: [required] Specifies the account for which details are gathered. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(account_id, 'account_id', 'int')
+    
     payload ={ 
-      "accountID" => account_id,
-      "method" => "GetAccountByID"
+      'accountID' => account_id,
+      'method' => 'GetAccountByID'
     }
     
     json_payload = payload
@@ -131,11 +99,13 @@ class Element
     # param: str username: [required] Username for the account. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(username, 'username', 'str')
+    
     payload ={ 
-      "username" => username,
-      "method" => "GetAccountByName"
+      'username' => username,
+      'method' => 'GetAccountByName'
     }
     
     json_payload = payload
@@ -158,17 +128,19 @@ class Element
     # param: int limit:  Maximum number of AccountInfo objects to return. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListAccounts"
+      'method' => 'ListAccounts'
     }
     
     if start_account_id != nil
-      payload["startAccountID"] = start_account_id
+      check_parameter(start_account_id, 'start_account_id', 'int')
+      payload['startAccountID'] = start_account_id
     end
     if limit != nil
-      payload["limit"] = limit
+      check_parameter(limit, 'limit', 'int')
+      payload['limit'] = limit
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -204,29 +176,34 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(account_id, 'account_id', 'int')
+    
     payload ={ 
-      "accountID" => account_id,
-      "method" => "ModifyAccount"
+      'accountID' => account_id,
+      'method' => 'ModifyAccount'
     }
     
     if username != nil
-      payload["username"] = username
+      check_parameter(username, 'username', 'str')
+      payload['username'] = username
     end
     if status != nil
-      payload["status"] = status
+      check_parameter(status, 'status', 'str')
+      payload['status'] = status
     end
     if initiator_secret != nil
-      raise "initiator_secret should be of type CHAPSecret." unless initiator_secret.class.name == "CHAPSecret"
+      check_parameter(initiator_secret, 'initiator_secret', 'CHAPSecret')
       payload["initiatorSecret"] = initiator_secret.secret
     end
     if target_secret != nil
-      raise "target_secret should be of type CHAPSecret." unless target_secret.class.name == "CHAPSecret"
+      check_parameter(target_secret, 'target_secret', 'CHAPSecret')
       payload["targetSecret"] = target_secret.secret
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -263,11 +240,13 @@ class Element
     # param: int accountID: [required] AccountID for the account to remove. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(account_id, 'account_id', 'int')
+    
     payload ={ 
-      "accountID" => account_id,
-      "method" => "RemoveAccount"
+      'accountID' => account_id,
+      'method' => 'RemoveAccount'
     }
     
     json_payload = payload
@@ -290,15 +269,18 @@ class Element
     # param: bool force:  
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(account_id, 'account_id', 'int')
+    
     payload ={ 
-      "accountID" => account_id,
-      "method" => "GetAccountEfficiency"
+      'accountID' => account_id,
+      'method' => 'GetAccountEfficiency'
     }
     
     if force != nil
-      payload["force"] = force
+      check_parameter(force, 'force', 'bool')
+      payload['force'] = force
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -323,15 +305,18 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(name, 'name', 'str')
+    
     payload ={ 
-      "name" => name,
-      "method" => "CreateBackupTarget"
+      'name' => name,
+      'method' => 'CreateBackupTarget'
     }
     
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -354,11 +339,13 @@ class Element
     # param: int backupTargetID: [required] Unique identifier assigned to the backup target. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(backup_target_id, 'backup_target_id', 'int')
+    
     payload ={ 
-      "backupTargetID" => backup_target_id,
-      "method" => "GetBackupTarget"
+      'backupTargetID' => backup_target_id,
+      'method' => 'GetBackupTarget'
     }
     
     json_payload = payload
@@ -377,10 +364,10 @@ class Element
     ######
     # You can use ListBackupTargets to retrieve information about all backup targets that have been created.######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListBackupTargets"
+      'method' => 'ListBackupTargets'
     }
     
     json_payload = payload
@@ -400,18 +387,22 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(backup_target_id, 'backup_target_id', 'int')
+    
     payload ={ 
-      "backupTargetID" => backup_target_id,
-      "method" => "ModifyBackupTarget"
+      'backupTargetID' => backup_target_id,
+      'method' => 'ModifyBackupTarget'
     }
     
     if name != nil
-      payload["name"] = name
+      check_parameter(name, 'name', 'str')
+      payload['name'] = name
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -437,11 +428,13 @@ class Element
     # param: int backupTargetID: [required] Unique target ID of the target to remove. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(backup_target_id, 'backup_target_id', 'int')
+    
     payload ={ 
-      "backupTargetID" => backup_target_id,
-      "method" => "RemoveBackupTarget"
+      'backupTargetID' => backup_target_id,
+      'method' => 'RemoveBackupTarget'
     }
     
     json_payload = payload
@@ -461,10 +454,10 @@ class Element
     # Return the high-level capacity measurements for an entire cluster.
     # The fields returned from this method can be used to calculate the efficiency rates that are displayed in the Element User Interface.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetClusterCapacity"
+      'method' => 'GetClusterCapacity'
     }
     
     json_payload = payload
@@ -478,10 +471,10 @@ class Element
     ######
     # Return configuration information about the cluster.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetClusterInfo"
+      'method' => 'GetClusterInfo'
     }
     
     json_payload = payload
@@ -496,10 +489,10 @@ class Element
     # Return information about the Element software version running on each node in the cluster.
     # Information about the nodes that are currently in the process of upgrading software is also returned.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetClusterVersionInfo"
+      'method' => 'GetClusterVersionInfo'
     }
     
     json_payload = payload
@@ -513,10 +506,10 @@ class Element
     ######
     # GetLimits enables you to retrieve the limit values set by the API. These values might change between releases of  Element, but do not change without an update to the system. Knowing the limit values set by the API can be useful when writing API scripts for user-facing tools.NOTE: The GetLimits method returns the limits for the current software version regardless of the API endpoint version used to pass the method.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetLimits"
+      'method' => 'GetLimits'
     }
     
     json_payload = payload
@@ -538,23 +531,27 @@ class Element
     # param: str eventQueueType:  
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListEvents"
+      'method' => 'ListEvents'
     }
     
     if max_events != nil
-      payload["maxEvents"] = max_events
+      check_parameter(max_events, 'max_events', 'int')
+      payload['maxEvents'] = max_events
     end
     if start_event_id != nil
-      payload["startEventID"] = start_event_id
+      check_parameter(start_event_id, 'start_event_id', 'int')
+      payload['startEventID'] = start_event_id
     end
     if end_event_id != nil
-      payload["endEventID"] = end_event_id
+      check_parameter(end_event_id, 'end_event_id', 'int')
+      payload['endEventID'] = end_event_id
     end
     if event_queue_type != nil
-      payload["eventQueueType"] = event_queue_type
+      check_parameter(event_queue_type, 'event_queue_type', 'str')
+      payload['eventQueueType'] = event_queue_type
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -590,23 +587,27 @@ class Element
     # param: str faultTypes:  Determines the types of faults returned: current: List active, unresolved faults. <b>resolved</b>: List faults that were previously detected and resolved. <b>all</b>: (Default) List both current and resolved faults. You can see the fault status in the 'resolved' field of the Cluster Fault object. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListClusterFaults"
+      'method' => 'ListClusterFaults'
     }
     
     if exceptions != nil
-      payload["exceptions"] = exceptions
+      check_parameter(exceptions, 'exceptions', 'bool')
+      payload['exceptions'] = exceptions
     end
     if best_practices != nil
-      payload["bestPractices"] = best_practices
+      check_parameter(best_practices, 'best_practices', 'bool')
+      payload['bestPractices'] = best_practices
     end
     if update != nil
-      payload["update"] = update
+      check_parameter(update, 'update', 'bool')
+      payload['update'] = update
     end
     if fault_types != nil
-      payload["faultTypes"] = fault_types
+      check_parameter(fault_types, 'fault_types', 'str')
+      payload['faultTypes'] = fault_types
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -635,14 +636,15 @@ class Element
     # param: str faultTypes:  Determines the types of faults cleared:<br/> <b>current</b>: Faults that are currently detected and have not been resolved.<br/> <b>resolved</b>: Faults that were previously detected and resolved.<br/> <b>all</b>: Both current and resolved faults are cleared. The fault status can be determined by the "resolved" field of the fault object. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ClearClusterFaults"
+      'method' => 'ClearClusterFaults'
     }
     
     if fault_types != nil
-      payload["faultTypes"] = fault_types
+      check_parameter(fault_types, 'fault_types', 'str')
+      payload['faultTypes'] = fault_types
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -662,10 +664,10 @@ class Element
     # <br/><br/>
     # <b>Note</b>: This method is available only through the per-node API endpoint 5.0 or later.######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
     payload ={ 
-      "method" => "GetClusterConfig"
+      'method' => 'GetClusterConfig'
     }
     
     json_payload = payload
@@ -679,10 +681,10 @@ class Element
     ######
     # GetClusterFullThreshold is used to view the stages set for cluster fullness levels. All levels are returned when this method is entered.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetClusterFullThreshold"
+      'method' => 'GetClusterFullThreshold'
     }
     
     json_payload = payload
@@ -702,20 +704,23 @@ class Element
     # param: int maxMetadataOverProvisionFactor:  A value representative of the number of times metadata space can be over provisioned relative to the amount of space available. For example, if there was enough metadata space to store 100 TiB of volumes and this number was set to 5, then 500 TiB worth of volumes could be created. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ModifyClusterFullThreshold"
+      'method' => 'ModifyClusterFullThreshold'
     }
     
     if stage2_aware_threshold != nil
-      payload["stage2AwareThreshold"] = stage2_aware_threshold
+      check_parameter(stage2_aware_threshold, 'stage2_aware_threshold', 'int')
+      payload['stage2AwareThreshold'] = stage2_aware_threshold
     end
     if stage3_block_threshold_percent != nil
-      payload["stage3BlockThresholdPercent"] = stage3_block_threshold_percent
+      check_parameter(stage3_block_threshold_percent, 'stage3_block_threshold_percent', 'int')
+      payload['stage3BlockThresholdPercent'] = stage3_block_threshold_percent
     end
     if max_metadata_over_provision_factor != nil
-      payload["maxMetadataOverProvisionFactor"] = max_metadata_over_provision_factor
+      check_parameter(max_metadata_over_provision_factor, 'max_metadata_over_provision_factor', 'int')
+      payload['maxMetadataOverProvisionFactor'] = max_metadata_over_provision_factor
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -739,10 +744,10 @@ class Element
     ######
     # GetClusterStats is used to return high-level activity measurements for the cluster. Values returned are cumulative from the creation of the cluster.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetClusterStats"
+      'method' => 'GetClusterStats'
     }
     
     json_payload = payload
@@ -756,10 +761,10 @@ class Element
     ######
     # ListClusterAdmins returns the list of all cluster administrators for the cluster. There can be several cluster administrators that have different levels of permissions. There can be only one primary cluster administrator in the system. The primary Cluster Admin is the administrator that was created when the cluster was created. LDAP administrators can also be created when setting up an LDAP system on the cluster.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListClusterAdmins"
+      'method' => 'ListClusterAdmins'
     }
     
     json_payload = payload
@@ -785,20 +790,28 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(username, 'username', 'str')
+    
+    check_parameter(password, 'password', 'str')
+    
+    check_parameter(access, 'access', 'str')
+    
     payload ={ 
-      "username" => username,
-      "password" => password,
-      "access" => access,
-      "method" => "AddClusterAdmin"
+      'username' => username,
+      'password' => password,
+      'access' => access,
+      'method' => 'AddClusterAdmin'
     }
     
     if accept_eula != nil
-      payload["acceptEula"] = accept_eula
+      check_parameter(accept_eula, 'accept_eula', 'bool')
+      payload['acceptEula'] = accept_eula
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -836,21 +849,26 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(cluster_admin_id, 'cluster_admin_id', 'int')
+    
     payload ={ 
-      "clusterAdminID" => cluster_admin_id,
-      "method" => "ModifyClusterAdmin"
+      'clusterAdminID' => cluster_admin_id,
+      'method' => 'ModifyClusterAdmin'
     }
     
     if password != nil
-      payload["password"] = password
+      check_parameter(password, 'password', 'str')
+      payload['password'] = password
     end
     if access != nil
-      payload["access"] = access
+      check_parameter(access, 'access', 'str')
+      payload['access'] = access
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -879,11 +897,13 @@ class Element
     # param: int clusterAdminID: [required] ClusterAdminID for the Cluster Admin to remove. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(cluster_admin_id, 'cluster_admin_id', 'int')
+    
     payload ={ 
-      "clusterAdminID" => cluster_admin_id,
-      "method" => "RemoveClusterAdmin"
+      'clusterAdminID' => cluster_admin_id,
+      'method' => 'RemoveClusterAdmin'
     }
     
     json_payload = payload
@@ -906,11 +926,13 @@ class Element
     # param: ClusterConfig cluster: [required] Objects that are changed for the cluster interface settings. Only the fields you want changed need to be added to this method as objects in the "cluster" parameter. 
     ######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
+    check_parameter(cluster, 'cluster', 'ClusterConfig')
+    
     payload ={ 
-      "cluster" => cluster,
-      "method" => "SetClusterConfig"
+      'cluster' => cluster,
+      'method' => 'SetClusterConfig'
     }
     
     json_payload = payload
@@ -929,10 +951,10 @@ class Element
     ######
     # GetSnmpACL is used to return the current SNMP access permissions on the cluster nodes.######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetSnmpACL"
+      'method' => 'GetSnmpACL'
     }
     
     json_payload = payload
@@ -950,12 +972,16 @@ class Element
     # param: SnmpV3UsmUser usmUsers: [required] List of users and the type of access they have to the SNMP servers running on the cluster nodes. REQUIRED if SNMP v3 is enabled. 
     ######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
+    check_parameter(networks, 'networks', 'SnmpNetwork')
+    
+    check_parameter(usm_users, 'usm_users', 'SnmpV3UsmUser')
+    
     payload ={ 
-      "networks" => networks,
-      "usmUsers" => usm_users,
-      "method" => "SetSnmpACL"
+      'networks' => networks,
+      'usmUsers' => usm_users,
+      'method' => 'SetSnmpACL'
     }
     
     json_payload = payload
@@ -977,10 +1003,10 @@ class Element
     ######
     # GetSnmpTrapInfo is used to return current SNMP trap configuration information.######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetSnmpTrapInfo"
+      'method' => 'GetSnmpTrapInfo'
     }
     
     json_payload = payload
@@ -1002,14 +1028,22 @@ class Element
     # param: bool clusterEventTrapsEnabled: [required] If "true", when a cluster fault is logged a corresponding solidFireClusterEventNotification is sent to the configured list of trap recipients. 
     ######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
+    check_parameter(trap_recipients, 'trap_recipients', 'SnmpTrapRecipient')
+    
+    check_parameter(cluster_fault_traps_enabled, 'cluster_fault_traps_enabled', 'bool')
+    
+    check_parameter(cluster_fault_resolved_traps_enabled, 'cluster_fault_resolved_traps_enabled', 'bool')
+    
+    check_parameter(cluster_event_traps_enabled, 'cluster_event_traps_enabled', 'bool')
+    
     payload ={ 
-      "trapRecipients" => trap_recipients,
-      "clusterFaultTrapsEnabled" => cluster_fault_traps_enabled,
-      "clusterFaultResolvedTrapsEnabled" => cluster_fault_resolved_traps_enabled,
-      "clusterEventTrapsEnabled" => cluster_event_traps_enabled,
-      "method" => "SetSnmpTrapInfo"
+      'trapRecipients' => trap_recipients,
+      'clusterFaultTrapsEnabled' => cluster_fault_traps_enabled,
+      'clusterFaultResolvedTrapsEnabled' => cluster_fault_resolved_traps_enabled,
+      'clusterEventTrapsEnabled' => cluster_event_traps_enabled,
+      'method' => 'SetSnmpTrapInfo'
     }
     
     json_payload = payload
@@ -1039,11 +1073,13 @@ class Element
     # param: bool snmpV3Enabled: [required] If set to "true", then SNMP v3 is enabled on each node in the cluster. If set to "false", then SNMP v2 is enabled. 
     ######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
+    check_parameter(snmp_v3_enabled, 'snmp_v3_enabled', 'bool')
+    
     payload ={ 
-      "snmpV3Enabled" => snmp_v3_enabled,
-      "method" => "EnableSnmp"
+      'snmpV3Enabled' => snmp_v3_enabled,
+      'method' => 'EnableSnmp'
     }
     
     json_payload = payload
@@ -1062,10 +1098,10 @@ class Element
     ######
     # DisableSnmp is used to disable SNMP on the cluster nodes.######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
     payload ={ 
-      "method" => "DisableSnmp"
+      'method' => 'DisableSnmp'
     }
     
     json_payload = payload
@@ -1081,10 +1117,10 @@ class Element
     # <br/><br/>
     # <b>Note</b>: GetSnmpInfo will be available for Element OS 8 and prior releases. It will be deprecated after Element OS 8. There are two new SNMP API methods that you should migrate over to. They are GetSnmpState and GetSnmpACL. Please see details in this document for their descriptions and usage.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetSnmpInfo"
+      'method' => 'GetSnmpInfo'
     }
     
     json_payload = payload
@@ -1108,23 +1144,27 @@ class Element
     # param: SnmpV3UsmUser usmUsers:  If SNMP v3 is enabled, this value must be passed in place of the "networks" parameter. SNMP v3 only. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "SetSnmpInfo"
+      'method' => 'SetSnmpInfo'
     }
     
     if networks != nil
-      payload["networks"] = networks
+      check_parameter(networks, 'networks', 'SnmpNetwork')
+      payload['networks'] = networks
     end
     if enabled != nil
-      payload["enabled"] = enabled
+      check_parameter(enabled, 'enabled', 'bool')
+      payload['enabled'] = enabled
     end
     if snmp_v3_enabled != nil
-      payload["snmpV3Enabled"] = snmp_v3_enabled
+      check_parameter(snmp_v3_enabled, 'snmp_v3_enabled', 'bool')
+      payload['snmpV3Enabled'] = snmp_v3_enabled
     end
     if usm_users != nil
-      payload["usmUsers"] = usm_users
+      check_parameter(usm_users, 'usm_users', 'SnmpV3UsmUser')
+      payload['usmUsers'] = usm_users
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -1153,10 +1193,10 @@ class Element
     # <br/><br/>
     # <b>Note</b>: GetSnmpState is new for Element OS 8. Please use this method and SetSnmpACL to migrate your SNMP functionality in the future.######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetSnmpState"
+      'method' => 'GetSnmpState'
     }
     
     json_payload = payload
@@ -1170,10 +1210,10 @@ class Element
     ######
     # Retrieves the current version of the API and a list of all supported versions.######
 
-    check_connection(1.0, "Both")
-
+    check_connection(1.0, 'Both')
+    
     payload ={ 
-      "method" => "GetAPI"
+      'method' => 'GetAPI'
     }
     
     json_payload = payload
@@ -1187,10 +1227,10 @@ class Element
     ######
     # GetNtpInfo is used to return the current network time protocol (NTP) configuration information.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetNtpInfo"
+      'method' => 'GetNtpInfo'
     }
     
     json_payload = payload
@@ -1206,14 +1246,15 @@ class Element
     # param: bool force:  
     ######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetClusterState"
+      'method' => 'GetClusterState'
     }
     
     if force != nil
-      payload["force"] = force
+      check_parameter(force, 'force', 'bool')
+      payload['force'] = force
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -1231,10 +1272,10 @@ class Element
     ######
     # GetCurrentClusterAdmin returns information for the current primary cluster administrator. The primary Cluster Admin was ncreated when the cluster was created.######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetCurrentClusterAdmin"
+      'method' => 'GetCurrentClusterAdmin'
     }
     
     json_payload = payload
@@ -1250,10 +1291,10 @@ class Element
     # Enabling or disabling encryption should be performed when the cluster is running and in a healthy state. Encryption can be enabled or disabled at your discretion and can be performed as often as you need.
     # <br/><b>Note</b>: This process is asynchronous and returns a response before encryption is enabled. The GetClusterInfo method can be used to poll the system to see when the process has completed.######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
     payload ={ 
-      "method" => "EnableEncryptionAtRest"
+      'method' => 'EnableEncryptionAtRest'
     }
     
     json_payload = payload
@@ -1269,10 +1310,10 @@ class Element
     # This disable method is asynchronous and returns a response before encryption is disabled.
     # You can use the GetClusterInfo method to poll the system to see when the process has completed.######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
     payload ={ 
-      "method" => "DisableEncryptionAtRest"
+      'method' => 'DisableEncryptionAtRest'
     }
     
     json_payload = payload
@@ -1286,10 +1327,10 @@ class Element
     ######
     # SnmpSendTestTraps enables you to test SNMP functionality for a cluster. This method instructs the cluster to send test SNMP traps to the currently configured SNMP manager.######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
     payload ={ 
-      "method" => "SnmpSendTestTraps"
+      'method' => 'SnmpSendTestTraps'
     }
     
     json_payload = payload
@@ -1313,11 +1354,13 @@ class Element
     # param: int asyncHandle: [required] A value that was returned from the original asynchronous method call. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(async_handle, 'async_handle', 'int')
+    
     payload ={ 
-      "asyncHandle" => async_handle,
-      "method" => "GetAsyncResult"
+      'asyncHandle' => async_handle,
+      'method' => 'GetAsyncResult'
     }
     
     json_payload = payload
@@ -1347,11 +1390,13 @@ class Element
     # param: NewDrive drives: [required] List of drives to add to the cluster. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(drives, 'drives', 'NewDrive')
+    
     payload ={ 
-      "drives" => drives,
-      "method" => "AddDrives"
+      'drives' => drives,
+      'method' => 'AddDrives'
     }
     
     json_payload = payload
@@ -1371,10 +1416,10 @@ class Element
     # ListDrives allows you to retrieve the list of the drives that exist in the cluster's active nodes.
     # This method returns drives that have been added as volume metadata or block drives as well as drives that have not been added and are available.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListDrives"
+      'method' => 'ListDrives'
     }
     
     json_payload = payload
@@ -1390,11 +1435,13 @@ class Element
     # param: int driveID: [required] DriveID for the drive information requested. DriveIDs can be obtained via the "ListDrives" method. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(drive_id, 'drive_id', 'int')
+    
     payload ={ 
-      "driveID" => drive_id,
-      "method" => "GetDriveHardwareInfo"
+      'driveID' => drive_id,
+      'method' => 'GetDriveHardwareInfo'
     }
     
     json_payload = payload
@@ -1415,11 +1462,13 @@ class Element
     # param: bool force: [required] This must be set to true in order to retrieve the drive hardware stats from the cluster. 
     ######
 
-    check_connection(7.0, "Node")
-
+    check_connection(7.0, 'Node')
+    
+    check_parameter(force, 'force', 'bool')
+    
     payload ={ 
-      "force" => force,
-      "method" => "ListDriveHardware"
+      'force' => force,
+      'method' => 'ListDriveHardware'
     }
     
     json_payload = payload
@@ -1444,12 +1493,16 @@ class Element
     # param: bool force: [required] The "force" parameter must be included on this method to successfully reset a drive. 
     ######
 
-    check_connection(6.0, "Node")
-
+    check_connection(6.0, 'Node')
+    
+    check_parameter(drives, 'drives', 'str')
+    
+    check_parameter(force, 'force', 'bool')
+    
     payload ={ 
-      "drives" => drives,
-      "force" => force,
-      "method" => "ResetDrives"
+      'drives' => drives,
+      'force' => force,
+      'method' => 'ResetDrives'
     }
     
     json_payload = payload
@@ -1479,15 +1532,18 @@ class Element
     # param: bool force: [required] The "force" parameter must be included on this method to successfully test the drives on the node. 
     ######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
+    check_parameter(force, 'force', 'bool')
+    
     payload ={ 
-      "force" => force,
-      "method" => "TestDrives"
+      'force' => force,
+      'method' => 'TestDrives'
     }
     
     if minutes != nil
-      payload["minutes"] = minutes
+      check_parameter(minutes, 'minutes', 'int')
+      payload['minutes'] = minutes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -1511,11 +1567,13 @@ class Element
     # param: int driveID: [required] Specifies the drive for which statistics are gathered. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(drive_id, 'drive_id', 'int')
+    
     payload ={ 
-      "driveID" => drive_id,
-      "method" => "GetDriveStats"
+      'driveID' => drive_id,
+      'method' => 'GetDriveStats'
     }
     
     json_payload = payload
@@ -1540,11 +1598,13 @@ class Element
     # param: int drives: [required] List of driveIDs to secure erase. 
     ######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
+    check_parameter(drives, 'drives', 'int')
+    
     payload ={ 
-      "drives" => drives,
-      "method" => "SecureEraseDrives"
+      'drives' => drives,
+      'method' => 'SecureEraseDrives'
     }
     
     json_payload = payload
@@ -1578,11 +1638,13 @@ class Element
     # param: int drives: [required] List of driveIDs to remove from the cluster. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(drives, 'drives', 'int')
+    
     payload ={ 
-      "drives" => drives,
-      "method" => "RemoveDrives"
+      'drives' => drives,
+      'method' => 'RemoveDrives'
     }
     
     json_payload = payload
@@ -1603,14 +1665,15 @@ class Element
     # param: str feature:  Valid values: vvols: Find the status of the Virtual Volumes (VVOLs) cluster feature. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetFeatureStatus"
+      'method' => 'GetFeatureStatus'
     }
     
     if feature != nil
-      payload["feature"] = feature
+      check_parameter(feature, 'feature', 'str')
+      payload['feature'] = feature
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -1630,11 +1693,13 @@ class Element
     # param: str feature: [required] Valid values: vvols: Enable the Virtual Volumes (VVOLs) cluster feature. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(feature, 'feature', 'str')
+    
     payload ={ 
-      "feature" => feature,
-      "method" => "EnableFeature"
+      'feature' => feature,
+      'method' => 'EnableFeature'
     }
     
     json_payload = payload
@@ -1653,10 +1718,10 @@ class Element
     ######
     # The ListFibreChannelPortInfo is used to return information about the Fibre Channel ports. The API method is intended for use on individual nodes; userid and password is required for access to individual Fibre Channel nodes. However, this method can be used on the cluster if the force=true parameter is included in the method call. When used on the cluster, all Fibre Channel interfaces are listed.######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListFibreChannelPortInfo"
+      'method' => 'ListFibreChannelPortInfo'
     }
     
     json_payload = payload
@@ -1672,14 +1737,15 @@ class Element
     # param: bool force:  Specify force=true to call method on all member nodes of the cluster. 
     ######
 
-    check_connection(7.0, "Node")
-
+    check_connection(7.0, 'Node')
+    
     payload ={ 
-      "method" => "ListNodeFibreChannelPortInfo"
+      'method' => 'ListNodeFibreChannelPortInfo'
     }
     
     if force != nil
-      payload["force"] = force
+      check_parameter(force, 'force', 'bool')
+      payload['force'] = force
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -1697,10 +1763,10 @@ class Element
     ######
     # The ListFibreChannelSessions is used to return information about the active Fibre Channel sessions on a cluster.######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListFibreChannelSessions"
+      'method' => 'ListFibreChannelSessions'
     }
     
     json_payload = payload
@@ -1716,14 +1782,15 @@ class Element
     # param: str type:  Include only a certain type of hardware information in the response. Can be one of the following:drives: List only drive information in the response.nodes: List only node information in the response.all: Include both drive and node information in the response.If this parameter is omitted, a type of "all" is assumed. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetClusterHardwareInfo"
+      'method' => 'GetClusterHardwareInfo'
     }
     
     if type != nil
-      payload["type"] = type
+      check_parameter(type, 'type', 'str')
+      payload['type'] = type
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -1741,10 +1808,10 @@ class Element
     ######
     # GetHardwareConfig enables you to display the hardware configuration information for a node. NOTE: This method is available only through the per-node API endpoint 5.0 or later.######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
     payload ={ 
-      "method" => "GetHardwareConfig"
+      'method' => 'GetHardwareConfig'
     }
     
     json_payload = payload
@@ -1760,11 +1827,13 @@ class Element
     # param: int nodeID: [required] The ID of the node for which hardware information is being requested.  Information about a  node is returned if a   node is specified. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(node_id, 'node_id', 'int')
+    
     payload ={ 
-      "nodeID" => node_id,
-      "method" => "GetNodeHardwareInfo"
+      'nodeID' => node_id,
+      'method' => 'GetNodeHardwareInfo'
     }
     
     json_payload = payload
@@ -1783,10 +1852,10 @@ class Element
     ######
     # GetNvramInfo allows you to retrieve information from each node about the NVRAM card.  ######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
     payload ={ 
-      "method" => "GetNvramInfo"
+      'method' => 'GetNvramInfo'
     }
     
     json_payload = payload
@@ -1803,11 +1872,13 @@ class Element
     # param: CreateInitiator initiators: [required] A list of Initiator objects containing characteristics of each new initiator 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(initiators, 'initiators', 'CreateInitiator')
+    
     payload ={ 
-      "initiators" => initiators,
-      "method" => "CreateInitiators"
+      'initiators' => initiators,
+      'method' => 'CreateInitiators'
     }
     
     json_payload = payload
@@ -1829,11 +1900,13 @@ class Element
     # param: ModifyInitiator initiators: [required] A list of Initiator objects containing characteristics of each initiator to modify. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(initiators, 'initiators', 'ModifyInitiator')
+    
     payload ={ 
-      "initiators" => initiators,
-      "method" => "ModifyInitiators"
+      'initiators' => initiators,
+      'method' => 'ModifyInitiators'
     }
     
     json_payload = payload
@@ -1855,11 +1928,13 @@ class Element
     # param: int initiators: [required] An array of IDs of initiators to delete. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(initiators, 'initiators', 'int')
+    
     payload ={ 
-      "initiators" => initiators,
-      "method" => "DeleteInitiators"
+      'initiators' => initiators,
+      'method' => 'DeleteInitiators'
     }
     
     json_payload = payload
@@ -1884,20 +1959,23 @@ class Element
     # param: int initiators:  A list of initiator IDs to retrieve. You can supply this parameter or the "startInitiatorID" parameter, but not both. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListInitiators"
+      'method' => 'ListInitiators'
     }
     
     if start_initiator_id != nil
-      payload["startInitiatorID"] = start_initiator_id
+      check_parameter(start_initiator_id, 'start_initiator_id', 'int')
+      payload['startInitiatorID'] = start_initiator_id
     end
     if limit != nil
-      payload["limit"] = limit
+      check_parameter(limit, 'limit', 'int')
+      payload['limit'] = limit
     end
     if initiators != nil
-      payload["initiators"] = initiators
+      check_parameter(initiators, 'initiators', 'int')
+      payload['initiators'] = initiators
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -1926,15 +2004,18 @@ class Element
     # param: dict parameters:  An object, normally a dictionary or hashtable of the key/value pairs, to be passed as the params for the method being invoked. 
     ######
 
-    check_connection(1.0, "Both")
-
+    check_connection(1.0, 'Both')
+    
+    check_parameter(method, 'method', 'str')
+    
     payload ={ 
-      "method" => method,
-      "method" => "InvokeSFApi"
+      'method' => method,
+      'method' => 'InvokeSFApi'
     }
     
     if parameters != nil
-      payload["parameters"] = parameters
+      check_parameter(parameters, 'parameters', 'dict')
+      payload['parameters'] = parameters
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -1965,19 +2046,25 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
+    check_parameter(username, 'username', 'str')
+    
+    check_parameter(access, 'access', 'str')
+    
     payload ={ 
-      "username" => username,
-      "access" => access,
-      "method" => "AddLdapClusterAdmin"
+      'username' => username,
+      'access' => access,
+      'method' => 'AddLdapClusterAdmin'
     }
     
     if accept_eula != nil
-      payload["acceptEula"] = accept_eula
+      check_parameter(accept_eula, 'accept_eula', 'bool')
+      payload['acceptEula'] = accept_eula
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -2010,16 +2097,21 @@ class Element
     # param: LdapConfiguration ldapConfiguration:  An ldapConfiguration object to be tested. If this parameter is provided, the API call will test the provided configuration even if LDAP authentication is currently disabled. 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
+    check_parameter(username, 'username', 'str')
+    
+    check_parameter(password, 'password', 'str')
+    
     payload ={ 
-      "username" => username,
-      "password" => password,
-      "method" => "TestLdapAuthentication"
+      'username' => username,
+      'password' => password,
+      'method' => 'TestLdapAuthentication'
     }
     
     if ldap_configuration != nil
-      payload["ldapConfiguration"] = ldap_configuration
+      check_parameter(ldap_configuration, 'ldap_configuration', 'LdapConfiguration')
+      payload['ldapConfiguration'] = ldap_configuration
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -2043,10 +2135,10 @@ class Element
     ######
     # The GetLdapConfiguration is used to get the LDAP configuration currently active on the cluster.######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetLdapConfiguration"
+      'method' => 'GetLdapConfiguration'
     }
     
     json_payload = payload
@@ -2080,39 +2172,50 @@ class Element
     # param: str userSearchFilter:  REQUIRED for SearchAndBind.<br/> The LDAP filter to use.<br/> The string should have the placeholder text "%USERNAME%" which will be replaced with the username of the authenticating user.<br/> Example: (&(objectClass=person) (sAMAccountName=%USERNAME%)) will use the sAMAccountName field in Active Directory to match the nusername entered at cluster login. 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
+    check_parameter(server_uris, 'server_uris', 'str')
+    
     payload ={ 
-      "serverURIs" => server_uris,
-      "method" => "EnableLdapAuthentication"
+      'serverURIs' => server_uris,
+      'method' => 'EnableLdapAuthentication'
     }
     
     if auth_type != nil
-      payload["authType"] = auth_type
+      check_parameter(auth_type, 'auth_type', 'str')
+      payload['authType'] = auth_type
     end
     if group_search_base_dn != nil
-      payload["groupSearchBaseDN"] = group_search_base_dn
+      check_parameter(group_search_base_dn, 'group_search_base_dn', 'str')
+      payload['groupSearchBaseDN'] = group_search_base_dn
     end
     if group_search_custom_filter != nil
-      payload["groupSearchCustomFilter"] = group_search_custom_filter
+      check_parameter(group_search_custom_filter, 'group_search_custom_filter', 'str')
+      payload['groupSearchCustomFilter'] = group_search_custom_filter
     end
     if group_search_type != nil
-      payload["groupSearchType"] = group_search_type
+      check_parameter(group_search_type, 'group_search_type', 'str')
+      payload['groupSearchType'] = group_search_type
     end
     if search_bind_dn != nil
-      payload["searchBindDN"] = search_bind_dn
+      check_parameter(search_bind_dn, 'search_bind_dn', 'str')
+      payload['searchBindDN'] = search_bind_dn
     end
     if search_bind_password != nil
-      payload["searchBindPassword"] = search_bind_password
+      check_parameter(search_bind_password, 'search_bind_password', 'str')
+      payload['searchBindPassword'] = search_bind_password
     end
     if user_dntemplate != nil
-      payload["userDNTemplate"] = user_dntemplate
+      check_parameter(user_dntemplate, 'user_dntemplate', 'str')
+      payload['userDNTemplate'] = user_dntemplate
     end
     if user_search_base_dn != nil
-      payload["userSearchBaseDN"] = user_search_base_dn
+      check_parameter(user_search_base_dn, 'user_search_base_dn', 'str')
+      payload['userSearchBaseDN'] = user_search_base_dn
     end
     if user_search_filter != nil
-      payload["userSearchFilter"] = user_search_filter
+      check_parameter(user_search_filter, 'user_search_filter', 'str')
+      payload['userSearchFilter'] = user_search_filter
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -2157,10 +2260,10 @@ class Element
     ######
     # The DisableLdapAuthentication method is used disable LDAP authentication and remove all LDAP configuration settings. This call will not remove any configured cluster admin accounts (user or group). However, those cluster admin accounts will no longer be able to log in.######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
     payload ={ 
-      "method" => "DisableLdapAuthentication"
+      'method' => 'DisableLdapAuthentication'
     }
     
     json_payload = payload
@@ -2174,10 +2277,10 @@ class Element
     ######
     # ListActiveNodes returns the list of currently active nodes that are in the cluster.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListActiveNodes"
+      'method' => 'ListActiveNodes'
     }
     
     json_payload = payload
@@ -2191,10 +2294,10 @@ class Element
     ######
     # ListAllNodes enables you to retrieve a list of active and pending nodes in the cluster.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListAllNodes"
+      'method' => 'ListAllNodes'
     }
     
     json_payload = payload
@@ -2209,10 +2312,10 @@ class Element
     # Gets the list of pending nodes.
     # Pending nodes are running and configured to join the cluster, but have not been added via the AddNodes method.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListPendingNodes"
+      'method' => 'ListPendingNodes'
     }
     
     json_payload = payload
@@ -2236,11 +2339,13 @@ class Element
     # param: int pendingNodes: [required] List of PendingNodeIDs for the Nodes to be added. You can obtain the list of Pending Nodes via the ListPendingNodes method. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(pending_nodes, 'pending_nodes', 'int')
+    
     payload ={ 
-      "pendingNodes" => pending_nodes,
-      "method" => "AddNodes"
+      'pendingNodes' => pending_nodes,
+      'method' => 'AddNodes'
     }
     
     json_payload = payload
@@ -2263,11 +2368,13 @@ class Element
     # param: int nodes: [required] List of NodeIDs for the nodes to be removed. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(nodes, 'nodes', 'int')
+    
     payload ={ 
-      "nodes" => nodes,
-      "method" => "RemoveNodes"
+      'nodes' => nodes,
+      'method' => 'RemoveNodes'
     }
     
     json_payload = payload
@@ -2288,10 +2395,10 @@ class Element
     # <br/><br/>
     # <b>Note</b>: This method is available only through the per-node API endpoint 5.0 or later.######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
     payload ={ 
-      "method" => "GetNetworkConfig"
+      'method' => 'GetNetworkConfig'
     }
     
     json_payload = payload
@@ -2311,11 +2418,13 @@ class Element
     # param: Config config: [required] Objects that you want changed for the cluster interface settings. 
     ######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
+    check_parameter(config, 'config', 'Config')
+    
     payload ={ 
-      "config" => config,
-      "method" => "SetConfig"
+      'config' => config,
+      'method' => 'SetConfig'
     }
     
     json_payload = payload
@@ -2340,11 +2449,13 @@ class Element
     # param: Network network: [required] Objects that will be changed for the node network settings. 
     ######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
+    check_parameter(network, 'network', 'Network')
+    
     payload ={ 
-      "network" => network,
-      "method" => "SetNetworkConfig"
+      'network' => network,
+      'method' => 'SetNetworkConfig'
     }
     
     json_payload = payload
@@ -2365,10 +2476,10 @@ class Element
     # <br/><br/>
     # <b>Note</b>: This method is available only through the per-node API endpoint 5.0 or later.######
 
-    check_connection(5.0, "Both")
-
+    check_connection(5.0, 'Both')
+    
     payload ={ 
-      "method" => "GetConfig"
+      'method' => 'GetConfig'
     }
     
     json_payload = payload
@@ -2384,11 +2495,13 @@ class Element
     # param: int nodeID: [required] Specifies the node for which statistics are gathered. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(node_id, 'node_id', 'int')
+    
     payload ={ 
-      "nodeID" => node_id,
-      "method" => "GetNodeStats"
+      'nodeID' => node_id,
+      'method' => 'GetNodeStats'
     }
     
     json_payload = payload
@@ -2407,10 +2520,10 @@ class Element
     ######
     # ListNodeStats is used to return the high-level activity measurements for all nodes in a cluster.######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListNodeStats"
+      'method' => 'ListNodeStats'
     }
     
     json_payload = payload
@@ -2425,10 +2538,10 @@ class Element
     # ListClusterPairs is used to list all of the clusters a cluster is paired with.
     # This method returns information about active and pending cluster pairings, such as statistics about the current pairing as well as the connectivity and latency (in milliseconds) of the cluster pairing.######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListClusterPairs"
+      'method' => 'ListClusterPairs'
     }
     
     json_payload = payload
@@ -2443,10 +2556,10 @@ class Element
     # ListActivePairedVolumes is used to list all of the active volumes paired with a volume.
     # Volumes listed in the return for this method include volumes with active and pending pairings.######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListActivePairedVolumes"
+      'method' => 'ListActivePairedVolumes'
     }
     
     json_payload = payload
@@ -2462,10 +2575,10 @@ class Element
     # The key created from this API method is used in the "CompleteClusterPairing" API method to establish a cluster pairing.
     # You can pair a cluster with a maximum of four other SolidFire clusters.######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
     payload ={ 
-      "method" => "StartClusterPairing"
+      'method' => 'StartClusterPairing'
     }
     
     json_payload = payload
@@ -2484,15 +2597,18 @@ class Element
     # param: str mode:  The mode of the volume on which to start the pairing process. The mode can only be set if the volume is the source volume.<br/> Possible values:<br/> <b>Async</b>: (default if no mode parameter specified) Writes are acknowledged when they complete locally. The cluster does not wait for writes to be replicated to the target cluster.<br/> <b>Sync</b>: Source acknowledges write when the data is stored locally and on the remote cluster.<br/> <b>SnapshotsOnly</b>: Only snapshots created on the source cluster will be replicated. Active writes from the source volume will not be replicated.<br/> 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "method" => "StartVolumePairing"
+      'volumeID' => volume_id,
+      'method' => 'StartVolumePairing'
     }
     
     if mode != nil
-      payload["mode"] = mode
+      check_parameter(mode, 'mode', 'str')
+      payload['mode'] = mode
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -2516,11 +2632,13 @@ class Element
     # param: str clusterPairingKey: [required] A string of characters that is returned from the "StartClusterPairing" API method. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(cluster_pairing_key, 'cluster_pairing_key', 'str')
+    
     payload ={ 
-      "clusterPairingKey" => cluster_pairing_key,
-      "method" => "CompleteClusterPairing"
+      'clusterPairingKey' => cluster_pairing_key,
+      'method' => 'CompleteClusterPairing'
     }
     
     json_payload = payload
@@ -2543,12 +2661,16 @@ class Element
     # param: int volumeID: [required] The ID of volume on which to complete the pairing process. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(volume_pairing_key, 'volume_pairing_key', 'str')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
     payload ={ 
-      "volumePairingKey" => volume_pairing_key,
-      "volumeID" => volume_id,
-      "method" => "CompleteVolumePairing"
+      'volumePairingKey' => volume_pairing_key,
+      'volumeID' => volume_id,
+      'method' => 'CompleteVolumePairing'
     }
     
     json_payload = payload
@@ -2573,11 +2695,13 @@ class Element
     # param: int clusterPairID: [required] Unique identifier used to pair two clusters. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(cluster_pair_id, 'cluster_pair_id', 'int')
+    
     payload ={ 
-      "clusterPairID" => cluster_pair_id,
-      "method" => "RemoveClusterPair"
+      'clusterPairID' => cluster_pair_id,
+      'method' => 'RemoveClusterPair'
     }
     
     json_payload = payload
@@ -2600,11 +2724,13 @@ class Element
     # param: int volumeID: [required] ID of the volume on which to stop the replication process. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "method" => "RemoveVolumePair"
+      'volumeID' => volume_id,
+      'method' => 'RemoveVolumePair'
     }
     
     json_payload = payload
@@ -2629,18 +2755,22 @@ class Element
     # param: str mode:  Volume replication mode.<br/> Possible values:<br/> <b>Async</b>: Writes are acknowledged when they complete locally. The cluster does not wait for writes to be replicated to the target cluster.<br/> <b>Sync</b>: The source acknowledges the write when the data is stored locally and on the remote cluster.<br/> <b>SnapshotsOnly</b>: Only snapshots created on the source cluster will be replicated. Active writes from the source volume are not replicated.<br/> 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "method" => "ModifyVolumePair"
+      'volumeID' => volume_id,
+      'method' => 'ModifyVolumePair'
     }
     
     if paused_manual != nil
-      payload["pausedManual"] = paused_manual
+      check_parameter(paused_manual, 'paused_manual', 'bool')
+      payload['pausedManual'] = paused_manual
     end
     if mode != nil
-      payload["mode"] = mode
+      check_parameter(mode, 'mode', 'str')
+      payload['mode'] = mode
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -2668,14 +2798,15 @@ class Element
     # param: UUID protocolEndpointIDs:  
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListProtocolEndpoints"
+      'method' => 'ListProtocolEndpoints'
     }
     
     if protocol_endpoint_ids != nil
-      payload["protocolEndpointIDs"] = protocol_endpoint_ids
+      check_parameter(protocol_endpoint_ids, 'protocol_endpoint_ids', 'UUID')
+      payload['protocolEndpointIDs'] = protocol_endpoint_ids
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -2709,27 +2840,34 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "method" => "CreateSnapshot"
+      'volumeID' => volume_id,
+      'method' => 'CreateSnapshot'
     }
     
     if snapshot_id != nil
-      payload["snapshotID"] = snapshot_id
+      check_parameter(snapshot_id, 'snapshot_id', 'int')
+      payload['snapshotID'] = snapshot_id
     end
     if name != nil
-      payload["name"] = name
+      check_parameter(name, 'name', 'str')
+      payload['name'] = name
     end
     if enable_remote_replication != nil
-      payload["enableRemoteReplication"] = enable_remote_replication
+      check_parameter(enable_remote_replication, 'enable_remote_replication', 'bool')
+      payload['enableRemoteReplication'] = enable_remote_replication
     end
     if retention != nil
-      payload["retention"] = retention
+      check_parameter(retention, 'retention', 'str')
+      payload['retention'] = retention
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -2767,11 +2905,13 @@ class Element
     # param: int snapshotID: [required] The ID of the snapshot to delete. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(snapshot_id, 'snapshot_id', 'int')
+    
     payload ={ 
-      "snapshotID" => snapshot_id,
-      "method" => "DeleteSnapshot"
+      'snapshotID' => snapshot_id,
+      'method' => 'DeleteSnapshot'
     }
     
     json_payload = payload
@@ -2792,14 +2932,15 @@ class Element
     # param: int volumeID:  The volume to list snapshots for. If not provided, all snapshots for all volumes are returned. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListSnapshots"
+      'method' => 'ListSnapshots'
     }
     
     if volume_id != nil
-      payload["volumeID"] = volume_id
+      check_parameter(volume_id, 'volume_id', 'int')
+      payload['volumeID'] = volume_id
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -2824,18 +2965,22 @@ class Element
     # param: bool enableRemoteReplication:  Use to enable the snapshot created to be replicated to a remote SolidFire cluster. Possible values: <br/><b>true</b>: the snapshot will be replicated to remote storage. <br/><b>false</b>: Default. No replication. 
     ######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
+    check_parameter(snapshot_id, 'snapshot_id', 'int')
+    
     payload ={ 
-      "snapshotID" => snapshot_id,
-      "method" => "ModifySnapshot"
+      'snapshotID' => snapshot_id,
+      'method' => 'ModifySnapshot'
     }
     
     if expiration_time != nil
-      payload["expirationTime"] = expiration_time
+      check_parameter(expiration_time, 'expiration_time', 'str')
+      payload['expirationTime'] = expiration_time
     end
     if enable_remote_replication != nil
-      payload["enableRemoteReplication"] = enable_remote_replication
+      check_parameter(enable_remote_replication, 'enable_remote_replication', 'bool')
+      payload['enableRemoteReplication'] = enable_remote_replication
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -2874,20 +3019,28 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
+    check_parameter(snapshot_id, 'snapshot_id', 'int')
+    
+    check_parameter(save_current_state, 'save_current_state', 'bool')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "snapshotID" => snapshot_id,
-      "saveCurrentState" => save_current_state,
-      "method" => "RollbackToSnapshot"
+      'volumeID' => volume_id,
+      'snapshotID' => snapshot_id,
+      'saveCurrentState' => save_current_state,
+      'method' => 'RollbackToSnapshot'
     }
     
     if name != nil
-      payload["name"] = name
+      check_parameter(name, 'name', 'str')
+      payload['name'] = name
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -2931,24 +3084,30 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
+    check_parameter(volumes, 'volumes', 'int')
+    
     payload ={ 
-      "volumes" => volumes,
-      "method" => "CreateGroupSnapshot"
+      'volumes' => volumes,
+      'method' => 'CreateGroupSnapshot'
     }
     
     if name != nil
-      payload["name"] = name
+      check_parameter(name, 'name', 'str')
+      payload['name'] = name
     end
     if enable_remote_replication != nil
-      payload["enableRemoteReplication"] = enable_remote_replication
+      check_parameter(enable_remote_replication, 'enable_remote_replication', 'bool')
+      payload['enableRemoteReplication'] = enable_remote_replication
     end
     if retention != nil
-      payload["retention"] = retention
+      check_parameter(retention, 'retention', 'str')
+      payload['retention'] = retention
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -2984,12 +3143,16 @@ class Element
     # param: bool saveMembers: [required] <br/><b>true</b>: Snapshots are kept, but group association is removed. <br/><b>false</b>: The group and snapshots are deleted. 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
+    check_parameter(group_snapshot_id, 'group_snapshot_id', 'int')
+    
+    check_parameter(save_members, 'save_members', 'bool')
+    
     payload ={ 
-      "groupSnapshotID" => group_snapshot_id,
-      "saveMembers" => save_members,
-      "method" => "DeleteGroupSnapshot"
+      'groupSnapshotID' => group_snapshot_id,
+      'saveMembers' => save_members,
+      'method' => 'DeleteGroupSnapshot'
     }
     
     json_payload = payload
@@ -3013,14 +3176,15 @@ class Element
     # param: int volumeID:  An array of unique volume IDs to query. If this parameter is not specified, all group snapshots on the cluster will be included. 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListGroupSnapshots"
+      'method' => 'ListGroupSnapshots'
     }
     
     if volume_id != nil
-      payload["volumeID"] = volume_id
+      check_parameter(volume_id, 'volume_id', 'int')
+      payload['volumeID'] = volume_id
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3044,18 +3208,22 @@ class Element
     # param: bool enableRemoteReplication:  Use to enable the snapshot created to be replicated to a remote SolidFire cluster. Possible values: <br/><b>true</b>: the snapshot will be replicated to remote storage. <br/><b>false</b>: Default. No replication. 
     ######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
+    check_parameter(group_snapshot_id, 'group_snapshot_id', 'int')
+    
     payload ={ 
-      "groupSnapshotID" => group_snapshot_id,
-      "method" => "ModifyGroupSnapshot"
+      'groupSnapshotID' => group_snapshot_id,
+      'method' => 'ModifyGroupSnapshot'
     }
     
     if expiration_time != nil
-      payload["expirationTime"] = expiration_time
+      check_parameter(expiration_time, 'expiration_time', 'str')
+      payload['expirationTime'] = expiration_time
     end
     if enable_remote_replication != nil
-      payload["enableRemoteReplication"] = enable_remote_replication
+      check_parameter(enable_remote_replication, 'enable_remote_replication', 'bool')
+      payload['enableRemoteReplication'] = enable_remote_replication
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3090,19 +3258,25 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
+    check_parameter(group_snapshot_id, 'group_snapshot_id', 'int')
+    
+    check_parameter(save_current_state, 'save_current_state', 'bool')
+    
     payload ={ 
-      "groupSnapshotID" => group_snapshot_id,
-      "saveCurrentState" => save_current_state,
-      "method" => "RollbackToGroupSnapshot"
+      'groupSnapshotID' => group_snapshot_id,
+      'saveCurrentState' => save_current_state,
+      'method' => 'RollbackToGroupSnapshot'
     }
     
     if name != nil
-      payload["name"] = name
+      check_parameter(name, 'name', 'str')
+      payload['name'] = name
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3131,11 +3305,13 @@ class Element
     # param: int scheduleID: [required] Unique ID of the schedule or multiple schedules to display 
     ######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
+    check_parameter(schedule_id, 'schedule_id', 'int')
+    
     payload ={ 
-      "scheduleID" => schedule_id,
-      "method" => "GetSchedule"
+      'scheduleID' => schedule_id,
+      'method' => 'GetSchedule'
     }
     
     json_payload = payload
@@ -3154,10 +3330,10 @@ class Element
     ######
     # ListSchedule is used to return information about all scheduled snapshots that have been created.######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListSchedules"
+      'method' => 'ListSchedules'
     }
     
     json_payload = payload
@@ -3177,11 +3353,13 @@ class Element
     # param: Schedule schedule: [required] The "Schedule" object will be used to create a new schedule.<br/> Do not set ScheduleID property, it will be ignored.<br/> Frequency property must be of type that inherits from Frequency. Valid types are:<br/> DaysOfMonthFrequency<br/> DaysOrWeekFrequency<br/> TimeIntervalFrequency 
     ######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
+    check_parameter(schedule, 'schedule', 'Schedule')
+    
     payload ={ 
-      "schedule" => schedule,
-      "method" => "CreateSchedule"
+      'schedule' => schedule,
+      'method' => 'CreateSchedule'
     }
     
     json_payload = payload
@@ -3202,11 +3380,13 @@ class Element
     # param: Schedule schedule: [required] The "Schedule" object will be used to modify an existing schedule.<br/> The ScheduleID property is required.<br/> Frequency property must be of type that inherits from Frequency. Valid types are:<br/> DaysOfMonthFrequency<br/> DaysOrWeekFrequency<br/> TimeIntervalFrequency 
     ######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
+    check_parameter(schedule, 'schedule', 'Schedule')
+    
     payload ={ 
-      "schedule" => schedule,
-      "method" => "ModifySchedule"
+      'schedule' => schedule,
+      'method' => 'ModifySchedule'
     }
     
     json_payload = payload
@@ -3227,14 +3407,15 @@ class Element
     # param: UUID virtualVolumeIDs:  A list of virtual volume  IDs for which to retrieve information. If you specify this parameter, the method returns information about only these virtual volumes. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListVolumeStatsByVirtualVolume"
+      'method' => 'ListVolumeStatsByVirtualVolume'
     }
     
     if virtual_volume_ids != nil
-      payload["virtualVolumeIDs"] = virtual_volume_ids
+      check_parameter(virtual_volume_ids, 'virtual_volume_ids', 'UUID')
+      payload['virtualVolumeIDs'] = virtual_volume_ids
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3253,10 +3434,10 @@ class Element
     # The GetRawStats call is used by SolidFire engineering to troubleshoot new features. The data returned from GetRawStats is not documented, it changes frequently, and is not guaranteed to be accurate. It is not recommended to ever use GetRawStats for collecting performance data or any other management integration with a SolidFire cluster.
     # The data returned from GetRawStats changes frequently, and is not guaranteed to accurately show performance from the system. It is not recommended to ever use GetRawStats for collecting performance data or any other management integration with a SolidFire cluster.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetRawStats"
+      'method' => 'GetRawStats'
     }
     
     json_payload = payload
@@ -3270,10 +3451,10 @@ class Element
     ######
     # GetHardwareInfo allows you to return hardware information and status for a single node. This generally includes manufacturers, vendors, versions, drives, and other associated hardware identification information.######
 
-    check_connection(9.0, "Node")
-
+    check_connection(9.0, 'Node')
+    
     payload ={ 
-      "method" => "GetHardwareInfo"
+      'method' => 'GetHardwareInfo'
     }
     
     json_payload = payload
@@ -3288,10 +3469,10 @@ class Element
     # The GetCompleteStats API method is used by SolidFire engineering to troubleshoot new features. The data returned from GetCompleteStats is not documented, changes frequently, and is not guaranteed to be accurate. It is not recommended to ever use GetCompleteStats for collecting performance data or any other management integration with a SolidFire cluster.
     # The data returned from GetCompleteStats changes frequently, and is not guaranteed to accurately show performance from the system. It is not recommended to ever use GetCompleteStats for collecting performance data or any other management integration with a SolidFire cluster.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetCompleteStats"
+      'method' => 'GetCompleteStats'
     }
     
     json_payload = payload
@@ -3307,14 +3488,15 @@ class Element
     # param: int drives:  Optional list of DriveIDs for which to return drive statistics. If you omit this parameter, measurements for all drives are returned. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListDriveStats"
+      'method' => 'ListDriveStats'
     }
     
     if drives != nil
-      payload["drives"] = drives
+      check_parameter(drives, 'drives', 'int')
+      payload['drives'] = drives
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3333,14 +3515,15 @@ class Element
     # param: int volumeIDs:  
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListVolumeStats"
+      'method' => 'ListVolumeStats'
     }
     
     if volume_ids != nil
-      payload["volumeIDs"] = volume_ids
+      check_parameter(volume_ids, 'volume_ids', 'int')
+      payload['volumeIDs'] = volume_ids
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3364,18 +3547,22 @@ class Element
     # param: str targetSecret:  The secret for CHAP authentication for the target 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(name, 'name', 'str')
+    
     payload ={ 
-      "name" => name,
-      "method" => "CreateStorageContainer"
+      'name' => name,
+      'method' => 'CreateStorageContainer'
     }
     
     if initiator_secret != nil
-      payload["initiatorSecret"] = initiator_secret
+      check_parameter(initiator_secret, 'initiator_secret', 'str')
+      payload['initiatorSecret'] = initiator_secret
     end
     if target_secret != nil
-      payload["targetSecret"] = target_secret
+      check_parameter(target_secret, 'target_secret', 'str')
+      payload['targetSecret'] = target_secret
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3401,11 +3588,13 @@ class Element
     # param: UUID storageContainerIDs: [required] list of storageContainerID of the storage container to delete. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(storage_container_ids, 'storage_container_ids', 'UUID')
+    
     payload ={ 
-      "storageContainerIDs" => storage_container_ids,
-      "method" => "DeleteStorageContainers"
+      'storageContainerIDs' => storage_container_ids,
+      'method' => 'DeleteStorageContainers'
     }
     
     json_payload = payload
@@ -3430,18 +3619,22 @@ class Element
     # param: str targetSecret:  
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(storage_container_id, 'storage_container_id', 'UUID')
+    
     payload ={ 
-      "storageContainerID" => storage_container_id,
-      "method" => "ModifyStorageContainer"
+      'storageContainerID' => storage_container_id,
+      'method' => 'ModifyStorageContainer'
     }
     
     if initiator_secret != nil
-      payload["initiatorSecret"] = initiator_secret
+      check_parameter(initiator_secret, 'initiator_secret', 'str')
+      payload['initiatorSecret'] = initiator_secret
     end
     if target_secret != nil
-      payload["targetSecret"] = target_secret
+      check_parameter(target_secret, 'target_secret', 'str')
+      payload['targetSecret'] = target_secret
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3467,14 +3660,15 @@ class Element
     # param: UUID storageContainerIDs:  List of storage containers to get 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListStorageContainers"
+      'method' => 'ListStorageContainers'
     }
     
     if storage_container_ids != nil
-      payload["storageContainerIDs"] = storage_container_ids
+      check_parameter(storage_container_ids, 'storage_container_ids', 'UUID')
+      payload['storageContainerIDs'] = storage_container_ids
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3494,11 +3688,13 @@ class Element
     # param: UUID storageContainerID: [required] The ID of the storage container for which to retrieve efficiency information. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(storage_container_id, 'storage_container_id', 'UUID')
+    
     payload ={ 
-      "storageContainerID" => storage_container_id,
-      "method" => "GetStorageContainerEfficiency"
+      'storageContainerID' => storage_container_id,
+      'method' => 'GetStorageContainerEfficiency'
     }
     
     json_payload = payload
@@ -3518,10 +3714,10 @@ class Element
     # The ListTests API method is used to return the tests that are available to run on a node.
     # <br/><b>Note</b>: This method is available only through the per-node API endpoint 5.0 or later.######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
     payload ={ 
-      "method" => "ListTests"
+      'method' => 'ListTests'
     }
     
     json_payload = payload
@@ -3536,10 +3732,10 @@ class Element
     # The ListUtilities API method is used to return the tests that are available to run on a node.
     # <br/><b>Note</b>: This method is available only through the per-node API endpoint 5.0 or later.######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
     payload ={ 
-      "method" => "ListUtilities"
+      'method' => 'ListUtilities'
     }
     
     json_payload = payload
@@ -3556,14 +3752,15 @@ class Element
     # param: str ensemble:  A comma-separated list of ensemble node CIPs for connectivity testing 
     ######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
     payload ={ 
-      "method" => "TestConnectEnsemble"
+      'method' => 'TestConnectEnsemble'
     }
     
     if ensemble != nil
-      payload["ensemble"] = ensemble
+      check_parameter(ensemble, 'ensemble', 'str')
+      payload['ensemble'] = ensemble
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3584,14 +3781,15 @@ class Element
     # param: str mvip:  Optionally, use to test the management connection of a different MVIP. This is not needed to test the connection to the target cluster. 
     ######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
     payload ={ 
-      "method" => "TestConnectMvip"
+      'method' => 'TestConnectMvip'
     }
     
     if mvip != nil
-      payload["mvip"] = mvip
+      check_parameter(mvip, 'mvip', 'str')
+      payload['mvip'] = mvip
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3612,14 +3810,15 @@ class Element
     # param: str svip:  Optionally, use to test the storage connection of a different SVIP. This is not needed to test the connection to the target cluster. 
     ######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
     payload ={ 
-      "method" => "TestConnectSvip"
+      'method' => 'TestConnectSvip'
     }
     
     if svip != nil
-      payload["svip"] = svip
+      check_parameter(svip, 'svip', 'str')
+      payload['svip'] = svip
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3648,26 +3847,31 @@ class Element
     # param: int pingTimeoutMsec:  Specify the number of milliseconds to wait for each individual ping response. Default is 500ms. 
     ######
 
-    check_connection(5.0, "Node")
-
+    check_connection(5.0, 'Node')
+    
     payload ={ 
-      "method" => "TestPing"
+      'method' => 'TestPing'
     }
     
     if attempts != nil
-      payload["attempts"] = attempts
+      check_parameter(attempts, 'attempts', 'int')
+      payload['attempts'] = attempts
     end
     if hosts != nil
-      payload["hosts"] = hosts
+      check_parameter(hosts, 'hosts', 'str')
+      payload['hosts'] = hosts
     end
     if total_timeout_sec != nil
-      payload["totalTimeoutSec"] = total_timeout_sec
+      check_parameter(total_timeout_sec, 'total_timeout_sec', 'int')
+      payload['totalTimeoutSec'] = total_timeout_sec
     end
     if packet_size != nil
-      payload["packetSize"] = packet_size
+      check_parameter(packet_size, 'packet_size', 'int')
+      payload['packetSize'] = packet_size
     end
     if ping_timeout_msec != nil
-      payload["pingTimeoutMsec"] = ping_timeout_msec
+      check_parameter(ping_timeout_msec, 'ping_timeout_msec', 'int')
+      payload['pingTimeoutMsec'] = ping_timeout_msec
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3707,23 +3911,27 @@ class Element
     # param: int virtualNetworkTags:  Network Tags to include in the list. 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListVirtualNetworks"
+      'method' => 'ListVirtualNetworks'
     }
     
     if virtual_network_id != nil
-      payload["virtualNetworkID"] = virtual_network_id
+      check_parameter(virtual_network_id, 'virtual_network_id', 'int')
+      payload['virtualNetworkID'] = virtual_network_id
     end
     if virtual_network_tag != nil
-      payload["virtualNetworkTag"] = virtual_network_tag
+      check_parameter(virtual_network_tag, 'virtual_network_tag', 'int')
+      payload['virtualNetworkTag'] = virtual_network_tag
     end
     if virtual_network_ids != nil
-      payload["virtualNetworkIDs"] = virtual_network_ids
+      check_parameter(virtual_network_ids, 'virtual_network_ids', 'int')
+      payload['virtualNetworkIDs'] = virtual_network_ids
     end
     if virtual_network_tags != nil
-      payload["virtualNetworkTags"] = virtual_network_tags
+      check_parameter(virtual_network_tags, 'virtual_network_tags', 'int')
+      payload['virtualNetworkTags'] = virtual_network_tags
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3768,25 +3976,38 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
+    check_parameter(virtual_network_tag, 'virtual_network_tag', 'int')
+    
+    check_parameter(name, 'name', 'str')
+    
+    check_parameter(address_blocks, 'address_blocks', 'AddressBlock')
+    
+    check_parameter(netmask, 'netmask', 'str')
+    
+    check_parameter(svip, 'svip', 'str')
+    
     payload ={ 
-      "virtualNetworkTag" => virtual_network_tag,
-      "name" => name,
-      "addressBlocks" => address_blocks,
-      "netmask" => netmask,
-      "svip" => svip,
-      "method" => "AddVirtualNetwork"
+      'virtualNetworkTag' => virtual_network_tag,
+      'name' => name,
+      'addressBlocks' => address_blocks,
+      'netmask' => netmask,
+      'svip' => svip,
+      'method' => 'AddVirtualNetwork'
     }
     
     if gateway != nil
-      payload["gateway"] = gateway
+      check_parameter(gateway, 'gateway', 'str')
+      payload['gateway'] = gateway
     end
     if namespace != nil
-      payload["namespace"] = namespace
+      check_parameter(namespace, 'namespace', 'bool')
+      payload['namespace'] = namespace
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3845,38 +4066,47 @@ class Element
     # param: dict attributes:  A new list of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ModifyVirtualNetwork"
+      'method' => 'ModifyVirtualNetwork'
     }
     
     if virtual_network_id != nil
-      payload["virtualNetworkID"] = virtual_network_id
+      check_parameter(virtual_network_id, 'virtual_network_id', 'int')
+      payload['virtualNetworkID'] = virtual_network_id
     end
     if virtual_network_tag != nil
-      payload["virtualNetworkTag"] = virtual_network_tag
+      check_parameter(virtual_network_tag, 'virtual_network_tag', 'int')
+      payload['virtualNetworkTag'] = virtual_network_tag
     end
     if name != nil
-      payload["name"] = name
+      check_parameter(name, 'name', 'str')
+      payload['name'] = name
     end
     if address_blocks != nil
-      payload["addressBlocks"] = address_blocks
+      check_parameter(address_blocks, 'address_blocks', 'AddressBlock')
+      payload['addressBlocks'] = address_blocks
     end
     if netmask != nil
-      payload["netmask"] = netmask
+      check_parameter(netmask, 'netmask', 'str')
+      payload['netmask'] = netmask
     end
     if svip != nil
-      payload["svip"] = svip
+      check_parameter(svip, 'svip', 'str')
+      payload['svip'] = svip
     end
     if gateway != nil
-      payload["gateway"] = gateway
+      check_parameter(gateway, 'gateway', 'str')
+      payload['gateway'] = gateway
     end
     if namespace != nil
-      payload["namespace"] = namespace
+      check_parameter(namespace, 'namespace', 'bool')
+      payload['namespace'] = namespace
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3924,17 +4154,19 @@ class Element
     # param: int virtualNetworkTag:  Network Tag that identifies the virtual network to remove. 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
     payload ={ 
-      "method" => "RemoveVirtualNetwork"
+      'method' => 'RemoveVirtualNetwork'
     }
     
     if virtual_network_id != nil
-      payload["virtualNetworkID"] = virtual_network_id
+      check_parameter(virtual_network_id, 'virtual_network_id', 'int')
+      payload['virtualNetworkID'] = virtual_network_id
     end
     if virtual_network_tag != nil
-      payload["virtualNetworkTag"] = virtual_network_tag
+      check_parameter(virtual_network_tag, 'virtual_network_tag', 'int')
+      payload['virtualNetworkTag'] = virtual_network_tag
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -3965,26 +4197,31 @@ class Element
     # param: UUID virtualVolumeIDs:  A list of virtual volume  IDs for which to retrieve information. If you specify this parameter, the method returns information about only these virtual volumes. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListVirtualVolumes"
+      'method' => 'ListVirtualVolumes'
     }
     
     if details != nil
-      payload["details"] = details
+      check_parameter(details, 'details', 'bool')
+      payload['details'] = details
     end
     if limit != nil
-      payload["limit"] = limit
+      check_parameter(limit, 'limit', 'int')
+      payload['limit'] = limit
     end
     if recursive != nil
-      payload["recursive"] = recursive
+      check_parameter(recursive, 'recursive', 'bool')
+      payload['recursive'] = recursive
     end
     if start_virtual_volume_id != nil
-      payload["startVirtualVolumeID"] = start_virtual_volume_id
+      check_parameter(start_virtual_volume_id, 'start_virtual_volume_id', 'UUID')
+      payload['startVirtualVolumeID'] = start_virtual_volume_id
     end
     if virtual_volume_ids != nil
-      payload["virtualVolumeIDs"] = virtual_volume_ids
+      check_parameter(virtual_volume_ids, 'virtual_volume_ids', 'UUID')
+      payload['virtualVolumeIDs'] = virtual_volume_ids
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4022,21 +4259,26 @@ class Element
     # param: UUID callingVirtualVolumeHostID:  
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(virtual_volume_id, 'virtual_volume_id', 'UUID')
+    
     payload ={ 
-      "virtualVolumeID" => virtual_volume_id,
-      "method" => "PrepareVirtualSnapshot"
+      'virtualVolumeID' => virtual_volume_id,
+      'method' => 'PrepareVirtualSnapshot'
     }
     
     if name != nil
-      payload["name"] = name
+      check_parameter(name, 'name', 'str')
+      payload['name'] = name
     end
     if writable_snapshot != nil
-      payload["writableSnapshot"] = writable_snapshot
+      check_parameter(writable_snapshot, 'writable_snapshot', 'bool')
+      payload['writableSnapshot'] = writable_snapshot
     end
     if calling_virtual_volume_host_id != nil
-      payload["callingVirtualVolumeHostID"] = calling_virtual_volume_host_id
+      check_parameter(calling_virtual_volume_host_id, 'calling_virtual_volume_host_id', 'UUID')
+      payload['callingVirtualVolumeHostID'] = calling_virtual_volume_host_id
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4079,19 +4321,30 @@ class Element
     # param: UUID callingVirtualVolumeHostID:  
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(virtual_volume_id, 'virtual_volume_id', 'UUID')
+    
+    check_parameter(base_virtual_volume_id, 'base_virtual_volume_id', 'UUID')
+    
+    check_parameter(segment_start, 'segment_start', 'int')
+    
+    check_parameter(segment_length, 'segment_length', 'int')
+    
+    check_parameter(chunk_size, 'chunk_size', 'int')
+    
     payload ={ 
-      "virtualVolumeID" => virtual_volume_id,
-      "baseVirtualVolumeID" => base_virtual_volume_id,
-      "segmentStart" => segment_start,
-      "segmentLength" => segment_length,
-      "chunkSize" => chunk_size,
-      "method" => "GetVirtualVolumeUnsharedChunks"
+      'virtualVolumeID' => virtual_volume_id,
+      'baseVirtualVolumeID' => base_virtual_volume_id,
+      'segmentStart' => segment_start,
+      'segmentLength' => segment_length,
+      'chunkSize' => chunk_size,
+      'method' => 'GetVirtualVolumeUnsharedChunks'
     }
     
     if calling_virtual_volume_host_id != nil
-      payload["callingVirtualVolumeHostID"] = calling_virtual_volume_host_id
+      check_parameter(calling_virtual_volume_host_id, 'calling_virtual_volume_host_id', 'UUID')
+      payload['callingVirtualVolumeHostID'] = calling_virtual_volume_host_id
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4136,25 +4389,33 @@ class Element
     # param: UUID callingVirtualVolumeHostID:  
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(virtual_volume_host_id, 'virtual_volume_host_id', 'UUID')
+    
+    check_parameter(cluster_id, 'cluster_id', 'UUID')
+    
     payload ={ 
-      "virtualVolumeHostID" => virtual_volume_host_id,
-      "clusterID" => cluster_id,
-      "method" => "CreateVirtualVolumeHost"
+      'virtualVolumeHostID' => virtual_volume_host_id,
+      'clusterID' => cluster_id,
+      'method' => 'CreateVirtualVolumeHost'
     }
     
     if initiator_names != nil
-      payload["initiatorNames"] = initiator_names
+      check_parameter(initiator_names, 'initiator_names', 'str')
+      payload['initiatorNames'] = initiator_names
     end
     if visible_protocol_endpoint_ids != nil
-      payload["visibleProtocolEndpointIDs"] = visible_protocol_endpoint_ids
+      check_parameter(visible_protocol_endpoint_ids, 'visible_protocol_endpoint_ids', 'UUID')
+      payload['visibleProtocolEndpointIDs'] = visible_protocol_endpoint_ids
     end
     if host_address != nil
-      payload["hostAddress"] = host_address
+      check_parameter(host_address, 'host_address', 'str')
+      payload['hostAddress'] = host_address
     end
     if calling_virtual_volume_host_id != nil
-      payload["callingVirtualVolumeHostID"] = calling_virtual_volume_host_id
+      check_parameter(calling_virtual_volume_host_id, 'calling_virtual_volume_host_id', 'UUID')
+      payload['callingVirtualVolumeHostID'] = calling_virtual_volume_host_id
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4189,14 +4450,15 @@ class Element
     # param: UUID virtualVolumeHostIDs:  
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListVirtualVolumeHosts"
+      'method' => 'ListVirtualVolumeHosts'
     }
     
     if virtual_volume_host_ids != nil
-      payload["virtualVolumeHostIDs"] = virtual_volume_host_ids
+      check_parameter(virtual_volume_host_ids, 'virtual_volume_host_ids', 'UUID')
+      payload['virtualVolumeHostIDs'] = virtual_volume_host_ids
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4218,15 +4480,18 @@ class Element
     # param: UUID callingVirtualVolumeHostID:  
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(virtual_volume_task_id, 'virtual_volume_task_id', 'UUID')
+    
     payload ={ 
-      "virtualVolumeTaskID" => virtual_volume_task_id,
-      "method" => "GetVirtualVolumeTaskUpdate"
+      'virtualVolumeTaskID' => virtual_volume_task_id,
+      'method' => 'GetVirtualVolumeTaskUpdate'
     }
     
     if calling_virtual_volume_host_id != nil
-      payload["callingVirtualVolumeHostID"] = calling_virtual_volume_host_id
+      check_parameter(calling_virtual_volume_host_id, 'calling_virtual_volume_host_id', 'UUID')
+      payload['callingVirtualVolumeHostID'] = calling_virtual_volume_host_id
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4249,14 +4514,15 @@ class Element
     # param: UUID virtualVolumeTaskIDs:  
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListVirtualVolumeTasks"
+      'method' => 'ListVirtualVolumeTasks'
     }
     
     if virtual_volume_task_ids != nil
-      payload["virtualVolumeTaskIDs"] = virtual_volume_task_ids
+      check_parameter(virtual_volume_task_ids, 'virtual_volume_task_ids', 'UUID')
+      payload['virtualVolumeTaskIDs'] = virtual_volume_task_ids
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4276,14 +4542,15 @@ class Element
     # param: int virtualVolumeBindingIDs:  
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListVirtualVolumeBindings"
+      'method' => 'ListVirtualVolumeBindings'
     }
     
     if virtual_volume_binding_ids != nil
-      payload["virtualVolumeBindingIDs"] = virtual_volume_binding_ids
+      check_parameter(virtual_volume_binding_ids, 'virtual_volume_binding_ids', 'int')
+      payload['virtualVolumeBindingIDs'] = virtual_volume_binding_ids
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4301,10 +4568,10 @@ class Element
     ######
     # Enables retrieval of the number of virtual volumes currently in the system.######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "GetVirtualVolumeCount"
+      'method' => 'GetVirtualVolumeCount'
     }
     
     json_payload = payload
@@ -4341,28 +4608,37 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
+    check_parameter(name, 'name', 'str')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "name" => name,
-      "method" => "CloneVolume"
+      'volumeID' => volume_id,
+      'name' => name,
+      'method' => 'CloneVolume'
     }
     
     if new_account_id != nil
-      payload["newAccountID"] = new_account_id
+      check_parameter(new_account_id, 'new_account_id', 'int')
+      payload['newAccountID'] = new_account_id
     end
     if new_size != nil
-      payload["newSize"] = new_size
+      check_parameter(new_size, 'new_size', 'int')
+      payload['newSize'] = new_size
     end
     if access != nil
-      payload["access"] = access
+      check_parameter(access, 'access', 'str')
+      payload['access'] = access
     end
     if snapshot_id != nil
-      payload["snapshotID"] = snapshot_id
+      check_parameter(snapshot_id, 'snapshot_id', 'int')
+      payload['snapshotID'] = snapshot_id
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4409,21 +4685,26 @@ class Element
     # param: int newAccountID:  New account ID for the volumes if not overridden by information passed in the volumes array. 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
+    check_parameter(volumes, 'volumes', 'CloneMultipleVolumeParams')
+    
     payload ={ 
-      "volumes" => volumes,
-      "method" => "CloneMultipleVolumes"
+      'volumes' => volumes,
+      'method' => 'CloneMultipleVolumes'
     }
     
     if access != nil
-      payload["access"] = access
+      check_parameter(access, 'access', 'str')
+      payload['access'] = access
     end
     if group_snapshot_id != nil
-      payload["groupSnapshotID"] = group_snapshot_id
+      check_parameter(group_snapshot_id, 'group_snapshot_id', 'int')
+      payload['groupSnapshotID'] = group_snapshot_id
     end
     if new_account_id != nil
-      payload["newAccountID"] = new_account_id
+      check_parameter(new_account_id, 'new_account_id', 'int')
+      payload['newAccountID'] = new_account_id
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4456,16 +4737,21 @@ class Element
     # param: int snapshotID:  Snapshot ID of the source volume to create the copy from. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
+    check_parameter(dst_volume_id, 'dst_volume_id', 'int')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "dstVolumeID" => dst_volume_id,
-      "method" => "CopyVolume"
+      'volumeID' => volume_id,
+      'dstVolumeID' => dst_volume_id,
+      'method' => 'CopyVolume'
     }
     
     if snapshot_id != nil
-      payload["snapshotID"] = snapshot_id
+      check_parameter(snapshot_id, 'snapshot_id', 'int')
+      payload['snapshotID'] = snapshot_id
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4491,11 +4777,13 @@ class Element
     # param: int cloneID: [required] 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(clone_id, 'clone_id', 'int')
+    
     payload ={ 
-      "cloneID" => clone_id,
-      "method" => "CancelClone"
+      'cloneID' => clone_id,
+      'method' => 'CancelClone'
     }
     
     json_payload = payload
@@ -4516,11 +4804,13 @@ class Element
     # param: int groupCloneID: [required] cloneID for the ongoing clone process. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(group_clone_id, 'group_clone_id', 'int')
+    
     payload ={ 
-      "groupCloneID" => group_clone_id,
-      "method" => "CancelGroupClone"
+      'groupCloneID' => group_clone_id,
+      'method' => 'CancelGroupClone'
     }
     
     json_payload = payload
@@ -4541,14 +4831,15 @@ class Element
     # param: str asyncResultTypes:  An optional list of types of results. You can use this list to restrict the results to only these types of operations. Possible values:BulkVolume: Copy operations between volumes, such as backups or restores.Clone: Volume cloning operations.DriveRemoval: Operations involving the system copying data from a drive in preparation to remove it from the cluster.RtfiPendingNode: Operations involving the system installing compatible software on a node before adding it to the cluster. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListAsyncResults"
+      'method' => 'ListAsyncResults'
     }
     
     if async_result_types != nil
-      payload["asyncResultTypes"] = async_result_types
+      check_parameter(async_result_types, 'async_result_types', 'str')
+      payload['asyncResultTypes'] = async_result_types
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4579,21 +4870,31 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(name, 'name', 'str')
+    
+    check_parameter(account_id, 'account_id', 'int')
+    
+    check_parameter(total_size, 'total_size', 'int')
+    
+    check_parameter(enable512e, 'enable512e', 'bool')
+    
     payload ={ 
-      "name" => name,
-      "accountID" => account_id,
-      "totalSize" => total_size,
-      "enable512e" => enable512e,
-      "method" => "CreateVolume"
+      'name' => name,
+      'accountID' => account_id,
+      'totalSize' => total_size,
+      'enable512e' => enable512e,
+      'method' => 'CreateVolume'
     }
     
     if qos != nil
-      payload["qos"] = qos
+      check_parameter(qos, 'qos', 'QoS')
+      payload['qos'] = qos
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4642,11 +4943,13 @@ class Element
     # param: int volumeID: [required] The ID of the volume to delete. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "method" => "DeleteVolume"
+      'volumeID' => volume_id,
+      'method' => 'DeleteVolume'
     }
     
     json_payload = payload
@@ -4671,20 +4974,23 @@ class Element
     # param: int volumeIDs:  The list of IDs of the volumes to delete from the system. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "DeleteVolumes"
+      'method' => 'DeleteVolumes'
     }
     
     if account_ids != nil
-      payload["accountIDs"] = account_ids
+      check_parameter(account_ids, 'account_ids', 'int')
+      payload['accountIDs'] = account_ids
     end
     if volume_access_group_ids != nil
-      payload["volumeAccessGroupIDs"] = volume_access_group_ids
+      check_parameter(volume_access_group_ids, 'volume_access_group_ids', 'int')
+      payload['volumeAccessGroupIDs'] = volume_access_group_ids
     end
     if volume_ids != nil
-      payload["volumeIDs"] = volume_ids
+      check_parameter(volume_ids, 'volume_ids', 'int')
+      payload['volumeIDs'] = volume_ids
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4711,11 +5017,13 @@ class Element
     # param: int volumeID: [required] Specifies the volume for which statistics is gathered. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "method" => "GetVolumeStats"
+      'volumeID' => volume_id,
+      'method' => 'GetVolumeStats'
     }
     
     json_payload = payload
@@ -4739,15 +5047,18 @@ class Element
     # param: bool force:  
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "method" => "GetVolumeEfficiency"
+      'volumeID' => volume_id,
+      'method' => 'GetVolumeEfficiency'
     }
     
     if force != nil
-      payload["force"] = force
+      check_parameter(force, 'force', 'bool')
+      payload['force'] = force
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4768,10 +5079,10 @@ class Element
     ######
     # ListBulkVolumeJobs is used to return information about each bulk volume read or write operation that is occurring in the system.######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListBulkVolumeJobs"
+      'method' => 'ListBulkVolumeJobs'
     }
     
     json_payload = payload
@@ -4790,17 +5101,19 @@ class Element
     # param: int limit:  The maximum number of volumes to return from the API. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListActiveVolumes"
+      'method' => 'ListActiveVolumes'
     }
     
     if start_volume_id != nil
-      payload["startVolumeID"] = start_volume_id
+      check_parameter(start_volume_id, 'start_volume_id', 'int')
+      payload['startVolumeID'] = start_volume_id
     end
     if limit != nil
-      payload["limit"] = limit
+      check_parameter(limit, 'limit', 'int')
+      payload['limit'] = limit
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4821,10 +5134,10 @@ class Element
     ######
     # ListDeletedVolumes is used to return the entire list of volumes that have been marked for deletion and is purged from the system.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListDeletedVolumes"
+      'method' => 'ListDeletedVolumes'
     }
     
     json_payload = payload
@@ -4838,10 +5151,10 @@ class Element
     ######
     # ListISCSISessions is used to return iSCSI connection information for volumes in the cluster.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListISCSISessions"
+      'method' => 'ListISCSISessions'
     }
     
     json_payload = payload
@@ -4868,29 +5181,35 @@ class Element
     # param: int volumeIDs:  If specified, only fetch volumes specified in this list. This option cannot be specified if startVolumeID, limit, or accounts option is specified. 
     ######
 
-    check_connection(8.0, "Cluster")
-
+    check_connection(8.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListVolumes"
+      'method' => 'ListVolumes'
     }
     
     if start_volume_id != nil
-      payload["startVolumeID"] = start_volume_id
+      check_parameter(start_volume_id, 'start_volume_id', 'int')
+      payload['startVolumeID'] = start_volume_id
     end
     if limit != nil
-      payload["limit"] = limit
+      check_parameter(limit, 'limit', 'int')
+      payload['limit'] = limit
     end
     if volume_status != nil
-      payload["volumeStatus"] = volume_status
+      check_parameter(volume_status, 'volume_status', 'str')
+      payload['volumeStatus'] = volume_status
     end
     if accounts != nil
-      payload["accounts"] = accounts
+      check_parameter(accounts, 'accounts', 'int')
+      payload['accounts'] = accounts
     end
     if is_paired != nil
-      payload["isPaired"] = is_paired
+      check_parameter(is_paired, 'is_paired', 'bool')
+      payload['isPaired'] = is_paired
     end
     if volume_ids != nil
-      payload["volumeIDs"] = volume_ids
+      check_parameter(volume_ids, 'volume_ids', 'int')
+      payload['volumeIDs'] = volume_ids
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4929,18 +5248,22 @@ class Element
     # param: int limit:  The maximum number of volumes to return from the API. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(account_id, 'account_id', 'int')
+    
     payload ={ 
-      "accountID" => account_id,
-      "method" => "ListVolumesForAccount"
+      'accountID' => account_id,
+      'method' => 'ListVolumesForAccount'
     }
     
     if start_volume_id != nil
-      payload["startVolumeID"] = start_volume_id
+      check_parameter(start_volume_id, 'start_volume_id', 'int')
+      payload['startVolumeID'] = start_volume_id
     end
     if limit != nil
-      payload["limit"] = limit
+      check_parameter(limit, 'limit', 'int')
+      payload['limit'] = limit
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -4965,10 +5288,10 @@ class Element
     # ListVolumeStatsByAccount returns high-level activity measurements for every account.
     # Values are summed from all the volumes owned by the account.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListVolumeStatsByAccount"
+      'method' => 'ListVolumeStatsByAccount'
     }
     
     json_payload = payload
@@ -4983,10 +5306,10 @@ class Element
     # ListVolumeStatsByVolume returns high-level activity measurements for every volume, by volume.
     # Values are cumulative from the creation of the volume.######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListVolumeStatsByVolume"
+      'method' => 'ListVolumeStatsByVolume'
     }
     
     json_payload = payload
@@ -5002,14 +5325,15 @@ class Element
     # param: int volumeAccessGroups:  An array of VolumeAccessGroupIDs for which volume activity is returned. If no VolumeAccessGroupID is specified, stats for all volume access groups is returned. 
     ######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListVolumeStatsByVolumeAccessGroup"
+      'method' => 'ListVolumeStatsByVolumeAccessGroup'
     }
     
     if volume_access_groups != nil
-      payload["volumeAccessGroups"] = volume_access_groups
+      check_parameter(volume_access_groups, 'volume_access_groups', 'int')
+      payload['volumeAccessGroups'] = volume_access_groups
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -5047,27 +5371,34 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "method" => "ModifyVolume"
+      'volumeID' => volume_id,
+      'method' => 'ModifyVolume'
     }
     
     if account_id != nil
-      payload["accountID"] = account_id
+      check_parameter(account_id, 'account_id', 'int')
+      payload['accountID'] = account_id
     end
     if access != nil
-      payload["access"] = access
+      check_parameter(access, 'access', 'str')
+      payload['access'] = access
     end
     if qos != nil
-      payload["qos"] = qos
+      check_parameter(qos, 'qos', 'QoS')
+      payload['qos'] = qos
     end
     if total_size != nil
-      payload["totalSize"] = total_size
+      check_parameter(total_size, 'total_size', 'int')
+      payload['totalSize'] = total_size
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -5112,27 +5443,34 @@ class Element
     # param: int totalSize:  New size of the volume in bytes. 1000000000 is equal to 1GB. Size is rounded up to the nearest 1MB in size. This parameter can only be used to increase the size of a volume. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
+    check_parameter(volume_ids, 'volume_ids', 'int')
+    
     payload ={ 
-      "volumeIDs" => volume_ids,
-      "method" => "ModifyVolumes"
+      'volumeIDs' => volume_ids,
+      'method' => 'ModifyVolumes'
     }
     
     if account_id != nil
-      payload["accountID"] = account_id
+      check_parameter(account_id, 'account_id', 'int')
+      payload['accountID'] = account_id
     end
     if access != nil
-      payload["access"] = access
+      check_parameter(access, 'access', 'str')
+      payload['access'] = access
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     if qos != nil
-      payload["qos"] = qos
+      check_parameter(qos, 'qos', 'QoS')
+      payload['qos'] = qos
     end
     if total_size != nil
-      payload["totalSize"] = total_size
+      check_parameter(total_size, 'total_size', 'int')
+      payload['totalSize'] = total_size
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -5169,11 +5507,13 @@ class Element
     # param: int volumeID: [required] The ID of the volume to purge. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "method" => "PurgeDeletedVolume"
+      'volumeID' => volume_id,
+      'method' => 'PurgeDeletedVolume'
     }
     
     json_payload = payload
@@ -5198,20 +5538,23 @@ class Element
     # param: int volumeAccessGroupIDs:  A list of volumeAccessGroupIDs. All of the volumes from all of the specified Volume Access Groups are purged from the system. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "PurgeDeletedVolumes"
+      'method' => 'PurgeDeletedVolumes'
     }
     
     if volume_ids != nil
-      payload["volumeIDs"] = volume_ids
+      check_parameter(volume_ids, 'volume_ids', 'int')
+      payload['volumeIDs'] = volume_ids
     end
     if account_ids != nil
-      payload["accountIDs"] = account_ids
+      check_parameter(account_ids, 'account_ids', 'int')
+      payload['accountIDs'] = account_ids
     end
     if volume_access_group_ids != nil
-      payload["volumeAccessGroupIDs"] = volume_access_group_ids
+      check_parameter(volume_access_group_ids, 'volume_access_group_ids', 'int')
+      payload['volumeAccessGroupIDs'] = volume_access_group_ids
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -5238,11 +5581,13 @@ class Element
     # param: int volumeID: [required] VolumeID for the deleted volume to restore. 
     ######
 
-    check_connection(1.0, "Cluster")
-
+    check_connection(1.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "method" => "RestoreDeletedVolume"
+      'volumeID' => volume_id,
+      'method' => 'RestoreDeletedVolume'
     }
     
     json_payload = payload
@@ -5285,25 +5630,33 @@ class Element
     # param: dict attributes:  JSON attributes for the bulk volume job. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
+    check_parameter(format, 'format', 'str')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "format" => format,
-      "method" => "StartBulkVolumeRead"
+      'volumeID' => volume_id,
+      'format' => format,
+      'method' => 'StartBulkVolumeRead'
     }
     
     if snapshot_id != nil
-      payload["snapshotID"] = snapshot_id
+      check_parameter(snapshot_id, 'snapshot_id', 'int')
+      payload['snapshotID'] = snapshot_id
     end
     if script != nil
-      payload["script"] = script
+      check_parameter(script, 'script', 'str')
+      payload['script'] = script
     end
     if script_parameters != nil
-      payload["scriptParameters"] = script_parameters
+      check_parameter(script_parameters, 'script_parameters', 'str')
+      payload['scriptParameters'] = script_parameters
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -5350,22 +5703,29 @@ class Element
     # param: dict attributes:  JSON attributes for the bulk volume job. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(volume_id, 'volume_id', 'int')
+    
+    check_parameter(format, 'format', 'str')
+    
     payload ={ 
-      "volumeID" => volume_id,
-      "format" => format,
-      "method" => "StartBulkVolumeWrite"
+      'volumeID' => volume_id,
+      'format' => format,
+      'method' => 'StartBulkVolumeWrite'
     }
     
     if script != nil
-      payload["script"] = script
+      check_parameter(script, 'script', 'str')
+      payload['script'] = script
     end
     if script_parameters != nil
-      payload["scriptParameters"] = script_parameters
+      check_parameter(script_parameters, 'script_parameters', 'str')
+      payload['scriptParameters'] = script_parameters
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -5405,22 +5765,29 @@ class Element
     # param: dict attributes:  JSON attributes  updates what is on the bulk volume job. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(key, 'key', 'str')
+    
+    check_parameter(status, 'status', 'str')
+    
     payload ={ 
-      "key" => key,
-      "status" => status,
-      "method" => "UpdateBulkVolumeStatus"
+      'key' => key,
+      'status' => status,
+      'method' => 'UpdateBulkVolumeStatus'
     }
     
     if percent_complete != nil
-      payload["percentComplete"] = percent_complete
+      check_parameter(percent_complete, 'percent_complete', 'str')
+      payload['percentComplete'] = percent_complete
     end
     if message != nil
-      payload["message"] = message
+      check_parameter(message, 'message', 'str')
+      payload['message'] = message
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -5456,20 +5823,23 @@ class Element
     # param: int burstIOPS:  The maximum number of IOPS allowed in a short burst scenario. 
     ######
 
-    check_connection(9.0, "Cluster")
-
+    check_connection(9.0, 'Cluster')
+    
     payload ={ 
-      "method" => "SetDefaultQoS"
+      'method' => 'SetDefaultQoS'
     }
     
     if min_iops != nil
-      payload["minIOPS"] = min_iops
+      check_parameter(min_iops, 'min_iops', 'int')
+      payload['minIOPS'] = min_iops
     end
     if max_iops != nil
-      payload["maxIOPS"] = max_iops
+      check_parameter(max_iops, 'max_iops', 'int')
+      payload['maxIOPS'] = max_iops
     end
     if burst_iops != nil
-      payload["burstIOPS"] = burst_iops
+      check_parameter(burst_iops, 'burst_iops', 'int')
+      payload['burstIOPS'] = burst_iops
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -5509,27 +5879,34 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
+    check_parameter(name, 'name', 'str')
+    
     payload ={ 
-      "name" => name,
-      "method" => "CreateVolumeAccessGroup"
+      'name' => name,
+      'method' => 'CreateVolumeAccessGroup'
     }
     
     if initiators != nil
-      payload["initiators"] = initiators
+      check_parameter(initiators, 'initiators', 'str')
+      payload['initiators'] = initiators
     end
     if volumes != nil
-      payload["volumes"] = volumes
+      check_parameter(volumes, 'volumes', 'int')
+      payload['volumes'] = volumes
     end
     if virtual_network_id != nil
-      payload["virtualNetworkID"] = virtual_network_id
+      check_parameter(virtual_network_id, 'virtual_network_id', 'int')
+      payload['virtualNetworkID'] = virtual_network_id
     end
     if virtual_network_tags != nil
-      payload["virtualNetworkTags"] = virtual_network_tags
+      check_parameter(virtual_network_tags, 'virtual_network_tags', 'int')
+      payload['virtualNetworkTags'] = virtual_network_tags
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -5566,17 +5943,19 @@ class Element
     # param: int limit:  The maximum number of results to return. This can be useful for paging. 
     ######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
     payload ={ 
-      "method" => "ListVolumeAccessGroups"
+      'method' => 'ListVolumeAccessGroups'
     }
     
     if start_volume_access_group_id != nil
-      payload["startVolumeAccessGroupID"] = start_volume_access_group_id
+      check_parameter(start_volume_access_group_id, 'start_volume_access_group_id', 'int')
+      payload['startVolumeAccessGroupID'] = start_volume_access_group_id
     end
     if limit != nil
-      payload["limit"] = limit
+      check_parameter(limit, 'limit', 'int')
+      payload['limit'] = limit
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -5599,11 +5978,13 @@ class Element
     # param: int volumeAccessGroupID: [required] The ID of the volume access group to delete. 
     ######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
+    check_parameter(volume_access_group_id, 'volume_access_group_id', 'int')
+    
     payload ={ 
-      "volumeAccessGroupID" => volume_access_group_id,
-      "method" => "DeleteVolumeAccessGroup"
+      'volumeAccessGroupID' => volume_access_group_id,
+      'method' => 'DeleteVolumeAccessGroup'
     }
     
     json_payload = payload
@@ -5645,30 +6026,38 @@ class Element
     # param: dict attributes:  List of Name/Value pairs in JSON object format. 
     ######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
+    check_parameter(volume_access_group_id, 'volume_access_group_id', 'int')
+    
     payload ={ 
-      "volumeAccessGroupID" => volume_access_group_id,
-      "method" => "ModifyVolumeAccessGroup"
+      'volumeAccessGroupID' => volume_access_group_id,
+      'method' => 'ModifyVolumeAccessGroup'
     }
     
     if virtual_network_id != nil
-      payload["virtualNetworkID"] = virtual_network_id
+      check_parameter(virtual_network_id, 'virtual_network_id', 'int')
+      payload['virtualNetworkID'] = virtual_network_id
     end
     if virtual_network_tags != nil
-      payload["virtualNetworkTags"] = virtual_network_tags
+      check_parameter(virtual_network_tags, 'virtual_network_tags', 'int')
+      payload['virtualNetworkTags'] = virtual_network_tags
     end
     if name != nil
-      payload["name"] = name
+      check_parameter(name, 'name', 'str')
+      payload['name'] = name
     end
     if initiators != nil
-      payload["initiators"] = initiators
+      check_parameter(initiators, 'initiators', 'str')
+      payload['initiators'] = initiators
     end
     if volumes != nil
-      payload["volumes"] = volumes
+      check_parameter(volumes, 'volumes', 'int')
+      payload['volumes'] = volumes
     end
     if attributes != nil
-      payload["attributes"] = attributes
+      check_parameter(attributes, 'attributes', 'dict')
+      payload['attributes'] = attributes
     end
     json_payload = payload
     raw_response = send_request(json_payload)
@@ -5708,12 +6097,16 @@ class Element
     # param: str initiators: [required] List of initiators to add to the volume access group. 
     ######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
+    check_parameter(volume_access_group_id, 'volume_access_group_id', 'int')
+    
+    check_parameter(initiators, 'initiators', 'str')
+    
     payload ={ 
-      "volumeAccessGroupID" => volume_access_group_id,
-      "initiators" => initiators,
-      "method" => "AddInitiatorsToVolumeAccessGroup"
+      'volumeAccessGroupID' => volume_access_group_id,
+      'initiators' => initiators,
+      'method' => 'AddInitiatorsToVolumeAccessGroup'
     }
     
     json_payload = payload
@@ -5739,12 +6132,16 @@ class Element
     # param: str initiators: [required] List of initiators to remove from the volume access group. 
     ######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
+    check_parameter(volume_access_group_id, 'volume_access_group_id', 'int')
+    
+    check_parameter(initiators, 'initiators', 'str')
+    
     payload ={ 
-      "volumeAccessGroupID" => volume_access_group_id,
-      "initiators" => initiators,
-      "method" => "RemoveInitiatorsFromVolumeAccessGroup"
+      'volumeAccessGroupID' => volume_access_group_id,
+      'initiators' => initiators,
+      'method' => 'RemoveInitiatorsFromVolumeAccessGroup'
     }
     
     json_payload = payload
@@ -5770,12 +6167,16 @@ class Element
     # param: int volumes: [required] List of volumes to add to this volume access group. 
     ######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
+    check_parameter(volume_access_group_id, 'volume_access_group_id', 'int')
+    
+    check_parameter(volumes, 'volumes', 'int')
+    
     payload ={ 
-      "volumeAccessGroupID" => volume_access_group_id,
-      "volumes" => volumes,
-      "method" => "AddVolumesToVolumeAccessGroup"
+      'volumeAccessGroupID' => volume_access_group_id,
+      'volumes' => volumes,
+      'method' => 'AddVolumesToVolumeAccessGroup'
     }
     
     json_payload = payload
@@ -5801,12 +6202,16 @@ class Element
     # param: int volumes: [required] List of volumes to remove from this volume access group. 
     ######
 
-    check_connection(5.0, "Cluster")
-
+    check_connection(5.0, 'Cluster')
+    
+    check_parameter(volume_access_group_id, 'volume_access_group_id', 'int')
+    
+    check_parameter(volumes, 'volumes', 'int')
+    
     payload ={ 
-      "volumeAccessGroupID" => volume_access_group_id,
-      "volumes" => volumes,
-      "method" => "RemoveVolumesFromVolumeAccessGroup"
+      'volumeAccessGroupID' => volume_access_group_id,
+      'volumes' => volumes,
+      'method' => 'RemoveVolumesFromVolumeAccessGroup'
     }
     
     json_payload = payload
@@ -5830,11 +6235,13 @@ class Element
     # param: int volumeAccessGroupID: [required] Specifies the volume access group for which capacity is computed. 
     ######
 
-    check_connection(6.0, "Cluster")
-
+    check_connection(6.0, 'Cluster')
+    
+    check_parameter(volume_access_group_id, 'volume_access_group_id', 'int')
+    
     payload ={ 
-      "volumeAccessGroupID" => volume_access_group_id,
-      "method" => "GetVolumeAccessGroupEfficiency"
+      'volumeAccessGroupID' => volume_access_group_id,
+      'method' => 'GetVolumeAccessGroupEfficiency'
     }
     
     json_payload = payload
@@ -5855,11 +6262,13 @@ class Element
     # param: int volumeAccessGroupID: [required] Unique volume access group ID used to return information. 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
+    check_parameter(volume_access_group_id, 'volume_access_group_id', 'int')
+    
     payload ={ 
-      "volumeAccessGroupID" => volume_access_group_id,
-      "method" => "GetVolumeAccessGroupLunAssignments"
+      'volumeAccessGroupID' => volume_access_group_id,
+      'method' => 'GetVolumeAccessGroupLunAssignments'
     }
     
     json_payload = payload
@@ -5888,12 +6297,16 @@ class Element
     # param: LunAssignment lunAssignments: [required] The volume IDs with new assigned LUN values. 
     ######
 
-    check_connection(7.0, "Cluster")
-
+    check_connection(7.0, 'Cluster')
+    
+    check_parameter(volume_access_group_id, 'volume_access_group_id', 'int')
+    
+    check_parameter(lun_assignments, 'lun_assignments', 'LunAssignment')
+    
     payload ={ 
-      "volumeAccessGroupID" => volume_access_group_id,
-      "lunAssignments" => lun_assignments,
-      "method" => "ModifyVolumeAccessGroupLunAssignments"
+      'volumeAccessGroupID' => volume_access_group_id,
+      'lunAssignments' => lun_assignments,
+      'method' => 'ModifyVolumeAccessGroupLunAssignments'
     }
     
     json_payload = payload

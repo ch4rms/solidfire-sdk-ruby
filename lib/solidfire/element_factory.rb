@@ -1,12 +1,14 @@
 require_relative 'errors'
 require_relative 'element'
+require 'logger'
 
 
 class ElementFactory
   @min_version = 7.0
   @max_sdk_version = 9.0
+  @logger = Logger.new(STDOUT)
 
-  def ascii_art(version)
+  def self.ascii_art(version)
     art = "\n"
     art += "                                             \n"
     art += "                ______________            ___\n"
@@ -17,7 +19,7 @@ class ElementFactory
     art += "           /__/__/       \__\__\__\__/__/    \n"
     art += "          /__/            \__\__\__\/__/     \n"
     art += "                                             \n"
-    art += "             NetApp SolidFire Version "+version+"    \n"
+    art += "             NetApp SolidFire Version "+version.to_s+"    \n"
     art += "                                             \n"
     return art
   end
@@ -71,11 +73,11 @@ class ElementFactory
       else
         element = Element.new(target, port, username, password, version_actual, verify_ssl)
         if version_actual > @max_sdk_version
-          LOG.warn('You have connected to a version that is higher than supported by this SDK. Some functionality may not work.')
+          @logger.warn('You have connected to a version that is higher than supported by this SDK. Some functionality may not work.')
         end
       end
     end
-
-    LOG.info(ascii_art(element.connection_version))
+    @logger.info(self.ascii_art(element.connection_version))
+    return element
   end
 end
