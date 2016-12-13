@@ -15,22 +15,47 @@ class ServiceBase
     end
     @post_ws = '/json-rpc/' + connection_version.to_s
     @url = 'https://' + @host + ':' + @port.to_s + '/json-rpc/' + self.connection_version.to_s
+    @uri = URI.parse(@url)
+    begin
+      @https = Net::HTTP.new(@uri.host,@uri.port)
+    rescue Timeout::Error
+      raise ApiConnectionError.new('Timed out trying to connect to '+@host+'.')
+    end
+    @https.use_ssl = true
+    @https.verify_mode = @verify_mode
+  end
+
+  def timeout(timeout)
+    @https.read_timeout = timeout
   end
 
   # Posts the request hand handles errors.
   def send_request(payload)
-    uri = URI.parse(@url)
-    https = Net::HTTP.new(uri.host,uri.port)
-    https.use_ssl = true
-    https.verify_mode = @verify_mode
-    req = Net::HTTP::Post.new(uri.path, initheader = {'Content-Type' =>'application/json'})
+    req = Net::HTTP::Post.new(@uri.path, initheader = {'Content-Type' =>'application/json'})
     req.body = payload.to_json
     req.basic_auth @user, @pass
-    res = https.request(req)
+
+    # First, try to execute it. If anything goes wrong, catch it as a connection error.
+    begin
+      res = @https.request(req)
+    rescue SocketError => error
+      raise ApiConnectionError.new(@host, @port, "Failed to establish a connection due to timeout.")
+    rescue Timeout::Error => error
+      raise ApiConnectionError.new(@host, @port, "A read timeout occurred. Use the timeout method to increase the timeout.")
+    rescue RuntimeError => error
+      raise ApiConnectionError.new(@host, @port, error)
+    end
+
+    # Next, if the response suggests anything is wrong, catch that too.
     output = JSON.parse(res.body)
     if output.keys.include? "error"
       raise ApiServiceError.new(payload['method'], output['error'])
     end
+    if output.keys.include? "401 Unauthorized"
+      raise ApiServiceerror.new(payload['method'], "Username or password incorrect.")
+    end
+
+    # Finally, return the output.
     return output["result"]
   end
 
@@ -46,7 +71,8 @@ class ServiceBase
     end
   end
 
-  def check_parameter(param, param_name, expected_type)
+  def check_parameter(param, param_name, expected_type, version=7)
     raise ParameterError.new(param_name+' should be of type '+expected_type+'.') unless param.class.name == expected_type
+    raise ParameterError.new(param_name+' is only available after version, '+version.to_s) unless self.connection_version >= version
   end
 end
