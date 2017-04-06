@@ -39,13 +39,14 @@ class ElementFactory
       verify_ssl = false
     end
 
+    # This establishes a connection using the minimum version supported by the SDK.
     e = Element.new(target, port, username, password, @min_version, verify_ssl)
     api = e.get_api
 
     if version == nil
-      if api.current_version.to_f > @max_sdk_version
+      if api.current_version.to_f > @max_sdk_version # If the cluster supports the desired version, go ahead and do it.
         element = Element.new(target, port, username, password, @max_sdk_version, verify_ssl)
-      else
+      else # If the cluster doesn't support the version you wanted, connect with the cluster's version.
         element = Element.new(target, port, username, password, api.current_version, verify_ssl)
       end
     else

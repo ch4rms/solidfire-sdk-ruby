@@ -14,7 +14,7 @@ gem install solidfire-0.1.0.gem
 ```
 Now the gem should be installed on your version of Ruby!
 
-## Usage
+## Quick Start
 To get a basic script up and running, I recommend first establishing a connection with the ElementFactory class as follows:
 
 ```ruby
@@ -36,3 +36,11 @@ e.get_account_by_id(3065) # This will get a specific account
 ```
 
 To see the full list of commands supported, navigate into lib/solidfire/element.rb. All the available commands are in that file.
+
+## Connections
+You can establish connections using one of two mechanisms:
+1. ElementFactory.create
+This is the recommended mechanism for establishing a connection. Consistent with our other SDKs, this method will run a bunch of preliminary checks to ensure that your connection is legit. In particular, it verifies the version you try to connect with. The SDK supports all versions >7.0 and the cluster is contstrained to whatever the latest release is. ElementFactory will negotiate versioning for you.
+2. Element.new
+This is the direct method. It will just attempt to create a connection if it can. If it can't, it'll just time out. If you want to use this, you may get a slight performance bump because ElementFactory.create calls GetAPI to verify the version and Element.new doesn't. However, the cost is that you'll be on your own when it comes to dealing with error cases.
+
