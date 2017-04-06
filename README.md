@@ -15,6 +15,24 @@ gem install solidfire-0.1.0.gem
 Now the gem should be installed on your version of Ruby!
 
 ## Usage
+To get a basic script up and running, I recommend first establishing a connection with the ElementFactory class as follows:
 
-(Working on this right now...)
+```ruby
+# Import the module
+require 'solidfire'
+# Set up a connection. There are two ways to do this - directly or indirectly.
+# This is the indirect method and it contains a whole bunch of checks and logging
+# features, so I recommend you use it. The direct method has basically the same
+# interface though. You just call it on Element.new instead of ElementFactory.create
+@user = 'admin'
+@pass = 'admin'
+@host = '10.117.61.44'
+e = ElementFactory.create(host, user, pass)
+# Now you can run your first command!
+# The ruby sdk supports all the same functionality as the Fluorine API does.
+e.list_accounts() # This will list the accounts
+e.get_account_by_id(3065) # This will get a specific account
 
+```
+
+To see the full list of commands supported, navigate into lib/solidfire/element.rb. All the available commands are in that file.

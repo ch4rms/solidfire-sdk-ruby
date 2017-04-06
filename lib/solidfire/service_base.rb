@@ -72,7 +72,7 @@ class ServiceBase
   end
 
   def check_parameter(param, param_name, expected_type, version=7)
-    raise ParameterError.new(param_name+' should be of type '+expected_type+'.') unless param.class.name == expected_type
+    raise ParameterError.new(param_name+' should be of type '+expected_type+'.') unless param.is_a?(expected_type)
     raise ParameterError.new(param_name+' is only available after version, '+version.to_s) unless self.connection_version >= version
   end
 end

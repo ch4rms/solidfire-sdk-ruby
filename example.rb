@@ -4,14 +4,14 @@ require 'uri'
 
 require 'rubygems'
 require 'json'
-require 'solidfire/element'
+require_relative 'lib/solidfire/element'
 require_relative 'lib/solidfire/models'
 require_relative 'lib/solidfire/custom_models'
 
 #begin
 @user = 'admin'
 @pass = 'admin'
-@host = '10.117.60.15'
+@host = '10.117.61.44'
 @port = '443'
 @connection_version = '9.0'
 e = Element.new(@host, @port, @user, @pass, @connection_version, false)

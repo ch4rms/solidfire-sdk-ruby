@@ -77,7 +77,7 @@ class ElementFactory
         end
       end
     end
-    @logger.info(self.ascii_art(element.connection_version))
+    @logger.info("Established connection to "+target)
     return element
   end
 end
