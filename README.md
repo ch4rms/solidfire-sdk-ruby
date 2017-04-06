@@ -1,36 +1,20 @@
 # Solidfire
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/solidfire`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This is the solidfire gem. Feel free to use it to your heart's content, but be aware that this gem is in the develop phase. Any version you use will be a beta version until the gem is officially released. As such, it may have latent bugs. Feel free to contact Ariel Hoffman for help and bugfixes at ariel.hoffman@netapp.com.
 
 ## Installation
+You'll have to install the gemfile from source.
 
-Add this line to your application's Gemfile:
+1. Clone this project onto your machine.
+2. Set up your RVM or version of Ruby. RVM stands for ruby version manager. It is very helpful for troubleshooting. For more info about RVMs, see https://rvm.io/. 
+3. Execute the following commands:
 
 ```ruby
-gem 'solidfire'
+gem build solidfire.gemspec
+gem install solidfire-0.1.0.gem
 ```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install solidfire
+Now the gem should be installed on your version of Ruby!
 
 ## Usage
 
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/solidfire.
+(Working on this right now...)
 
