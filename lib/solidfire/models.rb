@@ -1067,7 +1067,8 @@ class RemoveClusterAdminResult
         if(objectHash == nil)
             return
         end
-        # RemoveClusterAdminResult      end
+        # RemoveClusterAdminResult
+             end
 end
 
 class AsyncHandle
@@ -1791,7 +1792,8 @@ class CancelCloneResult
         if(objectHash == nil)
             return
         end
-        # CancelCloneResult      end
+        # CancelCloneResult
+             end
 end
 
 class LdapConfiguration
@@ -3037,7 +3039,8 @@ class RemoveNodesResult
         if(objectHash == nil)
             return
         end
-        # RemoveNodesResult      end
+        # RemoveNodesResult
+             end
 end
 
 class RemoveAccountResult
@@ -3047,7 +3050,8 @@ class RemoveAccountResult
         if(objectHash == nil)
             return
         end
-        # RemoveAccountResult      end
+        # RemoveAccountResult
+             end
 end
 
 class GetVolumeCountResult
@@ -3217,7 +3221,8 @@ class CompleteVolumePairingResult
         if(objectHash == nil)
             return
         end
-        # CompleteVolumePairingResult      end
+        # CompleteVolumePairingResult
+            end
 end
 
 class ListDeletedVolumes
@@ -3512,7 +3517,8 @@ class DisableSnmpResult
         if(objectHash == nil)
             return
         end
-        # DisableSnmpResult      end
+        # DisableSnmpResult
+             end
 end
 
 class QoS
@@ -3888,7 +3894,8 @@ class PurgeDeletedVolumeResult
         if(objectHash == nil)
             return
         end
-        # PurgeDeletedVolumeResult      end
+        # PurgeDeletedVolumeResult
+             end
 end
 
 class SnapshotRemoteStatus
@@ -4276,7 +4283,8 @@ class DeleteVolumeAccessGroupResult
         if(objectHash == nil)
             return
         end
-        # DeleteVolumeAccessGroupResult      end
+        # DeleteVolumeAccessGroupResult
+             end
 end
 
 class DeleteInitiatorsResult
@@ -4286,7 +4294,8 @@ class DeleteInitiatorsResult
         if(objectHash == nil)
             return
         end
-        # DeleteInitiatorsResult      end
+        # DeleteInitiatorsResult
+             end
 end
 
 class AddInitiatorsToVolumeAccessGroup
@@ -4788,7 +4797,8 @@ class EnableLdapAuthenticationResult
         if(objectHash == nil)
             return
         end
-        # EnableLdapAuthenticationResult      end
+        # EnableLdapAuthenticationResult
+             end
 end
 
 class RestoreDeletedVolumeResult
@@ -4798,7 +4808,8 @@ class RestoreDeletedVolumeResult
         if(objectHash == nil)
             return
         end
-        # RestoreDeletedVolumeResult      end
+        # RestoreDeletedVolumeResult
+             end
 end
 
 class ListDeletedVolumesResult
@@ -4965,7 +4976,8 @@ class SetSnmpTrapInfoResult
         if(objectHash == nil)
             return
         end
-        # SetSnmpTrapInfoResult      end
+        # SetSnmpTrapInfoResult
+             end
 end
 
 class DeleteStorageContainers
@@ -5263,7 +5275,8 @@ class EnableEncryptionAtRestResult
         if(objectHash == nil)
             return
         end
-        # EnableEncryptionAtRestResult      end
+        # EnableEncryptionAtRestResult
+             end
 end
 
 class ModifyBackupTargetResult
@@ -5273,7 +5286,8 @@ class ModifyBackupTargetResult
         if(objectHash == nil)
             return
         end
-        # ModifyBackupTargetResult      end
+        # ModifyBackupTargetResult
+             end
 end
 
 class CancelClone
@@ -5432,7 +5446,8 @@ class CreateClusterResult
         if(objectHash == nil)
             return
         end
-        # CreateClusterResult      end
+        # CreateClusterResult
+             end
 end
 
 class SetConfig
@@ -5500,7 +5515,8 @@ class CancelGroupCloneResult
         if(objectHash == nil)
             return
         end
-        # CancelGroupCloneResult      end
+        # CancelGroupCloneResult
+             end
 end
 
 class ListActivePairedVolumesResult
@@ -5571,7 +5587,8 @@ class RemoveVolumePairResult
         if(objectHash == nil)
             return
         end
-        # RemoveVolumePairResult      end
+        # RemoveVolumePairResult
+            end
 end
 
 class RemoveAccount
@@ -5610,7 +5627,8 @@ class DeleteGroupSnapshotResult
         if(objectHash == nil)
             return
         end
-        # DeleteGroupSnapshotResult      end
+        # DeleteGroupSnapshotResult
+            end
 end
 
 class ListGroupSnapshotsResult
@@ -5729,7 +5747,8 @@ class SetNtpInfoResult
         if(objectHash == nil)
             return
         end
-        # SetNtpInfoResult      end
+        # SetNtpInfoResult
+            end
 end
 
 class GetVolumeAccessGroupEfficiency
@@ -5757,7 +5776,8 @@ class ModifyVolumePairResult
         if(objectHash == nil)
             return
         end
-        # ModifyVolumePairResult      end
+        # ModifyVolumePairResult
+         end
 end
 
 class CreateInitiator
@@ -5891,7 +5911,8 @@ class DisableEncryptionAtRestResult
         if(objectHash == nil)
             return
         end
-        # DisableEncryptionAtRestResult      end
+        # DisableEncryptionAtRestResult
+            end
 end
 
 class GetVolumeEfficiency
@@ -6106,7 +6127,8 @@ class ModifyClusterAdminResult
         if(objectHash == nil)
             return
         end
-        # ModifyClusterAdminResult      end
+        # ModifyClusterAdminResult
+             end
 end
 
 class RollbackToSnapshot
@@ -6366,7 +6388,8 @@ class SetSnmpACLResult
         if(objectHash == nil)
             return
         end
-        # SetSnmpACLResult      end
+        # SetSnmpACLResult
+             end
 end
 
 class ListGroupSnapshots
@@ -6550,7 +6573,8 @@ class ClearClusterFaultsResult
         if(objectHash == nil)
             return
         end
-        # ClearClusterFaultsResult      end
+        # ClearClusterFaultsResult
+            end
 end
 
 class TestConnectSvipDetails
@@ -6890,7 +6914,8 @@ class EnableSnmpResult
         if(objectHash == nil)
             return
         end
-        # EnableSnmpResult      end
+        # EnableSnmpResult
+            end
 end
 
 class FibreChannelSession
@@ -7293,7 +7318,8 @@ class RemoveClusterPairResult
         if(objectHash == nil)
             return
         end
-        # RemoveClusterPairResult      end
+        # RemoveClusterPairResult
+             end
 end
 
 class ListVolumesResult
@@ -7530,7 +7556,8 @@ class DeleteSnapshotResult
         if(objectHash == nil)
             return
         end
-        # DeleteSnapshotResult      end
+        # DeleteSnapshotResult
+          end
 end
 
 class IpmiInfo
@@ -7595,7 +7622,8 @@ class DeleteStorageContainerResult
         if(objectHash == nil)
             return
         end
-        # DeleteStorageContainerResult      end
+        # DeleteStorageContainerResult
+             end
 end
 
 class ListVirtualVolumeTasks
@@ -7663,15 +7691,17 @@ class Signature
 end
 
 class Origin
-    attr_accessor :&lt;signature&gt;, :contract_date, :contract_name, :contract_quantity, :contract_type, :integrator, :location, :organization, :type
+    attr_accessor :signature, :contract_date, :contract_name, :contract_quantity, :contract_type, :integrator, :location, :organization, :type
 
     def initialize(objectHash = nil)
         if(objectHash == nil)
             return
         end
+
+        puts objectHash
         # Origin  
         # param Signature &lt;signature&gt;: [required]  
-        self.&lt;signature&gt; = objectHash["&lt;signature&gt;"] ? Signature.new(objectHash["&lt;signature&gt;"]) : nil
+        self.signature = objectHash["&lt;signature&gt;"] ? Signature.new(objectHash["&lt;signature&gt;"]) : nil
 
         # param str contract_date: [required]  
         self.contract_date = objectHash["contract-date"]
@@ -7716,9 +7746,12 @@ class GetOriginNode
     attr_accessor :node_id, :result
 
     def initialize(objectHash = nil)
+        puts "objhash #{objectHash}"
         if(objectHash == nil)
             return
         end
+
+
         # GetOriginNode  
         # param Fixnum node_id: [required]  
         self.node_id = objectHash["nodeID"]
@@ -7732,6 +7765,7 @@ class GetOriginResult
     attr_accessor :nodes
 
     def initialize(objectHash = nil)
+        puts "objhash #{objectHash}"
         if(objectHash == nil)
             return
         end
@@ -8072,7 +8106,8 @@ class RemoveVirtualNetworkResult
         if(objectHash == nil)
             return
         end
-        # RemoveVirtualNetworkResult      end
+        # RemoveVirtualNetworkResult
+        end
 end
 
 class EnableSnmp
@@ -8097,7 +8132,8 @@ class SetSnmpInfoResult
         if(objectHash == nil)
             return
         end
-        # SetSnmpInfoResult      end
+        # SetSnmpInfoResult
+        end
 end
 
 class DisableLdapAuthenticationResult
@@ -8107,7 +8143,8 @@ class DisableLdapAuthenticationResult
         if(objectHash == nil)
             return
         end
-        # DisableLdapAuthenticationResult      end
+        # DisableLdapAuthenticationResult
+        end
 end
 
 class ListSnapshotsResult
@@ -8200,7 +8237,8 @@ class PurgeDeletedVolumesResult
         if(objectHash == nil)
             return
         end
-        # PurgeDeletedVolumesResult      end
+        # PurgeDeletedVolumesResult
+    end
 end
 
 class ListProtocolEndpoints
@@ -8364,7 +8402,8 @@ class SetLoginSessionInfoResult
         if(objectHash == nil)
             return
         end
-        # SetLoginSessionInfoResult      end
+        # SetLoginSessionInfoResult
+    end
 end
 
 class AsyncHandleResult
@@ -8794,7 +8833,8 @@ class SetRemoteLoggingHostsResult
         if(objectHash == nil)
             return
         end
-        # SetRemoteLoggingHostsResult      end
+        # SetRemoteLoggingHostsResult
+    end
 end
 
 class SetClusterConfig
@@ -8936,7 +8976,8 @@ class EnableFeatureResult
         if(objectHash == nil)
             return
         end
-        # EnableFeatureResult      end
+        # EnableFeatureResult
+    end
 end
 
 class RemoveBackupTargetResult
@@ -8946,7 +8987,8 @@ class RemoveBackupTargetResult
         if(objectHash == nil)
             return
         end
-        # RemoveBackupTargetResult      end
+        # RemoveBackupTargetResult
+    end
 end
 
 class CloneVolume
@@ -9146,3 +9188,5 @@ class TestConnectEnsembleResult
         self.result = objectHash["result"]
     end
 end
+
+

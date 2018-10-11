@@ -10,7 +10,7 @@ You'll have to install the gemfile from source.
 
 ```ruby
 gem build solidfire.gemspec
-gem install solidfire-0.1.0.gem
+gem install solidfire-0.1.1.gem
 ```
 Now the gem should be installed on your version of Ruby!
 
