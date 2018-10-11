@@ -5,9 +5,10 @@
 class CHAPSecret
   attr_accessor :secret
   # If you initialize a CHAPSecret without a secret, it'll assume you want to autogenerate.
-  def initialize(secret=nil)
+  def initialize(secret = nil)
     @secret = secret
   end
+
   def self.auto_generate
     return CHAPSecret.new()
   end

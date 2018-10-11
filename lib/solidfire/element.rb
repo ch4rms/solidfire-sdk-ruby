@@ -10,29 +10,29 @@ class Element < ServiceBase
     super(host, port, username, password, connection_version, verify_ssl)
   end
 
-  def add_account(username,initiator_secret = nil,target_secret = nil,attributes = nil)
+  def add_account(username, initiator_secret = nil, target_secret = nil, attributes = nil)
     ######
     # You can use AddAccount to add a new account to the system. You can create new volumes under the new account. The CHAP settings you specify for the account apply to all volumes owned by the account.
     # param: str username: [required] Specifies the username for this account. (Might be 1 to 64 characters in length). 
-    
+
     # param: CHAPSecret initiatorSecret:  The CHAP secret to use for the initiator. This secret must be 12-16 characters in length and should be impenetrable. The initiator CHAP secret must be unique and cannot be the same as the target CHAP secret. If unspecified, a random secret is created. 
-    
+
     # param: CHAPSecret targetSecret:  The CHAP secret to use for the target (mutual CHAP authentication). This secret must be 12-16 characters in length and should be impenetrable. The target CHAP secret must be unique and cannot be the same as the initiator CHAP secret. If unspecified, a random secret is created. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(username, 'username', 'str')
-    
-    payload ={
-      'params' => { 
-        'username' => username
-      },
-      'method' => 'AddAccount'
+
+    payload = {
+        'params' => {
+            'username' => username
+        },
+        'method' => 'AddAccount'
     }
-    
+
     if initiator_secret != nil
       check_parameter(initiator_secret, 'initiator_secret', CHAPSecret)
       payload['params']["initiatorSecret"] = initiator_secret.secret
@@ -73,16 +73,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(account_id, 'account_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'accountID' => account_id
-      },
-      'method' => 'GetAccountByID'
+
+    payload = {
+        'params' => {
+            'accountID' => account_id
+        },
+        'method' => 'GetAccountByID'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetAccountResult.new(raw_response) : nil
@@ -102,16 +102,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(username, 'username', 'str')
-    
-    payload ={
-      'params' => { 
-        'username' => username
-      },
-      'method' => 'GetAccountByName'
+
+    payload = {
+        'params' => {
+            'username' => username
+        },
+        'method' => 'GetAccountByName'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetAccountResult.new(raw_response) : nil
@@ -132,16 +132,16 @@ class Element < ServiceBase
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(account_id, 'account_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'accountID' => account_id
-      },
-      'method' => 'GetAccountEfficiency'
+
+    payload = {
+        'params' => {
+            'accountID' => account_id
+        },
+        'method' => 'GetAccountEfficiency'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetEfficiencyResult.new(raw_response) : nil
@@ -154,24 +154,24 @@ class Element < ServiceBase
     get_account_efficiency(r.account_id)
   end
 
-  def list_accounts(start_account_id = nil,limit = nil,include_storage_containers = nil)
+  def list_accounts(start_account_id = nil, limit = nil, include_storage_containers = nil)
     ######
     # ListAccounts returns the entire list of accounts, with optional paging support.
     # param: Fixnum startAccountID:  Starting AccountID to return. If no account exists with this AccountID, the next account by AccountID order is used as the start of the list. To page through the list, pass the AccountID of the last account in the previous response + 1. 
-    
+
     # param: Fixnum limit:  Maximum number of AccountInfo objects to return. 
-    
+
     # param: bool includeStorageContainers:  Includes storage containers in the response by default. To exclude storage containers, set to false. 
     ######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListAccounts'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListAccounts'
     }
-    
+
     if start_account_id != nil
       check_parameter(start_account_id, 'start_account_id', Fixnum)
       payload['params']['startAccountID'] = start_account_id
@@ -202,7 +202,7 @@ class Element < ServiceBase
     list_accounts(r.start_account_id, r.limit, r.include_storage_containers)
   end
 
-  def modify_account(account_id,username = nil,status = nil,initiator_secret = nil,target_secret = nil,attributes = nil)
+  def modify_account(account_id, username = nil, status = nil, initiator_secret = nil, target_secret = nil, attributes = nil)
     ######
     # ModifyAccount enables you to modify an existing account.
     # When you lock an account, any existing connections from that account are immediately terminated. When you change an account's
@@ -210,29 +210,29 @@ class Element < ServiceBase
     # reconnections.
     # To clear an account's attributes, specify {} for the attributes parameter.
     # param: Fixnum accountID: [required] Specifies the AccountID for the account to be modified. 
-    
+
     # param: str username:  Specifies the username associated with the account. (Might be 1 to 64 characters in length). 
-    
+
     # param: str status:  Sets the status for the account. Possible values are: active: The account is active and connections are allowed. locked: The account is locked and connections are refused. 
-    
+
     # param: CHAPSecret initiatorSecret:  Specifies the CHAP secret to use for the initiator. This secret must be 12-16 characters in length and should be impenetrable. The initiator CHAP secret must be unique and cannot be the same as the target CHAP secret. 
-    
+
     # param: CHAPSecret targetSecret:  Specifies the CHAP secret to use for the target (mutual CHAP authentication). This secret must be 12-16 characters in length and should be impenetrable. The target CHAP secret must be unique and cannot be the same as the initiator CHAP secret. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(account_id, 'account_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'accountID' => account_id
-      },
-      'method' => 'ModifyAccount'
+
+    payload = {
+        'params' => {
+            'accountID' => account_id
+        },
+        'method' => 'ModifyAccount'
     }
-    
+
     if username != nil
       check_parameter(username, 'username', str)
       payload['params']['username'] = username
@@ -289,16 +289,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(account_id, 'account_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'accountID' => account_id
-      },
-      'method' => 'RemoveAccount'
+
+    payload = {
+        'params' => {
+            'accountID' => account_id
+        },
+        'method' => 'RemoveAccount'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RemoveAccountResult.new(raw_response) : nil
@@ -311,25 +311,25 @@ class Element < ServiceBase
     remove_account(r.account_id)
   end
 
-  def create_backup_target(name,attributes = nil)
+  def create_backup_target(name, attributes = nil)
     ######
     # CreateBackupTarget enables you to create and store backup target information so that you do not need to re-enter it each time a backup is created.
     # param: str name: [required] The name of the backup target. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(name, 'name', 'str')
-    
-    payload ={
-      'params' => { 
-        'name' => name
-      },
-      'method' => 'CreateBackupTarget'
+
+    payload = {
+        'params' => {
+            'name' => name
+        },
+        'method' => 'CreateBackupTarget'
     }
-    
+
     if attributes != nil
       check_parameter(attributes, 'attributes', dict)
       payload['params']['attributes'] = attributes
@@ -356,16 +356,16 @@ class Element < ServiceBase
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(backup_target_id, 'backup_target_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'backupTargetID' => backup_target_id
-      },
-      'method' => 'GetBackupTarget'
+
+    payload = {
+        'params' => {
+            'backupTargetID' => backup_target_id
+        },
+        'method' => 'GetBackupTarget'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetBackupTargetResult.new(raw_response) : nil
@@ -383,41 +383,40 @@ class Element < ServiceBase
     # You can use ListBackupTargets to retrieve information about all backup targets that have been created.######
 
     check_connection(6, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListBackupTargets'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListBackupTargets'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListBackupTargetsResult.new(raw_response) : nil
   end
 
 
-
-  def modify_backup_target(backup_target_id,name = nil,attributes = nil)
+  def modify_backup_target(backup_target_id, name = nil, attributes = nil)
     ######
     # ModifyBackupTarget enables you to change attributes of a backup target.
     # param: Fixnum backupTargetID: [required] The unique target ID for the target to modify. 
-    
+
     # param: str name:  The new name for the backup target. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(backup_target_id, 'backup_target_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'backupTargetID' => backup_target_id
-      },
-      'method' => 'ModifyBackupTarget'
+
+    payload = {
+        'params' => {
+            'backupTargetID' => backup_target_id
+        },
+        'method' => 'ModifyBackupTarget'
     }
-    
+
     if name != nil
       check_parameter(name, 'name', str)
       payload['params']['name'] = name
@@ -451,16 +450,16 @@ class Element < ServiceBase
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(backup_target_id, 'backup_target_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'backupTargetID' => backup_target_id
-      },
-      'method' => 'RemoveBackupTarget'
+
+    payload = {
+        'params' => {
+            'backupTargetID' => backup_target_id
+        },
+        'method' => 'RemoveBackupTarget'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RemoveBackupTargetResult.new(raw_response) : nil
@@ -473,39 +472,39 @@ class Element < ServiceBase
     remove_backup_target(r.backup_target_id)
   end
 
-  def add_cluster_admin(username,password,access,accept_eula = nil,attributes = nil)
+  def add_cluster_admin(username, password, access, accept_eula = nil, attributes = nil)
     ######
     # You can use AddClusterAdmin to add a new cluster admin account. A cluster ddmin can manage the cluster using the API and management tools. Cluster admins are completely separate and unrelated to standard tenant accounts.
     # Each cluster admin can be restricted to a subset of the API. NetApp recommends using multiple cluster admin accounts for different users and applications. You should give each cluster admin the minimal permissions necessary; this reduces the potential impact of credential compromise.
     # You must accept the End User License Agreement (EULA) by setting the acceptEula parameter to true to add a cluster administrator account to the system.
     # param: str username: [required] Unique username for this cluster admin. Must be between 1 and 1024 characters in length. 
-    
+
     # param: str password: [required] Password used to authenticate this cluster admin. 
-    
+
     # param: str access: [required] Controls which methods this cluster admin can use. For more details on the levels of access, see Access Control in the Element API Reference Guide. 
-    
+
     # param: bool acceptEula:  Required to indicate your acceptance of the End User License Agreement when creating this cluster. To accept the EULA, set this parameter to true. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(username, 'username', 'str')
-    
+
     check_parameter(password, 'password', 'str')
-    
+
     check_parameter(access, 'access', 'str')
-    
-    payload ={
-      'params' => { 
-        'username' => username, 
-        'password' => password, 
-        'access' => access
-      },
-      'method' => 'AddClusterAdmin'
+
+    payload = {
+        'params' => {
+            'username' => username,
+            'password' => password,
+            'access' => access
+        },
+        'method' => 'AddClusterAdmin'
     }
-    
+
     if accept_eula != nil
       check_parameter(accept_eula, 'accept_eula', bool)
       payload['params']['acceptEula'] = accept_eula
@@ -546,13 +545,13 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ClearClusterFaults'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ClearClusterFaults'
     }
-    
+
     if fault_types != nil
       check_parameter(fault_types, 'fault_types', str)
       payload['params']['faultTypes'] = fault_types
@@ -569,54 +568,54 @@ class Element < ServiceBase
     clear_cluster_faults(r.fault_types)
   end
 
-  def create_cluster(mvip,svip,rep_count,username,password,nodes,accept_eula = nil,attributes = nil)
+  def create_cluster(mvip, svip, rep_count, username, password, nodes, accept_eula = nil, attributes = nil)
     ######
     # The CreateCluster method enables you to initialize the node in a cluster that has ownership of the "mvip" and "svip" addresses. Each new cluster is initialized using the management IP (MIP) of the first node in the cluster. This method also automatically adds all the nodes being configured into the cluster. You only need to use this method once each time a new cluster is initialized.
     # Note: You need to log in to the node that is used as the master node for the cluster. After you log in, run the GetBootstrapConfig method on the node to get the IP addresses for the rest of the nodes that you want to include in the
     # cluster. Then, run the CreateCluster method.
     # param: bool acceptEula:  Required to indicate your acceptance of the End User License Agreement when creating this cluster. To accept the EULA, set this parameter to true. 
-    
+
     # param: str mvip: [required] Floating (virtual) IP address for the cluster on the management network. 
-    
+
     # param: str svip: [required] Floating (virtual) IP address for the cluster on the storage (iSCSI) network. 
-    
+
     # param: Fixnum repCount: [required] Number of replicas of each piece of data to store in the cluster. Valid value is "2". 
-    
+
     # param: str username: [required] Username for the cluster admin. 
-    
+
     # param: str password: [required] Initial password for the cluster admin account. 
-    
+
     # param: str nodes: [required] CIP/SIP addresses of the initial set of nodes making up the cluster. This node's IP must be in the list. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(None, 'Both')
-    
+
     check_parameter(mvip, 'mvip', 'str')
-    
+
     check_parameter(svip, 'svip', 'str')
-    
+
     check_parameter(rep_count, 'rep_count', 'Fixnum')
-    
+
     check_parameter(username, 'username', 'str')
-    
+
     check_parameter(password, 'password', 'str')
-    
+
     check_parameter(nodes, 'nodes', 'str')
-    
-    payload ={
-      'params' => { 
-        'mvip' => mvip, 
-        'svip' => svip, 
-        'repCount' => rep_count, 
-        'username' => username, 
-        'password' => password, 
-        'nodes' => nodes
-      },
-      'method' => 'CreateCluster'
+
+    payload = {
+        'params' => {
+            'mvip' => mvip,
+            'svip' => svip,
+            'repCount' => rep_count,
+            'username' => username,
+            'password' => password,
+            'nodes' => nodes
+        },
+        'method' => 'CreateCluster'
     }
-    
+
     if accept_eula != nil
       check_parameter(accept_eula, 'accept_eula', bool)
       payload['params']['acceptEula'] = accept_eula
@@ -658,24 +657,24 @@ class Element < ServiceBase
     create_cluster(r.mvip, r.svip, r.rep_count, r.username, r.password, r.nodes, r.accept_eula, r.attributes)
   end
 
-  def create_support_bundle(bundle_name = nil,extra_args = nil,timeout_sec = nil)
+  def create_support_bundle(bundle_name = nil, extra_args = nil, timeout_sec = nil)
     ######
     # CreateSupportBundle enables you to create a support bundle file under the node's directory. After creation, the bundle is stored on the node as a tar.gz file.
     # param: str bundleName:  The unique name for the support bundle. If no name is provided, "supportbundle" and the node name are used as the filename. 
-    
+
     # param: str extraArgs:  Passed to the sf_make_support_bundle script. You should use this parameter only at the request of NetApp SolidFire Support. 
-    
+
     # param: Fixnum timeoutSec:  The number of seconds to allow the support bundle script to run before stopping. The default value is 1500 seconds. 
     ######
 
     check_connection(8, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'CreateSupportBundle'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'CreateSupportBundle'
     }
-    
+
     if bundle_name != nil
       check_parameter(bundle_name, 'bundle_name', str)
       payload['params']['bundleName'] = bundle_name
@@ -711,18 +710,17 @@ class Element < ServiceBase
     # DeleteAllSupportBundles enables you to delete all support bundles generated with the CreateSupportBundle API method.######
 
     check_connection(8, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'DeleteAllSupportBundles'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'DeleteAllSupportBundles'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DeleteAllSupportBundlesResult.new(raw_response) : nil
   end
-
 
 
   def disable_encryption_at_rest()
@@ -730,18 +728,17 @@ class Element < ServiceBase
     # The DisableEncryptionAtRest method enables you to remove the encryption that was previously applied to the cluster using the EnableEncryptionAtRest method. This disable method is asynchronous and returns a response before encryption is disabled. You can use the GetClusterInfo method to poll the system to see when the process has completed.######
 
     check_connection(5, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'DisableEncryptionAtRest'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'DisableEncryptionAtRest'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DisableEncryptionAtRestResult.new(raw_response) : nil
   end
-
 
 
   def disable_snmp()
@@ -749,18 +746,17 @@ class Element < ServiceBase
     # You can use DisableSnmp to disable SNMP on the cluster nodes.######
 
     check_connection(8, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'DisableSnmp'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'DisableSnmp'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DisableSnmpResult.new(raw_response) : nil
   end
-
 
 
   def enable_encryption_at_rest()
@@ -773,18 +769,17 @@ class Element < ServiceBase
     # method to poll the system to see when the process has completed.######
 
     check_connection(5, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'EnableEncryptionAtRest'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'EnableEncryptionAtRest'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? EnableEncryptionAtRestResult.new(raw_response) : nil
   end
-
 
 
   def enable_snmp(snmp_v3_enabled)
@@ -795,16 +790,16 @@ class Element < ServiceBase
     ######
 
     check_connection(8, 'Cluster')
-    
+
     check_parameter(snmp_v3_enabled, 'snmp_v3_enabled', 'bool')
-    
-    payload ={
-      'params' => { 
-        'snmpV3Enabled' => snmp_v3_enabled
-      },
-      'method' => 'EnableSnmp'
+
+    payload = {
+        'params' => {
+            'snmpV3Enabled' => snmp_v3_enabled
+        },
+        'method' => 'EnableSnmp'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? EnableSnmpResult.new(raw_response) : nil
@@ -822,18 +817,17 @@ class Element < ServiceBase
     # You can use the GetAPI method to return a list of all the API methods and supported API endpoints that can be used in the system.######
 
     check_connection(1.0, 'Both')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetAPI'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetAPI'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetAPIResult.new(raw_response) : nil
   end
-
 
 
   def get_cluster_capacity()
@@ -841,18 +835,17 @@ class Element < ServiceBase
     # You can use the GetClusterCapacity method to return the high-level capacity measurements for an entire cluster. You can use the fields returned from this method to calculate the efficiency rates that are displayed in the Element OS Web UI. You can use the following calculations in scripts to return the efficiency rates for thin provisioning, deduplication, compression, and overall efficiency.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetClusterCapacity'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetClusterCapacity'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetClusterCapacityResult.new(raw_response) : nil
   end
-
 
 
   def get_cluster_config()
@@ -860,18 +853,17 @@ class Element < ServiceBase
     # The GetClusterConfig API method enables you to return information about the cluster configuration this node uses to communicate with the cluster that it is a part of.######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetClusterConfig'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetClusterConfig'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetClusterConfigResult.new(raw_response) : nil
   end
-
 
 
   def get_cluster_full_threshold()
@@ -882,18 +874,17 @@ class Element < ServiceBase
     # reaching the Critical stage of block cluster fullness.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetClusterFullThreshold'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetClusterFullThreshold'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetClusterFullThresholdResult.new(raw_response) : nil
   end
-
 
 
   def get_cluster_info()
@@ -901,18 +892,17 @@ class Element < ServiceBase
     # GetClusterInfo enables you to return configuration information about the cluster.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetClusterInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetClusterInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetClusterInfoResult.new(raw_response) : nil
   end
-
 
 
   def get_cluster_master_node_id()
@@ -921,18 +911,17 @@ class Element < ServiceBase
     # storage virtual IP address (SVIP) and management virtual IP address (MVIP).######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetClusterMasterNodeID'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetClusterMasterNodeID'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetClusterMasterNodeIDResult.new(raw_response) : nil
   end
-
 
 
   def get_cluster_state(force)
@@ -947,16 +936,16 @@ class Element < ServiceBase
     ######
 
     check_connection(5, 'Cluster')
-    
+
     check_parameter(force, 'force', 'bool')
-    
-    payload ={
-      'params' => { 
-        'force' => force
-      },
-      'method' => 'GetClusterState'
+
+    payload = {
+        'params' => {
+            'force' => force
+        },
+        'method' => 'GetClusterState'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetClusterStateResult.new(raw_response) : nil
@@ -975,18 +964,17 @@ class Element < ServiceBase
     # creation of the cluster.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetClusterStats'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetClusterStats'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetClusterStatsResult.new(raw_response) : nil
   end
-
 
 
   def get_cluster_version_info()
@@ -995,18 +983,17 @@ class Element < ServiceBase
     # This method also returns information about nodes that are currently in the process of upgrading software.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetClusterVersionInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetClusterVersionInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetClusterVersionInfoResult.new(raw_response) : nil
   end
-
 
 
   def get_current_cluster_admin()
@@ -1014,18 +1001,17 @@ class Element < ServiceBase
     # GetCurrentClusterAdmin returns information for the current primary cluster administrator. The primary Cluster Admin was created when the cluster was created.######
 
     check_connection(6, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetCurrentClusterAdmin'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetCurrentClusterAdmin'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetCurrentClusterAdminResult.new(raw_response) : nil
   end
-
 
 
   def get_limits()
@@ -1034,18 +1020,17 @@ class Element < ServiceBase
     # Note: The GetLimits method returns the limits for the current software version regardless of the API endpoint version used to pass the method.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetLimits'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetLimits'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetLimitsResult.new(raw_response) : nil
   end
-
 
 
   def get_ntp_info()
@@ -1053,18 +1038,17 @@ class Element < ServiceBase
     # GetNtpInfo enables you to return the current network time protocol (NTP) configuration information.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetNtpInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetNtpInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetNtpInfoResult.new(raw_response) : nil
   end
-
 
 
   def get_snmp_acl()
@@ -1072,18 +1056,17 @@ class Element < ServiceBase
     # GetSnmpACL enables you to return the current SNMP access permissions on the cluster nodes.######
 
     check_connection(8, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetSnmpACL'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetSnmpACL'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetSnmpACLResult.new(raw_response) : nil
   end
-
 
 
   def get_snmp_info()
@@ -1094,18 +1077,17 @@ class Element < ServiceBase
     # for their descriptions and usage.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetSnmpInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetSnmpInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetSnmpInfoResult.new(raw_response) : nil
   end
-
 
 
   def get_snmp_state()
@@ -1113,18 +1095,17 @@ class Element < ServiceBase
     # You can use GetSnmpState to return the current state of the SNMP feature.######
 
     check_connection(8, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetSnmpState'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetSnmpState'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetSnmpStateResult.new(raw_response) : nil
   end
-
 
 
   def get_snmp_trap_info()
@@ -1132,18 +1113,17 @@ class Element < ServiceBase
     # You can use GetSnmpTrapInfo to return current SNMP trap configuration information.######
 
     check_connection(5, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetSnmpTrapInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetSnmpTrapInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetSnmpTrapInfoResult.new(raw_response) : nil
   end
-
 
 
   def get_system_status()
@@ -1151,18 +1131,17 @@ class Element < ServiceBase
     # GetSystemStatus enables you to return whether a reboot ir required or not.######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetSystemStatus'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetSystemStatus'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetSystemStatusResult.new(raw_response) : nil
   end
-
 
 
   def list_cluster_admins()
@@ -1170,36 +1149,35 @@ class Element < ServiceBase
     # ListClusterAdmins returns the list of all cluster administrators for the cluster. There can be several cluster administrator accounts with different levels of permissions. There can be only one primary cluster administrator in the system. The primary Cluster Admin is the administrator that was created when the cluster was created. You can also create LDAP administrators when setting up an LDAP system on the cluster.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListClusterAdmins'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListClusterAdmins'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListClusterAdminsResult.new(raw_response) : nil
   end
 
 
-
-  def list_cluster_faults(best_practices = nil,fault_types = nil)
+  def list_cluster_faults(best_practices = nil, fault_types = nil)
     ######
     # ListClusterFaults enables you to retrieve information about any faults detected on the cluster. With this method, you can retrieve both current faults as well as faults that have been resolved. The system caches faults every 30 seconds.
     # param: bool bestPractices:  Specifies whether to include faults triggered by suboptimal system configuration. Possible values are: true false 
-    
+
     # param: str faultTypes:  Determines the types of faults returned. Possible values are: current: List active, unresolved faults. resolved: List faults that were previously detected and resolved. all: (Default) List both current and resolved faults. You can see the fault status in the resolved field of the Cluster Fault object. 
     ######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListClusterFaults'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListClusterFaults'
     }
-    
+
     if best_practices != nil
       check_parameter(best_practices, 'best_practices', bool)
       payload['params']['bestPractices'] = best_practices
@@ -1223,24 +1201,24 @@ class Element < ServiceBase
     list_cluster_faults(r.best_practices, r.fault_types)
   end
 
-  def list_events(max_events = nil,start_event_id = nil,end_event_id = nil)
+  def list_events(max_events = nil, start_event_id = nil, end_event_id = nil)
     ######
     # ListEvents returns events detected on the cluster, sorted from oldest to newest.
     # param: Fixnum maxEvents:  Specifies the maximum number of events to return. 
-    
+
     # param: Fixnum startEventID:  Identifies the beginning of a range of events to return. 
-    
+
     # param: Fixnum endEventID:  Identifies the end of a range of events to return. 
     ######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListEvents'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListEvents'
     }
-    
+
     if max_events != nil
       check_parameter(max_events, 'max_events', Fixnum)
       payload['params']['maxEvents'] = max_events
@@ -1277,43 +1255,42 @@ class Element < ServiceBase
     # synchronization jobs that are returned with this method are slice, clone, and remote.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListSyncJobs'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListSyncJobs'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListSyncJobsResult.new(raw_response) : nil
   end
 
 
-
-  def modify_cluster_admin(cluster_admin_id,password = nil,access = nil,attributes = nil)
+  def modify_cluster_admin(cluster_admin_id, password = nil, access = nil, attributes = nil)
     ######
     # You can use ModifyClusterAdmin to change the settings for a cluster admin or LDAP cluster admin. You cannot change access for the administrator cluster admin account.
     # param: Fixnum clusterAdminID: [required] ClusterAdminID for the cluster admin or LDAP cluster admin to modify. 
-    
+
     # param: str password:  Password used to authenticate this cluster admin. 
-    
+
     # param: str access:  Controls which methods this cluster admin can use. For more details, see Access Control in the Element API Reference Guide. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(cluster_admin_id, 'cluster_admin_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'clusterAdminID' => cluster_admin_id
-      },
-      'method' => 'ModifyClusterAdmin'
+
+    payload = {
+        'params' => {
+            'clusterAdminID' => cluster_admin_id
+        },
+        'method' => 'ModifyClusterAdmin'
     }
-    
+
     if password != nil
       check_parameter(password, 'password', str)
       payload['params']['password'] = password
@@ -1347,24 +1324,24 @@ class Element < ServiceBase
     modify_cluster_admin(r.cluster_admin_id, r.password, r.access, r.attributes)
   end
 
-  def modify_cluster_full_threshold(stage2_aware_threshold = nil,stage3_block_threshold_percent = nil,max_metadata_over_provision_factor = nil)
+  def modify_cluster_full_threshold(stage2_aware_threshold = nil, stage3_block_threshold_percent = nil, max_metadata_over_provision_factor = nil)
     ######
     # You can use ModifyClusterFullThreshold to change the level at which the system generates an event when the storage cluster approaches a certain capacity utilization. You can use the threshold setting to indicate the acceptable amount of utilized block storage before the system generates a warning. For example, if you want to be alerted when the system reaches 3% below the "Error" level block storage utilization, enter a value of "3" for the stage3BlockThresholdPercent parameter. If this level is reached, the system sends an alert to the Event Log in the Cluster Management Console.
     # param: Fixnum stage2AwareThreshold:  The number of nodes of capacity remaining in the cluster before the system triggers a capacity notification. 
-    
+
     # param: Fixnum stage3BlockThresholdPercent:  The percentage of block storage utilization below the "Error" threshold that causes the system to trigger a cluster "Warning" alert. 
-    
+
     # param: Fixnum maxMetadataOverProvisionFactor:  A value representative of the number of times metadata space can be overprovisioned relative to the amount of space available. For example, if there was enough metadata space to store 100 TiB of volumes and this number was set to 5, then 500 TiB worth of volumes can be created. 
     ######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ModifyClusterFullThreshold'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ModifyClusterFullThreshold'
     }
-    
+
     if stage2_aware_threshold != nil
       check_parameter(stage2_aware_threshold, 'stage2_aware_threshold', Fixnum)
       payload['params']['stage2AwareThreshold'] = stage2_aware_threshold
@@ -1402,16 +1379,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(cluster_admin_id, 'cluster_admin_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'clusterAdminID' => cluster_admin_id
-      },
-      'method' => 'RemoveClusterAdmin'
+
+    payload = {
+        'params' => {
+            'clusterAdminID' => cluster_admin_id
+        },
+        'method' => 'RemoveClusterAdmin'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RemoveClusterAdminResult.new(raw_response) : nil
@@ -1433,16 +1410,16 @@ class Element < ServiceBase
     ######
 
     check_connection(5, 'Node')
-    
+
     check_parameter(cluster, 'cluster', 'ClusterConfig')
-    
-    payload ={
-      'params' => { 
-        'cluster' => cluster
-      },
-      'method' => 'SetClusterConfig'
+
+    payload = {
+        'params' => {
+            'cluster' => cluster
+        },
+        'method' => 'SetClusterConfig'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? SetClusterConfigResult.new(raw_response) : nil
@@ -1455,26 +1432,26 @@ class Element < ServiceBase
     set_cluster_config(r.cluster)
   end
 
-  def set_ntp_info(servers,broadcastclient = nil)
+  def set_ntp_info(servers, broadcastclient = nil)
     ######
     # SetNtpInfo enables you to configure NTP on cluster nodes. The values you set with this interface apply to all nodes in the cluster. If an NTP broadcast server periodically broadcasts time information on your network, you can optionally configure nodes as broadcast clients.
     # Note: NetApp recommends using NTP servers that are internal to your network, rather than the installation defaults.
     # param: str servers: [required] List of NTP servers to add to each nodes NTP configuration. 
-    
+
     # param: bool broadcastclient:  Enables every node in the cluster as a broadcast client. 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(servers, 'servers', 'str')
-    
-    payload ={
-      'params' => { 
-        'servers' => servers
-      },
-      'method' => 'SetNtpInfo'
+
+    payload = {
+        'params' => {
+            'servers' => servers
+        },
+        'method' => 'SetNtpInfo'
     }
-    
+
     if broadcastclient != nil
       check_parameter(broadcastclient, 'broadcastclient', bool)
       payload['params']['broadcastclient'] = broadcastclient
@@ -1494,30 +1471,30 @@ class Element < ServiceBase
     set_ntp_info(r.servers, r.broadcastclient)
   end
 
-  def set_snmp_acl(networks,usm_users)
+  def set_snmp_acl(networks, usm_users)
     ######
     # SetSnmpACL enables you to configure SNMP access permissions on the cluster nodes. The values you set with this interface apply to all
     # nodes in the cluster, and the values that are passed replace, in whole, all values set in any previous call to SetSnmpACL. Also note
     # that the values set with this interface replace all network or usmUsers values set with the older SetSnmpInfo.
     # param: SnmpNetwork networks: [required] List of networks and what type of access they have to the SNMP servers running on the cluster nodes. See SNMP Network Object for possible "networks" values. This parameter is required if SNMP v3 is disabled. 
-    
+
     # param: SnmpV3UsmUser usmUsers: [required] List of users and the type of access they have to the SNMP servers running on the cluster nodes. 
     ######
 
     check_connection(8, 'Cluster')
-    
+
     check_parameter(networks, 'networks', 'SnmpNetwork')
-    
+
     check_parameter(usm_users, 'usm_users', 'SnmpV3UsmUser')
-    
-    payload ={
-      'params' => { 
-        'networks' => networks, 
-        'usmUsers' => usm_users
-      },
-      'method' => 'SetSnmpACL'
+
+    payload = {
+        'params' => {
+            'networks' => networks,
+            'usmUsers' => usm_users
+        },
+        'method' => 'SetSnmpACL'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? SetSnmpACLResult.new(raw_response) : nil
@@ -1533,28 +1510,28 @@ class Element < ServiceBase
     set_snmp_acl(r.networks, r.usm_users)
   end
 
-  def set_snmp_info(networks = nil,enabled = nil,snmp_v3_enabled = nil,usm_users = nil)
+  def set_snmp_info(networks = nil, enabled = nil, snmp_v3_enabled = nil, usm_users = nil)
     ######
     # SetSnmpInfo enables you to configure SNMP version 2 and version 3 on cluster nodes. The values you set with this interface apply to
     # all nodes in the cluster, and the values that are passed replace, in whole, all values set in any previous call to SetSnmpInfo.
     # Note: SetSnmpInfo is deprecated. Use the EnableSnmp and SetSnmpACL methods instead.
     # param: SnmpNetwork networks:  List of networks and what type of access they have to the SNMP servers running on the cluster nodes. See the SNMP Network Object for possible "networks" values. This parameter is required only for SNMP v2. 
-    
+
     # param: bool enabled:  If set to true, SNMP is enabled on each node in the cluster. 
-    
+
     # param: bool snmpV3Enabled:  If set to true, SNMP v3 is enabled on each node in the cluster. 
-    
+
     # param: SnmpV3UsmUser usmUsers:  If SNMP v3 is enabled, this value must be passed in place of the networks parameter. This parameter is required only for SNMP v3. 
     ######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'SetSnmpInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'SetSnmpInfo'
     }
-    
+
     if networks != nil
       check_parameter(networks, 'networks', SnmpNetwork)
       payload['params']['networks'] = networks
@@ -1592,38 +1569,38 @@ class Element < ServiceBase
     set_snmp_info(r.networks, r.enabled, r.snmp_v3_enabled, r.usm_users)
   end
 
-  def set_snmp_trap_info(trap_recipients,cluster_fault_traps_enabled,cluster_fault_resolved_traps_enabled,cluster_event_traps_enabled)
+  def set_snmp_trap_info(trap_recipients, cluster_fault_traps_enabled, cluster_fault_resolved_traps_enabled, cluster_event_traps_enabled)
     ######
     # You can use SetSnmpTrapInfo to enable and disable the generation of cluster SNMP notifications (traps) and to specify the set of network host computers that receive the notifications. The values you pass with each SetSnmpTrapInfo method call replace all values set in any previous call to SetSnmpTrapInfo.
     # param: SnmpTrapRecipient trapRecipients: [required] List of hosts that are to receive the traps generated by the Cluster Master. At least one object is required if any one of the trap types is enabled. 
-    
+
     # param: bool clusterFaultTrapsEnabled: [required] If the value is set to true, a corresponding solidFireClusterFaultNotification is sent to the configured list of trap recipients when a cluster fault is logged. The default value is false. 
-    
+
     # param: bool clusterFaultResolvedTrapsEnabled: [required] If the value is set to true, a corresponding solidFireClusterFaultResolvedNotification is sent to the configured list of trap recipients when a cluster fault is resolved. The default value is false. 
-    
+
     # param: bool clusterEventTrapsEnabled: [required] If the value is set to true, a corresponding solidFireClusterEventNotification is sent to the configured list of trap recipients when a cluster event is logged. The default value is false. 
     ######
 
     check_connection(5, 'Cluster')
-    
+
     check_parameter(trap_recipients, 'trap_recipients', 'SnmpTrapRecipient')
-    
+
     check_parameter(cluster_fault_traps_enabled, 'cluster_fault_traps_enabled', 'bool')
-    
+
     check_parameter(cluster_fault_resolved_traps_enabled, 'cluster_fault_resolved_traps_enabled', 'bool')
-    
+
     check_parameter(cluster_event_traps_enabled, 'cluster_event_traps_enabled', 'bool')
-    
-    payload ={
-      'params' => { 
-        'trapRecipients' => trap_recipients, 
-        'clusterFaultTrapsEnabled' => cluster_fault_traps_enabled, 
-        'clusterFaultResolvedTrapsEnabled' => cluster_fault_resolved_traps_enabled, 
-        'clusterEventTrapsEnabled' => cluster_event_traps_enabled
-      },
-      'method' => 'SetSnmpTrapInfo'
+
+    payload = {
+        'params' => {
+            'trapRecipients' => trap_recipients,
+            'clusterFaultTrapsEnabled' => cluster_fault_traps_enabled,
+            'clusterFaultResolvedTrapsEnabled' => cluster_fault_resolved_traps_enabled,
+            'clusterEventTrapsEnabled' => cluster_event_traps_enabled
+        },
+        'method' => 'SetSnmpTrapInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? SetSnmpTrapInfoResult.new(raw_response) : nil
@@ -1650,21 +1627,20 @@ class Element < ServiceBase
     # SnmpSendTestTraps enables you to test SNMP functionality for a cluster. This method instructs the cluster to send test SNMP traps to the currently configured SNMP manager.######
 
     check_connection(6, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'SnmpSendTestTraps'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'SnmpSendTestTraps'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? SnmpSendTestTrapsResult.new(raw_response) : nil
   end
 
 
-
-  def add_drives(drives,force_during_upgrade = nil)
+  def add_drives(drives, force_during_upgrade = nil)
     ######
     # AddDrives enables you to add one or more available drives to the cluster, enabling the drives to host a portion of the cluster's data.
     # When you add a node to the cluster or install new drives in an existing node, the new drives are marked as "available" and must be
@@ -1677,21 +1653,21 @@ class Element < ServiceBase
     # drives are being rebalanced and the progress of adding the new drive. You can also use the GetAsyncResult method to query the
     # method's returned asyncHandle.
     # param: NewDrive drives: [required] Returns information about each drive to be added to the cluster. Possible values are: driveID: The ID of the drive to add. (Integer) type: (Optional) The type of drive to add. Valid values are "slice" or "block". If omitted, the system assigns the correct type. (String) 
-    
+
     # param: bool forceDuringUpgrade:  Allows the user to force the addition of drives during an upgrade. 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(drives, 'drives', 'NewDrive')
-    
-    payload ={
-      'params' => { 
-        'drives' => drives
-      },
-      'method' => 'AddDrives'
+
+    payload = {
+        'params' => {
+            'drives' => drives
+        },
+        'method' => 'AddDrives'
     }
-    
+
     if force_during_upgrade != nil
       check_parameter(force_during_upgrade, 'force_during_upgrade', bool)
       payload['params']['forceDuringUpgrade'] = force_during_upgrade
@@ -1718,18 +1694,17 @@ class Element < ServiceBase
     # Note: This method is available only through the per-node API endpoint 5.0 or later.######
 
     check_connection(2, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetDriveConfig'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetDriveConfig'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetDriveConfigResult.new(raw_response) : nil
   end
-
 
 
   def get_drive_hardware_info(drive_id)
@@ -1740,16 +1715,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(drive_id, 'drive_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'driveID' => drive_id
-      },
-      'method' => 'GetDriveHardwareInfo'
+
+    payload = {
+        'params' => {
+            'driveID' => drive_id
+        },
+        'method' => 'GetDriveHardwareInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetDriveHardwareInfoResult.new(raw_response) : nil
@@ -1771,16 +1746,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(drive_id, 'drive_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'driveID' => drive_id
-      },
-      'method' => 'GetDriveStats'
+
+    payload = {
+        'params' => {
+            'driveID' => drive_id
+        },
+        'method' => 'GetDriveStats'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetDriveStatsResult.new(raw_response) : nil
@@ -1804,16 +1779,16 @@ class Element < ServiceBase
     ######
 
     check_connection(7, 'Cluster')
-    
+
     check_parameter(force, 'force', 'bool')
-    
-    payload ={
-      'params' => { 
-        'force' => force
-      },
-      'method' => 'ListDriveHardware'
+
+    payload = {
+        'params' => {
+            'force' => force
+        },
+        'method' => 'ListDriveHardware'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListDriveHardwareResult.new(raw_response) : nil
@@ -1832,21 +1807,20 @@ class Element < ServiceBase
     # been added as volume metadata or block drives as well as drives that have not been added and are available.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListDrives'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListDrives'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListDrivesResult.new(raw_response) : nil
   end
 
 
-
-  def remove_drives(drives,force_during_upgrade = nil)
+  def remove_drives(drives, force_during_upgrade = nil)
     ######
     # You can use RemoveDrives to proactively remove drives that are part of the cluster. You might want to use this method when
     # reducing cluster capacity or preparing to replace drives nearing the end of their service life. Any data on the drives is removed and
@@ -1859,21 +1833,21 @@ class Element < ServiceBase
     # returned to an "available" or active status. The drive is unavailable for use in the cluster.
     # Use the ListDrives method to obtain the driveIDs for the drives you want to remove.
     # param: Fixnum drives: [required] List of driveIDs to remove from the cluster. 
-    
+
     # param: bool forceDuringUpgrade:  If you want to remove a drive during upgrade, this must be set to true. 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(drives, 'drives', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'drives' => drives
-      },
-      'method' => 'RemoveDrives'
+
+    payload = {
+        'params' => {
+            'drives' => drives
+        },
+        'method' => 'RemoveDrives'
     }
-    
+
     if force_during_upgrade != nil
       check_parameter(force_during_upgrade, 'force_during_upgrade', bool)
       payload['params']['forceDuringUpgrade'] = force_during_upgrade
@@ -1893,29 +1867,29 @@ class Element < ServiceBase
     remove_drives(r.drives, r.force_during_upgrade)
   end
 
-  def reset_drives(drives,force)
+  def reset_drives(drives, force)
     ######
     # ResetDrives enables you to proactively initialize drives and remove all data currently residing on a drive. The drive can then be reused
     # in an existing node or used in an upgraded node. This method requires the force parameter to be included in the method call.
     # param: str drives: [required] List of device names (not driveIDs) to reset. 
-    
+
     # param: bool force: [required] Required parameter to successfully reset a drive. 
     ######
 
     check_connection(6, 'Node')
-    
+
     check_parameter(drives, 'drives', 'str')
-    
+
     check_parameter(force, 'force', 'bool')
-    
-    payload ={
-      'params' => { 
-        'drives' => drives, 
-        'force' => force
-      },
-      'method' => 'ResetDrives'
+
+    payload = {
+        'params' => {
+            'drives' => drives,
+            'force' => force
+        },
+        'method' => 'ResetDrives'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ResetDrivesResult.new(raw_response) : nil
@@ -1939,16 +1913,16 @@ class Element < ServiceBase
     ######
 
     check_connection(5, 'Cluster')
-    
+
     check_parameter(drives, 'drives', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'drives' => drives
-      },
-      'method' => 'SecureEraseDrives'
+
+    payload = {
+        'params' => {
+            'drives' => drives
+        },
+        'method' => 'SecureEraseDrives'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? AsyncHandleResult.new(raw_response) : nil
@@ -1972,13 +1946,13 @@ class Element < ServiceBase
     ######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'TestDrives'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'TestDrives'
     }
-    
+
     if minutes != nil
       check_parameter(minutes, 'minutes', Fixnum)
       payload['params']['minutes'] = minutes
@@ -2004,13 +1978,13 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetClusterHardwareInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetClusterHardwareInfo'
     }
-    
+
     if type != nil
       check_parameter(type, 'type', str)
       payload['params']['type'] = type
@@ -2033,18 +2007,17 @@ class Element < ServiceBase
     # Note: This method is available only through the per-node API endpoint 5.0 or later.######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetHardwareConfig'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetHardwareConfig'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetHardwareConfigResult.new(raw_response) : nil
   end
-
 
 
   def get_node_hardware_info(node_id)
@@ -2055,16 +2028,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(node_id, 'node_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'nodeID' => node_id
-      },
-      'method' => 'GetNodeHardwareInfo'
+
+    payload = {
+        'params' => {
+            'nodeID' => node_id
+        },
+        'method' => 'GetNodeHardwareInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetNodeHardwareInfoResult.new(raw_response) : nil
@@ -2084,13 +2057,13 @@ class Element < ServiceBase
     ######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetNvramInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetNvramInfo'
     }
-    
+
     if force != nil
       check_parameter(force, 'force', bool)
       payload['params']['force'] = force
@@ -2117,16 +2090,16 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
+
     check_parameter(initiators, 'initiators', 'CreateInitiator')
-    
-    payload ={
-      'params' => { 
-        'initiators' => initiators
-      },
-      'method' => 'CreateInitiators'
+
+    payload = {
+        'params' => {
+            'initiators' => initiators
+        },
+        'method' => 'CreateInitiators'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? CreateInitiatorsResult.new(raw_response) : nil
@@ -2149,16 +2122,16 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
+
     check_parameter(initiators, 'initiators', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'initiators' => initiators
-      },
-      'method' => 'DeleteInitiators'
+
+    payload = {
+        'params' => {
+            'initiators' => initiators
+        },
+        'method' => 'DeleteInitiators'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DeleteInitiatorsResult.new(raw_response) : nil
@@ -2171,24 +2144,24 @@ class Element < ServiceBase
     delete_initiators(r.initiators)
   end
 
-  def list_initiators(start_initiator_id = nil,limit = nil,initiators = nil)
+  def list_initiators(start_initiator_id = nil, limit = nil, initiators = nil)
     ######
     # ListInitiators enables you to list initiator IQNs or World Wide Port Names (WWPNs).
     # param: Fixnum startInitiatorID:  The initiator ID at which to begin the listing. You can supply this parameter or the "initiators" parameter, but not both. 
-    
+
     # param: Fixnum limit:  The maximum number of initiator objects to return. 
-    
+
     # param: Fixnum initiators:  A list of initiator IDs to retrieve. You can provide a value for this parameter or the "startInitiatorID" parameter, but not both. 
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListInitiators'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListInitiators'
     }
-    
+
     if start_initiator_id != nil
       check_parameter(start_initiator_id, 'start_initiator_id', Fixnum)
       payload['params']['startInitiatorID'] = start_initiator_id
@@ -2230,16 +2203,16 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
+
     check_parameter(initiators, 'initiators', 'ModifyInitiator')
-    
-    payload ={
-      'params' => { 
-        'initiators' => initiators
-      },
-      'method' => 'ModifyInitiators'
+
+    payload = {
+        'params' => {
+            'initiators' => initiators
+        },
+        'method' => 'ModifyInitiators'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ModifyInitiatorsResult.new(raw_response) : nil
@@ -2252,35 +2225,35 @@ class Element < ServiceBase
     modify_initiators(r.initiators)
   end
 
-  def add_ldap_cluster_admin(username,access,accept_eula = nil,attributes = nil)
+  def add_ldap_cluster_admin(username, access, accept_eula = nil, attributes = nil)
     ######
     # AddLdapClusterAdmin enables you to add a new LDAP cluster administrator user. An LDAP cluster administrator can manage the
     # cluster via the API and management tools. LDAP cluster admin accounts are completely separate and unrelated to standard tenant
     # accounts.
     # You can also use this method to add an LDAP group that has been defined in Active Directory. The access level that is given to the group is passed to the individual users in the LDAP group.
     # param: str username: [required] The distinguished user name for the new LDAP cluster admin. 
-    
+
     # param: str access: [required] Controls which methods this Cluster Admin can use. For more details on the levels of access, see the Access Control appendix in the SolidFire API Reference. 
-    
+
     # param: bool acceptEula:  Accept the End User License Agreement. Set to true to add a cluster administrator account to the system. If omitted or set to false, the method call fails. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(8, 'Cluster')
-    
+
     check_parameter(username, 'username', 'str')
-    
+
     check_parameter(access, 'access', 'str')
-    
-    payload ={
-      'params' => { 
-        'username' => username, 
-        'access' => access
-      },
-      'method' => 'AddLdapClusterAdmin'
+
+    payload = {
+        'params' => {
+            'username' => username,
+            'access' => access
+        },
+        'method' => 'AddLdapClusterAdmin'
     }
-    
+
     if accept_eula != nil
       check_parameter(accept_eula, 'accept_eula', bool)
       payload['params']['acceptEula'] = accept_eula
@@ -2315,55 +2288,54 @@ class Element < ServiceBase
     # The DisableLdapAuthentication method enables you to disable LDAP authentication and remove all LDAP configuration settings. This method does not remove any configured cluster admin accounts (user or group). However, those cluster admin accounts will no longer be able to log in.######
 
     check_connection(7, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'DisableLdapAuthentication'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'DisableLdapAuthentication'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DisableLdapAuthenticationResult.new(raw_response) : nil
   end
 
 
-
-  def enable_ldap_authentication(server_uris,auth_type = nil,group_search_base_dn = nil,group_search_custom_filter = nil,group_search_type = nil,search_bind_dn = nil,search_bind_password = nil,user_dntemplate = nil,user_search_base_dn = nil,user_search_filter = nil)
+  def enable_ldap_authentication(server_uris, auth_type = nil, group_search_base_dn = nil, group_search_custom_filter = nil, group_search_type = nil, search_bind_dn = nil, search_bind_password = nil, user_dntemplate = nil, user_search_base_dn = nil, user_search_filter = nil)
     ######
     # The EnableLdapAuthentication method enables you to configure an LDAP directory connection to use for LDAP authentication to a cluster. Users that are members of the LDAP directory can then log in to the storage system using their LDAP credentials.
     # param: str authType:  Identifies which user authentication method to use. Must be one of the following: DirectBind SearchAndBind 
-    
+
     # param: str groupSearchBaseDN:  The base DN of the tree to start the group search (will do a subtree search from here). 
-    
+
     # param: str groupSearchCustomFilter:  For use with the CustomFilter search type, an LDAP filter to use to return the DNs of a users groups. The string can have placeholder text of %USERNAME% and %USERDN% to be replaced with their username and full userDN as needed. 
-    
+
     # param: str groupSearchType:  Controls the default group search filter used, and must be one of the following: NoGroups: No group support. ActiveDirectory: Nested membership of all of a users AD groups. MemberDN: MemberDN style groups (single level). 
-    
+
     # param: str searchBindDN:  A fully qualified DN to log in with to perform an LDAP search for the user (needs read access to the LDAP directory). 
-    
+
     # param: str searchBindPassword:  The password for the searchBindDN account used for searching. 
-    
+
     # param: str serverURIs: [required] A comma-separated list of LDAP server URIs (examples: "ldap://1.2.3.4" and ldaps://1.2.3.4:123") 
-    
+
     # param: str userDNTemplate:  A string that is used to form a fully qualified user DN. The string should have the placeholder text %USERNAME%, which is replaced with the username of the authenticating user. 
-    
+
     # param: str userSearchBaseDN:  The base DN of the tree to start the search (will do a subtree search from here). 
-    
+
     # param: str userSearchFilter:  The LDAP filter to use. The string should have the placeholder text %USERNAME% which is replaced with the username of the authenticating user. Example: (&(objectClass=person)(sAMAccountName=%USERNAME%)) will use the sAMAccountName field in Active Directory to match the username entered at cluster login. 
     ######
 
     check_connection(7, 'Cluster')
-    
+
     check_parameter(server_uris, 'server_uris', 'str')
-    
-    payload ={
-      'params' => { 
-        'serverURIs' => server_uris
-      },
-      'method' => 'EnableLdapAuthentication'
+
+    payload = {
+        'params' => {
+            'serverURIs' => server_uris
+        },
+        'method' => 'EnableLdapAuthentication'
     }
-    
+
     if auth_type != nil
       check_parameter(auth_type, 'auth_type', str)
       payload['params']['authType'] = auth_type
@@ -2444,45 +2416,44 @@ class Element < ServiceBase
     # The GetLdapConfiguration method enables you to get the currently active LDAP configuration on the cluster.######
 
     check_connection(7, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetLdapConfiguration'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetLdapConfiguration'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetLdapConfigurationResult.new(raw_response) : nil
   end
 
 
-
-  def test_ldap_authentication(username,password,ldap_configuration = nil)
+  def test_ldap_authentication(username, password, ldap_configuration = nil)
     ######
     # The TestLdapAuthentication method enables you to validate the currently enabled LDAP authentication settings. If the configuration is
     # correct, the API call returns the group membership of the tested user.
     # param: str username: [required] The username to be tested. 
-    
+
     # param: str password: [required] The password for the username to be tested. 
-    
+
     # param: LdapConfiguration ldapConfiguration:  An ldapConfiguration object to be tested. If specified, the API call tests the provided configuration even if LDAP authentication is disabled. 
     ######
 
     check_connection(7, 'Cluster')
-    
+
     check_parameter(username, 'username', 'str')
-    
+
     check_parameter(password, 'password', 'str')
-    
-    payload ={
-      'params' => { 
-        'username' => username, 
-        'password' => password
-      },
-      'method' => 'TestLdapAuthentication'
+
+    payload = {
+        'params' => {
+            'username' => username,
+            'password' => password
+        },
+        'method' => 'TestLdapAuthentication'
     }
-    
+
     if ldap_configuration != nil
       check_parameter(ldap_configuration, 'ldap_configuration', LdapConfiguration)
       payload['params']['ldapConfiguration'] = ldap_configuration
@@ -2510,18 +2481,17 @@ class Element < ServiceBase
     # GetLoginSessionInfo enables you to return the period of time a log in authentication session is valid for both log in shells and the TUI.######
 
     check_connection(7, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetLoginSessionInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetLoginSessionInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetLoginSessionInfoResult.new(raw_response) : nil
   end
-
 
 
   def get_remote_logging_hosts()
@@ -2529,18 +2499,17 @@ class Element < ServiceBase
     # GetRemoteLoggingHosts enables you to retrieve the current list of log servers.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetRemoteLoggingHosts'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetRemoteLoggingHosts'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetRemoteLoggingHostsResult.new(raw_response) : nil
   end
-
 
 
   def set_login_session_info(timeout)
@@ -2550,16 +2519,16 @@ class Element < ServiceBase
     ######
 
     check_connection(7, 'Cluster')
-    
+
     check_parameter(timeout, 'timeout', 'str')
-    
-    payload ={
-      'params' => { 
-        'timeout' => timeout
-      },
-      'method' => 'SetLoginSessionInfo'
+
+    payload = {
+        'params' => {
+            'timeout' => timeout
+        },
+        'method' => 'SetLoginSessionInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? SetLoginSessionInfoResult.new(raw_response) : nil
@@ -2579,16 +2548,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(remote_hosts, 'remote_hosts', 'LoggingServer')
-    
-    payload ={
-      'params' => { 
-        'remoteHosts' => remote_hosts
-      },
-      'method' => 'SetRemoteLoggingHosts'
+
+    payload = {
+        'params' => {
+            'remoteHosts' => remote_hosts
+        },
+        'method' => 'SetRemoteLoggingHosts'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? SetRemoteLoggingHostsResult.new(raw_response) : nil
@@ -2606,18 +2575,17 @@ class Element < ServiceBase
     # ListFibreChannelPortInfo enables you to retrieve information about the Fibre Channel ports on a node.  The API method is intended for use on individual nodes; userid and password authentication is required for access to individual Fibre Channel nodes.######
 
     check_connection(8, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListFibreChannelPortInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListFibreChannelPortInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListFibreChannelPortInfoResult.new(raw_response) : nil
   end
-
 
 
   def list_fibre_channel_sessions()
@@ -2625,18 +2593,17 @@ class Element < ServiceBase
     # ListFibreChannelSessions enables you to retrieve information about the active Fibre Channel sessions on a cluster. ######
 
     check_connection(7, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListFibreChannelSessions'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListFibreChannelSessions'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListFibreChannelSessionsResult.new(raw_response) : nil
   end
-
 
 
   def list_iscsisessions()
@@ -2644,18 +2611,17 @@ class Element < ServiceBase
     # You can use ListISCSISessions to return iSCSI information for volumes in the cluster.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListISCSISessions'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListISCSISessions'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListISCSISessionsResult.new(raw_response) : nil
   end
-
 
 
   def list_network_interfaces()
@@ -2663,18 +2629,17 @@ class Element < ServiceBase
     # ListNetworkInterfaces enables you to retrieve information about each network interface on a node. The API method is intended for use on individual nodes; userid and password authentication is required for access to individual nodes.######
 
     check_connection(7, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListNetworkInterfaces'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListNetworkInterfaces'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListNetworkInterfacesResult.new(raw_response) : nil
   end
-
 
 
   def list_node_fibre_channel_port_info()
@@ -2682,40 +2647,39 @@ class Element < ServiceBase
     # The ListNodeFibreChannelPortInfo API method enables you to retrieve information about the Fibre Channel ports on a node. The API method is intended for use on individual nodes; userid and password authentication is required for access to individual Fibre Channel nodes.######
 
     check_connection(7, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListNodeFibreChannelPortInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListNodeFibreChannelPortInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListNodeFibreChannelPortInfoResult.new(raw_response) : nil
   end
 
 
-
-  def add_nodes(pending_nodes,auto_install = nil)
+  def add_nodes(pending_nodes, auto_install = nil)
     ######
     # AddNodes enables you to add one or more new nodes to a cluster. When a node that is not configured starts up for the first time, you are prompted to configure the node. After you configure the node, it is registered as a "pending node" with the cluster. 
     # Note: It might take several seconds after adding a new node for it to start up and register its drives as available.
     # param: Fixnum pendingNodes: [required]  List of pending NodeIDs for the nodes to be added. You can  obtain the list of pending nodes using the ListPendingNodes method. 
-    
+
     # param: bool autoInstall:  Whether these nodes should be autoinstalled 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(pending_nodes, 'pending_nodes', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'pendingNodes' => pending_nodes
-      },
-      'method' => 'AddNodes'
+
+    payload = {
+        'params' => {
+            'pendingNodes' => pending_nodes
+        },
+        'method' => 'AddNodes'
     }
-    
+
     if auto_install != nil
       check_parameter(auto_install, 'auto_install', bool)
       payload['params']['autoInstall'] = auto_install
@@ -2740,18 +2704,17 @@ class Element < ServiceBase
     # GetBootstrapConfig returns cluster and node information from the bootstrap configuration file. Use this API method on an individual node before it has been joined with a cluster. You can use the information this method returns in the cluster configuration interface when you create a cluster.######
 
     check_connection(2, 'Both')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetBootstrapConfig'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetBootstrapConfig'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetBootstrapConfigResult.new(raw_response) : nil
   end
-
 
 
   def get_config()
@@ -2760,18 +2723,17 @@ class Element < ServiceBase
     # Note: This method is available only through the per-node API endpoint 5.0 or later.######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetConfig'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetConfig'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetConfigResult.new(raw_response) : nil
   end
-
 
 
   def get_network_config()
@@ -2780,18 +2742,17 @@ class Element < ServiceBase
     # Note: This method is available only through the per-node API endpoint 5.0 or later.######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetNetworkConfig'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetNetworkConfig'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetNetworkConfigResult.new(raw_response) : nil
   end
-
 
 
   def get_node_stats(node_id)
@@ -2801,16 +2762,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(node_id, 'node_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'nodeID' => node_id
-      },
-      'method' => 'GetNodeStats'
+
+    payload = {
+        'params' => {
+            'nodeID' => node_id
+        },
+        'method' => 'GetNodeStats'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetNodeStatsResult.new(raw_response) : nil
@@ -2828,18 +2789,17 @@ class Element < ServiceBase
     # GetOrigin enables you to retrieve the origination certificate for where the node was built. This method might return null if there is no origination certification.######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetOrigin'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetOrigin'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetOriginResult.new(raw_response) : nil
   end
-
 
 
   def get_pending_operation()
@@ -2848,18 +2808,17 @@ class Element < ServiceBase
     # Note: method is available only through the per-node API endpoint 5.0 or later.######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetPendingOperation'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetPendingOperation'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetPendingOperationResult.new(raw_response) : nil
   end
-
 
 
   def list_active_nodes()
@@ -2867,18 +2826,17 @@ class Element < ServiceBase
     # ListActiveNodes returns the list of currently active nodes that are in the cluster.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListActiveNodes'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListActiveNodes'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListActiveNodesResult.new(raw_response) : nil
   end
-
 
 
   def list_all_nodes()
@@ -2886,18 +2844,17 @@ class Element < ServiceBase
     # ListAllNodes enables you to retrieve a list of active and pending nodes in the cluster.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListAllNodes'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListAllNodes'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListAllNodesResult.new(raw_response) : nil
   end
-
 
 
   def list_node_stats()
@@ -2905,18 +2862,17 @@ class Element < ServiceBase
     # ListNodeStats enables you to view the high-level activity measurements for all nodes in a cluster.######
 
     check_connection(6, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListNodeStats'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListNodeStats'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListNodeStatsResult.new(raw_response) : nil
   end
-
 
 
   def list_pending_active_nodes()
@@ -2924,18 +2880,17 @@ class Element < ServiceBase
     # ListPendingActiveNodes returns the list of nodes in the cluster that are currently in the PendingActive state, between the pending and active states. These are nodes that are currently being returned to the factory image.######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListPendingActiveNodes'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListPendingActiveNodes'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListPendingActiveNodesResult.new(raw_response) : nil
   end
-
 
 
   def list_pending_nodes()
@@ -2943,18 +2898,17 @@ class Element < ServiceBase
     # ListPendingNodes returns a list of the currently pending nodes in the system. Pending nodes are nodes that are running and configured to join the cluster, but have not yet been added via the AddNodes API method.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListPendingNodes'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListPendingNodes'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListPendingNodesResult.new(raw_response) : nil
   end
-
 
 
   def remove_nodes(nodes)
@@ -2965,16 +2919,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(nodes, 'nodes', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'nodes' => nodes
-      },
-      'method' => 'RemoveNodes'
+
+    payload = {
+        'params' => {
+            'nodes' => nodes
+        },
+        'method' => 'RemoveNodes'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RemoveNodesResult.new(raw_response) : nil
@@ -2996,16 +2950,16 @@ class Element < ServiceBase
     ######
 
     check_connection(5, 'Node')
-    
+
     check_parameter(config, 'config', 'Config')
-    
-    payload ={
-      'params' => { 
-        'config' => config
-      },
-      'method' => 'SetConfig'
+
+    payload = {
+        'params' => {
+            'config' => config
+        },
+        'method' => 'SetConfig'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? SetConfigResult.new(raw_response) : nil
@@ -3027,16 +2981,16 @@ class Element < ServiceBase
     ######
 
     check_connection(5, 'Node')
-    
+
     check_parameter(network, 'network', 'NetworkParams')
-    
-    payload ={
-      'params' => { 
-        'network' => network
-      },
-      'method' => 'SetNetworkConfig'
+
+    payload = {
+        'params' => {
+            'network' => network
+        },
+        'method' => 'SetNetworkConfig'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? SetNetworkConfigResult.new(raw_response) : nil
@@ -3056,16 +3010,16 @@ class Element < ServiceBase
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(cluster_pairing_key, 'cluster_pairing_key', 'str')
-    
-    payload ={
-      'params' => { 
-        'clusterPairingKey' => cluster_pairing_key
-      },
-      'method' => 'CompleteClusterPairing'
+
+    payload = {
+        'params' => {
+            'clusterPairingKey' => cluster_pairing_key
+        },
+        'method' => 'CompleteClusterPairing'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? CompleteClusterPairingResult.new(raw_response) : nil
@@ -3078,28 +3032,28 @@ class Element < ServiceBase
     complete_cluster_pairing(r.cluster_pairing_key)
   end
 
-  def complete_volume_pairing(volume_pairing_key,volume_id)
+  def complete_volume_pairing(volume_pairing_key, volume_id)
     ######
     # You can use the CompleteVolumePairing method to complete the pairing of two volumes.
     # param: str volumePairingKey: [required] The key returned from the StartVolumePairing method. 
-    
+
     # param: Fixnum volumeID: [required] The ID of the volume on which to complete the pairing process. 
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(volume_pairing_key, 'volume_pairing_key', 'str')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumePairingKey' => volume_pairing_key, 
-        'volumeID' => volume_id
-      },
-      'method' => 'CompleteVolumePairing'
+
+    payload = {
+        'params' => {
+            'volumePairingKey' => volume_pairing_key,
+            'volumeID' => volume_id
+        },
+        'method' => 'CompleteVolumePairing'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? CompleteVolumePairingResult.new(raw_response) : nil
@@ -3115,22 +3069,22 @@ class Element < ServiceBase
     complete_volume_pairing(r.volume_pairing_key, r.volume_id)
   end
 
-  def list_active_paired_volumes(start_volume_id = nil,limit = nil)
+  def list_active_paired_volumes(start_volume_id = nil, limit = nil)
     ######
     # ListActivePairedVolumes enables you to list all the active volumes paired with a volume. This method returns information about volumes with active and pending pairings.
     # param: Fixnum startVolumeID:  The beginning of the range of active paired volumes to return. 
-    
+
     # param: Fixnum limit:  Maximum number of active paired volumes to return. 
     ######
 
     check_connection(6, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListActivePairedVolumes'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListActivePairedVolumes'
     }
-    
+
     if start_volume_id != nil
       check_parameter(start_volume_id, 'start_volume_id', Fixnum)
       payload['params']['startVolumeID'] = start_volume_id
@@ -3159,43 +3113,42 @@ class Element < ServiceBase
     # You can use the ListClusterPairs method to list all the clusters that a cluster is paired with. This method returns information about active and pending cluster pairings, such as statistics about the current pairing as well as the connectivity and latency (in milliseconds) of the cluster pairing.######
 
     check_connection(6, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListClusterPairs'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListClusterPairs'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListClusterPairsResult.new(raw_response) : nil
   end
 
 
-
-  def modify_volume_pair(volume_id,paused_manual = nil,mode = nil,pause_limit = nil)
+  def modify_volume_pair(volume_id, paused_manual = nil, mode = nil, pause_limit = nil)
     ######
     # ModifyVolumePair enables you to pause or restart replication between a pair of volumes.
     # param: Fixnum volumeID: [required] The ID of the volume to be modified. 
-    
+
     # param: bool pausedManual:  Specifies whether to pause or restart volume replication process. Valid values are:  true: Pauses volume replication false: Restarts volume replication 
-    
+
     # param: str mode:  Specifies the volume replication mode. Possible values are: Async: Writes are acknowledged when they complete locally. The cluster does not wait for writes to be replicated to the target cluster. Sync: The source acknowledges the write when the data is stored locally and on the remote cluster. SnapshotsOnly: Only snapshots created on the source cluster are replicated. Active writes from the source volume are not replicated. 
-    
+
     # param: Fixnum pauseLimit:  Internal use only. 
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id
-      },
-      'method' => 'ModifyVolumePair'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id
+        },
+        'method' => 'ModifyVolumePair'
     }
-    
+
     if paused_manual != nil
       check_parameter(paused_manual, 'paused_manual', bool)
       payload['params']['pausedManual'] = paused_manual
@@ -3237,16 +3190,16 @@ class Element < ServiceBase
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(cluster_pair_id, 'cluster_pair_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'clusterPairID' => cluster_pair_id
-      },
-      'method' => 'RemoveClusterPair'
+
+    payload = {
+        'params' => {
+            'clusterPairID' => cluster_pair_id
+        },
+        'method' => 'RemoveClusterPair'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RemoveClusterPairResult.new(raw_response) : nil
@@ -3266,16 +3219,16 @@ class Element < ServiceBase
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id
-      },
-      'method' => 'RemoveVolumePair'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id
+        },
+        'method' => 'RemoveVolumePair'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RemoveVolumePairResult.new(raw_response) : nil
@@ -3293,40 +3246,39 @@ class Element < ServiceBase
     # You can use the StartClusterPairing method to create an encoded key from a cluster that is used to pair with another cluster. The key created from this API method is used in the CompleteClusterPairing API method to establish a cluster pairing. You can pair a cluster with a maximum of four other clusters. ######
 
     check_connection(6, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'StartClusterPairing'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'StartClusterPairing'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? StartClusterPairingResult.new(raw_response) : nil
   end
 
 
-
-  def start_volume_pairing(volume_id,mode = nil)
+  def start_volume_pairing(volume_id, mode = nil)
     ######
     # StartVolumePairing enables you to create an encoded key from a volume that is used to pair with another volume. The key that this
     # method creates is used in the CompleteVolumePairing API method to establish a volume pairing.
     # param: Fixnum volumeID: [required] The ID of the volume on which to start the pairing process. 
-    
+
     # param: str mode:  The mode of the volume on which to start the pairing process. The mode can only be set if the volume is the source volume. Possible values are: Async: (default if no mode parameter specified) Writes are acknowledged when they complete locally. The cluster does not wait for writes to be replicated to the target cluster. Sync: Source acknowledges write when the data is stored locally and on the remote cluster. SnapshotsOnly: Only snapshots created on the source cluster will be replicated. Active writes from the source volume are not replicated. 
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id
-      },
-      'method' => 'StartVolumePairing'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id
+        },
+        'method' => 'StartVolumePairing'
     }
-    
+
     if mode != nil
       check_parameter(mode, 'mode', str)
       payload['params']['mode'] = mode
@@ -3354,13 +3306,13 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListProtocolEndpoints'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListProtocolEndpoints'
     }
-    
+
     if protocol_endpoint_ids != nil
       check_parameter(protocol_endpoint_ids, 'protocol_endpoint_ids', UUID)
       payload['params']['protocolEndpointIDs'] = protocol_endpoint_ids
@@ -3377,7 +3329,7 @@ class Element < ServiceBase
     list_protocol_endpoints(r.protocol_endpoint_ids)
   end
 
-  def reset_node(build,force,options = nil,reboot = nil)
+  def reset_node(build, force, options = nil, reboot = nil)
     ######
     # The ResetNode API method enables you to reset a node to the factory settings. All data, packages (software upgrades, and so on),
     # configurations, and log files are deleted from the node when you call this method. However, network settings for the node are
@@ -3387,28 +3339,28 @@ class Element < ServiceBase
     # Caution: This method clears any data that is on the node. Exercise caution when using this method.
     # Note: This method is available only through the per-node API endpoint 5.0 or later.
     # param: str build: [required] Specifies the URL to a remote Element software image to which the node will be reset. 
-    
+
     # param: bool force: [required] Required parameter to successfully reset the node. 
-    
+
     # param: str options:  Specifications for running the reset operation. 
-    
+
     # param: bool reboot:  Should it be rebooted? 
     ######
 
     check_connection(5, 'Node')
-    
+
     check_parameter(build, 'build', 'str')
-    
+
     check_parameter(force, 'force', 'bool')
-    
-    payload ={
-      'params' => { 
-        'build' => build, 
-        'force' => force
-      },
-      'method' => 'ResetNode'
+
+    payload = {
+        'params' => {
+            'build' => build,
+            'force' => force
+        },
+        'method' => 'ResetNode'
     }
-    
+
     if options != nil
       check_parameter(options, 'options', str)
       payload['params']['options'] = options
@@ -3448,16 +3400,16 @@ class Element < ServiceBase
     ######
 
     check_connection(5, 'Node')
-    
+
     check_parameter(force, 'force', 'bool')
-    
-    payload ={
-      'params' => { 
-        'force' => force
-      },
-      'method' => 'RestartNetworking'
+
+    payload = {
+        'params' => {
+            'force' => force
+        },
+        'method' => 'RestartNetworking'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? dict.new(raw_response) : nil
@@ -3470,29 +3422,29 @@ class Element < ServiceBase
     restart_networking(r.force)
   end
 
-  def restart_services(force,service = nil,action = nil)
+  def restart_services(force, service = nil, action = nil)
     ######
     # The RestartServices API method enables you to restart the services on a node.
     # Caution: This method causes temporary node services interruption. Exercise caution when using this method.
     # Note: This method is available only through the per-node API endpoint 5.0 or later.
     # param: bool force: [required] Required parameter to successfully restart services on a node. 
-    
+
     # param: str service:  Service name to be restarted. 
-    
+
     # param: str action:  Action to perform on the service (start, stop, restart). 
     ######
 
     check_connection(5, 'Node')
-    
+
     check_parameter(force, 'force', 'bool')
-    
-    payload ={
-      'params' => { 
-        'force' => force
-      },
-      'method' => 'RestartServices'
+
+    payload = {
+        'params' => {
+            'force' => force
+        },
+        'method' => 'RestartServices'
     }
-    
+
     if service != nil
       check_parameter(service, 'service', str)
       payload['params']['service'] = service
@@ -3519,26 +3471,26 @@ class Element < ServiceBase
     restart_services(r.force, r.service, r.action)
   end
 
-  def shutdown(nodes,option = nil)
+  def shutdown(nodes, option = nil)
     ######
     # The Shutdown API method enables you to restart or shutdown a node that has not yet been added to a cluster. To use this method,
     # log in to the MIP for the pending node, and enter the "shutdown" method with either the "restart" or "halt" options.
     # param: Fixnum nodes: [required] List of NodeIDs for the nodes to be shutdown. 
-    
+
     # param: str option:  Specifies the action to take for the node shutdown. Possible values are: restart: Restarts the node. halt: Shuts down the node. 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(nodes, 'nodes', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'nodes' => nodes
-      },
-      'method' => 'Shutdown'
+
+    payload = {
+        'params' => {
+            'nodes' => nodes
+        },
+        'method' => 'Shutdown'
     }
-    
+
     if option != nil
       check_parameter(option, 'option', str)
       payload['params']['option'] = option
@@ -3565,13 +3517,13 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetIpmiConfig'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetIpmiConfig'
     }
-    
+
     if chassis_type != nil
       check_parameter(chassis_type, 'chassis_type', str)
       payload['params']['chassisType'] = chassis_type
@@ -3593,18 +3545,17 @@ class Element < ServiceBase
     # GetIpmiInfo enables you to display a detailed reporting of sensors (objects) for node fans, intake and exhaust temperatures, and power supplies that are monitored by the system.######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetIpmiInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetIpmiInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetIpmiInfoResult.new(raw_response) : nil
   end
-
 
 
   def list_services()
@@ -3612,40 +3563,39 @@ class Element < ServiceBase
     # You can use ListServices to return the services information for nodes, drives, current software, and other services that are running on the cluster.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListServices'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListServices'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListServicesResult.new(raw_response) : nil
   end
 
 
-
-  def invoke_sfapi(method,parameters = nil)
+  def invoke_sfapi(method, parameters = nil)
     ######
     # This will invoke any API method supported by the SolidFire API for the version and port the connection is using.
     # Returns a nested hashtable of key/value pairs that contain the result of the invoked method.
     # param: str method: [required] The name of the method to invoke. This is case sensitive. 
-    
+
     # param: omnitype parameters:  An object, normally a dictionary or hashtable of the key/value pairs, to be passed as the params for the method being invoked. 
     ######
 
     check_connection(1.0, 'Both')
-    
+
     check_parameter(method, 'method', 'str')
-    
-    payload ={
-      'params' => { 
-        'method' => method
-      },
-      'method' => 'InvokeSFApi'
+
+    payload = {
+        'params' => {
+            'method' => method
+        },
+        'method' => 'InvokeSFApi'
     }
-    
+
     if parameters != nil
       check_parameter(parameters, 'parameters', omnitype)
       payload['params']['parameters'] = parameters
@@ -3665,32 +3615,32 @@ class Element < ServiceBase
     invoke_sfapi(r.method, r.parameters)
   end
 
-  def create_group_snapshot(volumes,name = nil,enable_remote_replication = nil,retention = nil,attributes = nil)
+  def create_group_snapshot(volumes, name = nil, enable_remote_replication = nil, retention = nil, attributes = nil)
     ######
     # CreateGroupSnapshot enables you to create a point-in-time copy of a group of volumes. You can use this snapshot later as a backup or rollback to ensure the data on the group of volumes is consistent for the point in time that you created the snapshot.
     # Note: Creating a group snapshot is allowed if cluster fullness is at stage 2 or 3. Snapshots are not created when cluster fullness is at stage 4 or 5.
     # param: Fixnum volumes: [required] Unique ID of the volume image from which to copy. 
-    
+
     # param: str name:  Name for the group snapshot. If unspecified, the date and time the group snapshot was taken is used. 
-    
+
     # param: bool enableRemoteReplication:  Replicates the snapshot created to remote storage. Possible values are: true: The snapshot is replicated to remote storage. false: Default. The snapshot is not replicated. 
-    
+
     # param: str retention:  Specifies the amount of time for which the snapshots are retained. The format is HH:mm:ss. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(7, 'Cluster')
-    
+
     check_parameter(volumes, 'volumes', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumes' => volumes
-      },
-      'method' => 'CreateGroupSnapshot'
+
+    payload = {
+        'params' => {
+            'volumes' => volumes
+        },
+        'method' => 'CreateGroupSnapshot'
     }
-    
+
     if name != nil
       check_parameter(name, 'name', str)
       payload['params']['name'] = name
@@ -3743,16 +3693,16 @@ class Element < ServiceBase
     ######
 
     check_connection(8, 'Cluster')
-    
+
     check_parameter(schedule, 'schedule', 'Schedule')
-    
-    payload ={
-      'params' => { 
-        'schedule' => schedule
-      },
-      'method' => 'CreateSchedule'
+
+    payload = {
+        'params' => {
+            'schedule' => schedule
+        },
+        'method' => 'CreateSchedule'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? CreateScheduleResult.new(raw_response) : nil
@@ -3765,35 +3715,35 @@ class Element < ServiceBase
     create_schedule(r.schedule)
   end
 
-  def create_snapshot(volume_id,snapshot_id = nil,name = nil,enable_remote_replication = nil,retention = nil,attributes = nil)
+  def create_snapshot(volume_id, snapshot_id = nil, name = nil, enable_remote_replication = nil, retention = nil, attributes = nil)
     ######
     # CreateSnapshot enables you to create a point-in-time copy of a volume. You can create a snapshot from any volume or from an existing snapshot. If you do not provide a SnapshotID with this API method, a snapshot is created from the volume's active branch.
     # If the volume from which the snapshot is created is being replicated to a remote cluster, the snapshot can also be replicated to the same target. Use the enableRemoteReplication parameter to enable snapshot replication.
     # Note: Creating a snapshot is allowed if cluster fullness is at stage 2 or 3. Snapshots are not created when cluster fullness is at stage 4 or 5.
     # param: Fixnum volumeID: [required] Specifies the unique ID of the volume image from which to copy. 
-    
+
     # param: Fixnum snapshotID:  Specifies the unique ID of a snapshot from which the new snapshot is made. The snapshotID passed must be a snapshot on the given volume. 
-    
+
     # param: str name:  Specifies a name for the snapshot. If unspecified, the date and time the snapshot was taken is used. 
-    
+
     # param: bool enableRemoteReplication:  Replicates the snapshot created to a remote cluster. Possible values are: true: The snapshot is replicated to remote storage. false: Default. The snapshot is not replicated. 
-    
+
     # param: str retention:  Specifies the amount of time for which the snapshot is retained. The format is HH:mm:ss. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id
-      },
-      'method' => 'CreateSnapshot'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id
+        },
+        'method' => 'CreateSnapshot'
     }
-    
+
     if snapshot_id != nil
       check_parameter(snapshot_id, 'snapshot_id', Fixnum)
       payload['params']['snapshotID'] = snapshot_id
@@ -3841,28 +3791,28 @@ class Element < ServiceBase
     create_snapshot(r.volume_id, r.snapshot_id, r.name, r.enable_remote_replication, r.retention, r.attributes)
   end
 
-  def delete_group_snapshot(group_snapshot_id,save_members)
+  def delete_group_snapshot(group_snapshot_id, save_members)
     ######
     # DeleteGroupSnapshot enables you to delete a group snapshot. You can use the saveMembers parameter to preserve all the snapshots that were made for the volumes in the group, but the group association is removed.
     # param: Fixnum groupSnapshotID: [required] Specifies the unique ID of the group snapshot. 
-    
+
     # param: bool saveMembers: [required] Specifies whether to preserve snapshots or delete them. Valid values are: true: Snapshots are preserved, but group association is removed. false: The group and snapshots are deleted. 
     ######
 
     check_connection(7, 'Cluster')
-    
+
     check_parameter(group_snapshot_id, 'group_snapshot_id', 'Fixnum')
-    
+
     check_parameter(save_members, 'save_members', 'bool')
-    
-    payload ={
-      'params' => { 
-        'groupSnapshotID' => group_snapshot_id, 
-        'saveMembers' => save_members
-      },
-      'method' => 'DeleteGroupSnapshot'
+
+    payload = {
+        'params' => {
+            'groupSnapshotID' => group_snapshot_id,
+            'saveMembers' => save_members
+        },
+        'method' => 'DeleteGroupSnapshot'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DeleteGroupSnapshotResult.new(raw_response) : nil
@@ -3886,16 +3836,16 @@ class Element < ServiceBase
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(snapshot_id, 'snapshot_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'snapshotID' => snapshot_id
-      },
-      'method' => 'DeleteSnapshot'
+
+    payload = {
+        'params' => {
+            'snapshotID' => snapshot_id
+        },
+        'method' => 'DeleteSnapshot'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DeleteSnapshotResult.new(raw_response) : nil
@@ -3917,16 +3867,16 @@ class Element < ServiceBase
     ######
 
     check_connection(8, 'Cluster')
-    
+
     check_parameter(schedule_id, 'schedule_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'scheduleID' => schedule_id
-      },
-      'method' => 'GetSchedule'
+
+    payload = {
+        'params' => {
+            'scheduleID' => schedule_id
+        },
+        'method' => 'GetSchedule'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetScheduleResult.new(raw_response) : nil
@@ -3939,22 +3889,22 @@ class Element < ServiceBase
     get_schedule(r.schedule_id)
   end
 
-  def list_group_snapshots(volume_id = nil,group_snapshot_id = nil)
+  def list_group_snapshots(volume_id = nil, group_snapshot_id = nil)
     ######
     # ListGroupSnapshots enables you to get information about all group snapshots that have been created.
     # param: Fixnum volumeID:  An array of unique volume IDs to query. If you do not specify this parameter, all group snapshots on the cluster are included. 
-    
+
     # param: Fixnum groupSnapshotID:  Retrieves information for a specific group snapshot ID. 
     ######
 
     check_connection(7, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListGroupSnapshots'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListGroupSnapshots'
     }
-    
+
     if volume_id != nil
       check_parameter(volume_id, 'volume_id', Fixnum)
       payload['params']['volumeID'] = volume_id
@@ -3983,36 +3933,35 @@ class Element < ServiceBase
     # ListSchedule enables you to retrieve information about all scheduled snapshots that have been created.######
 
     check_connection(8, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListSchedules'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListSchedules'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListSchedulesResult.new(raw_response) : nil
   end
 
 
-
-  def list_snapshots(volume_id = nil,snapshot_id = nil)
+  def list_snapshots(volume_id = nil, snapshot_id = nil)
     ######
     # ListSnapshots enables you to return the attributes of each snapshot taken on the volume. Information about snapshots that reside on the target cluster is displayed on the source cluster when this method is called from the source cluster.
     # param: Fixnum volumeID:  Retrieves snapshots for a volume. If volumeID is not provided, all snapshots for all volumes are returned. 
-    
+
     # param: Fixnum snapshotID:  Retrieves information for a specific snapshot ID. 
     ######
 
     check_connection(6, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListSnapshots'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListSnapshots'
     }
-    
+
     if volume_id != nil
       check_parameter(volume_id, 'volume_id', Fixnum)
       payload['params']['volumeID'] = volume_id
@@ -4036,27 +3985,27 @@ class Element < ServiceBase
     list_snapshots(r.volume_id, r.snapshot_id)
   end
 
-  def modify_group_snapshot(group_snapshot_id,expiration_time = nil,enable_remote_replication = nil)
+  def modify_group_snapshot(group_snapshot_id, expiration_time = nil, enable_remote_replication = nil)
     ######
     # ModifyGroupSnapshot enables you to change the attributes of a group of snapshots. You can also use this method to enable snapshots created on the Read/Write (source) volume to be remotely replicated to a target SolidFire storage system.
     # param: Fixnum groupSnapshotID: [required] Specifies the ID of the group of snapshots. 
-    
+
     # param: str expirationTime:  Sets the time when the snapshot should be removed. If unspecified, the current time is used. 
-    
+
     # param: bool enableRemoteReplication:  Replicates the snapshot created to a remote cluster. Possible values are: true: The snapshot is replicated to remote storage. false: Default. The snapshot is not replicated. 
     ######
 
     check_connection(8, 'Cluster')
-    
+
     check_parameter(group_snapshot_id, 'group_snapshot_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'groupSnapshotID' => group_snapshot_id
-      },
-      'method' => 'ModifyGroupSnapshot'
+
+    payload = {
+        'params' => {
+            'groupSnapshotID' => group_snapshot_id
+        },
+        'method' => 'ModifyGroupSnapshot'
     }
-    
+
     if expiration_time != nil
       check_parameter(expiration_time, 'expiration_time', str)
       payload['params']['expirationTime'] = expiration_time
@@ -4090,16 +4039,16 @@ class Element < ServiceBase
     ######
 
     check_connection(8, 'Cluster')
-    
+
     check_parameter(schedule, 'schedule', 'Schedule')
-    
-    payload ={
-      'params' => { 
-        'schedule' => schedule
-      },
-      'method' => 'ModifySchedule'
+
+    payload = {
+        'params' => {
+            'schedule' => schedule
+        },
+        'method' => 'ModifySchedule'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ModifyScheduleResult.new(raw_response) : nil
@@ -4112,28 +4061,28 @@ class Element < ServiceBase
     modify_schedule(r.schedule)
   end
 
-  def modify_snapshot(snapshot_id,expiration_time = nil,enable_remote_replication = nil)
+  def modify_snapshot(snapshot_id, expiration_time = nil, enable_remote_replication = nil)
     ######
     # ModifySnapshot enables you to change the attributes currently assigned to a snapshot. You can use this method to enable snapshots created on
     # the Read/Write (source) volume to be remotely replicated to a target SolidFire storage system.
     # param: Fixnum snapshotID: [required] Specifies the ID of the snapshot. 
-    
+
     # param: str expirationTime:  Sets the time when the snapshot should be removed. 
-    
+
     # param: bool enableRemoteReplication:  Replicates the snapshot created to a remote cluster. Possible values are: true: The snapshot is replicated to remote storage. false: Default. The snapshot is not replicated. 
     ######
 
     check_connection(8, 'Cluster')
-    
+
     check_parameter(snapshot_id, 'snapshot_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'snapshotID' => snapshot_id
-      },
-      'method' => 'ModifySnapshot'
+
+    payload = {
+        'params' => {
+            'snapshotID' => snapshot_id
+        },
+        'method' => 'ModifySnapshot'
     }
-    
+
     if expiration_time != nil
       check_parameter(expiration_time, 'expiration_time', str)
       payload['params']['expirationTime'] = expiration_time
@@ -4160,34 +4109,34 @@ class Element < ServiceBase
     modify_snapshot(r.snapshot_id, r.expiration_time, r.enable_remote_replication)
   end
 
-  def rollback_to_group_snapshot(group_snapshot_id,save_current_state,name = nil,attributes = nil)
+  def rollback_to_group_snapshot(group_snapshot_id, save_current_state, name = nil, attributes = nil)
     ######
     # RollbackToGroupSnapshot enables you to roll back all individual volumes in a snapshot group to each volume's individual snapshot.
     # Note: Rolling back to a group snapshot creates a temporary snapshot of each volume within the group snapshot.
     # Snapshots are allowed if cluster fullness is at stage 2 or 3. Snapshots are not created when cluster fullness is at stage 4 or 5.
     # param: Fixnum groupSnapshotID: [required] Specifies the unique ID of the group snapshot. 
-    
+
     # param: bool saveCurrentState: [required] Specifies whether to save an active volume image or delete it. Values are: true: The previous active volume image is kept. false: (default) The previous active volume image is deleted. 
-    
+
     # param: str name:  Name for the group snapshot of the volume's current state that is created if "saveCurrentState" is set to true. If you do not give a name, the name of the snapshots (group and individual volume) are set to a timestamp of the time that the rollback occurred. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(7, 'Cluster')
-    
+
     check_parameter(group_snapshot_id, 'group_snapshot_id', 'Fixnum')
-    
+
     check_parameter(save_current_state, 'save_current_state', 'bool')
-    
-    payload ={
-      'params' => { 
-        'groupSnapshotID' => group_snapshot_id, 
-        'saveCurrentState' => save_current_state
-      },
-      'method' => 'RollbackToGroupSnapshot'
+
+    payload = {
+        'params' => {
+            'groupSnapshotID' => group_snapshot_id,
+            'saveCurrentState' => save_current_state
+        },
+        'method' => 'RollbackToGroupSnapshot'
     }
-    
+
     if name != nil
       check_parameter(name, 'name', str)
       payload['params']['name'] = name
@@ -4217,7 +4166,7 @@ class Element < ServiceBase
     rollback_to_group_snapshot(r.group_snapshot_id, r.save_current_state, r.name, r.attributes)
   end
 
-  def rollback_to_snapshot(volume_id,snapshot_id,save_current_state,name = nil,attributes = nil)
+  def rollback_to_snapshot(volume_id, snapshot_id, save_current_state, name = nil, attributes = nil)
     ######
     # RollbackToSnapshot enables you to make an existing snapshot of the "active" volume image. This method creates a new snapshot
     # from an existing snapshot. The new snapshot becomes "active" and the existing snapshot is preserved until you delete it.
@@ -4225,33 +4174,33 @@ class Element < ServiceBase
     # Note: Creating a snapshot is allowed if cluster fullness is at stage 2 or 3. Snapshots are not created when cluster fullness is
     # at stage 4 or 5.
     # param: Fixnum volumeID: [required] VolumeID for the volume. 
-    
+
     # param: Fixnum snapshotID: [required] The ID of a previously created snapshot on the given volume. 
-    
+
     # param: bool saveCurrentState: [required] Specifies whether to save an active volume image or delete it. Values are: true: The previous active volume image is kept. false: (default) The previous active volume image is deleted. 
-    
+
     # param: str name:  Name for the snapshot. If unspecified, the name of the snapshot being rolled back to is used with "- copy" appended to the end of the name. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
+
     check_parameter(snapshot_id, 'snapshot_id', 'Fixnum')
-    
+
     check_parameter(save_current_state, 'save_current_state', 'bool')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id, 
-        'snapshotID' => snapshot_id, 
-        'saveCurrentState' => save_current_state
-      },
-      'method' => 'RollbackToSnapshot'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id,
+            'snapshotID' => snapshot_id,
+            'saveCurrentState' => save_current_state
+        },
+        'method' => 'RollbackToSnapshot'
     }
-    
+
     if name != nil
       check_parameter(name, 'name', str)
       payload['params']['name'] = name
@@ -4290,18 +4239,17 @@ class Element < ServiceBase
     # management integration with a SolidFire cluster.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetCompleteStats'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetCompleteStats'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? dict.new(raw_response) : nil
   end
-
 
 
   def get_hardware_info()
@@ -4309,18 +4257,17 @@ class Element < ServiceBase
     # The GetHardwareInfo API method enables you to return hardware information and status for a single node. This generally includes details about manufacturers, vendors, versions, drives, and other associated hardware identification information.######
 
     check_connection(9, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetHardwareInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetHardwareInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetHardwareInfoResult.new(raw_response) : nil
   end
-
 
 
   def get_raw_stats()
@@ -4329,18 +4276,17 @@ class Element < ServiceBase
     # management integration with a SolidFire cluster.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetRawStats'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetRawStats'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? dict.new(raw_response) : nil
   end
-
 
 
   def list_drive_stats(drives = nil)
@@ -4350,13 +4296,13 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListDriveStats'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListDriveStats'
     }
-    
+
     if drives != nil
       check_parameter(drives, 'drives', Fixnum)
       payload['params']['drives'] = drives
@@ -4380,13 +4326,13 @@ class Element < ServiceBase
     ######
 
     check_connection(7, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListVolumeStats'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListVolumeStats'
     }
-    
+
     if volume_ids != nil
       check_parameter(volume_ids, 'volume_ids', Fixnum)
       payload['params']['volumeIDs'] = volume_ids
@@ -4410,13 +4356,13 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListVolumeStatsByVirtualVolume'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListVolumeStatsByVirtualVolume'
     }
-    
+
     if virtual_volume_ids != nil
       check_parameter(virtual_volume_ids, 'virtual_volume_ids', UUID)
       payload['params']['virtualVolumeIDs'] = virtual_volume_ids
@@ -4433,29 +4379,29 @@ class Element < ServiceBase
     list_volume_stats_by_virtual_volume(r.virtual_volume_ids)
   end
 
-  def create_storage_container(name,initiator_secret = nil,target_secret = nil,account_id = nil)
+  def create_storage_container(name, initiator_secret = nil, target_secret = nil, account_id = nil)
     ######
     # CreateStorageContainer enables you to create a Virtual Volume (VVol) storage container. Storage containers are associated with a SolidFire storage system account, and are used for reporting and resource allocation. Storage containers can only be associated with virtual volumes. You need at least one storage container to use the Virtual Volumes feature.
     # param: str name: [required] The name of the storage container. Follows SolidFire account naming restrictions. 
-    
+
     # param: str initiatorSecret:  The secret for CHAP authentication for the initiator. 
-    
+
     # param: str targetSecret:  The secret for CHAP authentication for the target. 
-    
+
     # param: Fixnum accountID:  Non-storage container account that will become a storage container. 
     ######
 
     check_connection(9, 'Cluster')
-    
+
     check_parameter(name, 'name', 'str')
-    
-    payload ={
-      'params' => { 
-        'name' => name
-      },
-      'method' => 'CreateStorageContainer'
+
+    payload = {
+        'params' => {
+            'name' => name
+        },
+        'method' => 'CreateStorageContainer'
     }
-    
+
     if initiator_secret != nil
       check_parameter(initiator_secret, 'initiator_secret', str)
       payload['params']['initiatorSecret'] = initiator_secret
@@ -4497,16 +4443,16 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
+
     check_parameter(storage_container_ids, 'storage_container_ids', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'storageContainerIDs' => storage_container_ids
-      },
-      'method' => 'DeleteStorageContainers'
+
+    payload = {
+        'params' => {
+            'storageContainerIDs' => storage_container_ids
+        },
+        'method' => 'DeleteStorageContainers'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DeleteStorageContainerResult.new(raw_response) : nil
@@ -4526,16 +4472,16 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
+
     check_parameter(storage_container_id, 'storage_container_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'storageContainerID' => storage_container_id
-      },
-      'method' => 'GetStorageContainerEfficiency'
+
+    payload = {
+        'params' => {
+            'storageContainerID' => storage_container_id
+        },
+        'method' => 'GetStorageContainerEfficiency'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetStorageContainerEfficiencyResult.new(raw_response) : nil
@@ -4555,13 +4501,13 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListStorageContainers'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListStorageContainers'
     }
-    
+
     if storage_container_ids != nil
       check_parameter(storage_container_ids, 'storage_container_ids', UUID)
       payload['params']['storageContainerIDs'] = storage_container_ids
@@ -4578,27 +4524,27 @@ class Element < ServiceBase
     list_storage_containers(r.storage_container_ids)
   end
 
-  def modify_storage_container(storage_container_id,initiator_secret = nil,target_secret = nil)
+  def modify_storage_container(storage_container_id, initiator_secret = nil, target_secret = nil)
     ######
     # ModifyStorageContainer enables you to make changes to an existing virtual volume storage container.
     # param: UUID storageContainerID: [required] The unique ID of the virtual volume storage container to modify. 
-    
+
     # param: str initiatorSecret:  The new secret for CHAP authentication for the initiator. 
-    
+
     # param: str targetSecret:  The new secret for CHAP authentication for the target. 
     ######
 
     check_connection(9, 'Cluster')
-    
+
     check_parameter(storage_container_id, 'storage_container_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'storageContainerID' => storage_container_id
-      },
-      'method' => 'ModifyStorageContainer'
+
+    payload = {
+        'params' => {
+            'storageContainerID' => storage_container_id
+        },
+        'method' => 'ModifyStorageContainer'
     }
-    
+
     if initiator_secret != nil
       check_parameter(initiator_secret, 'initiator_secret', str)
       payload['params']['initiatorSecret'] = initiator_secret
@@ -4631,18 +4577,17 @@ class Element < ServiceBase
     # Note: This method is available only through the per-node API endpoint 5.0 or later.######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListTests'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListTests'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListTestsResult.new(raw_response) : nil
   end
-
 
 
   def list_utilities()
@@ -4651,18 +4596,17 @@ class Element < ServiceBase
     # Note: This method is available only through the per-node API endpoint 5.0 or later.######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListUtilities'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListUtilities'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListUtilitiesResult.new(raw_response) : nil
   end
-
 
 
   def test_connect_ensemble(ensemble = nil)
@@ -4673,13 +4617,13 @@ class Element < ServiceBase
     ######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'TestConnectEnsemble'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'TestConnectEnsemble'
     }
-    
+
     if ensemble != nil
       check_parameter(ensemble, 'ensemble', str)
       payload['params']['ensemble'] = ensemble
@@ -4705,13 +4649,13 @@ class Element < ServiceBase
     ######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'TestConnectMvip'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'TestConnectMvip'
     }
-    
+
     if mvip != nil
       check_parameter(mvip, 'mvip', str)
       payload['params']['mvip'] = mvip
@@ -4736,13 +4680,13 @@ class Element < ServiceBase
     ######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'TestConnectSvip'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'TestConnectSvip'
     }
-    
+
     if svip != nil
       check_parameter(svip, 'svip', str)
       payload['params']['svip'] = svip
@@ -4759,32 +4703,32 @@ class Element < ServiceBase
     test_connect_svip(r.svip)
   end
 
-  def test_ping(attempts = nil,hosts = nil,total_timeout_sec = nil,packet_size = nil,ping_timeout_msec = nil,prohibit_fragmentation = nil)
+  def test_ping(attempts = nil, hosts = nil, total_timeout_sec = nil, packet_size = nil, ping_timeout_msec = nil, prohibit_fragmentation = nil)
     ######
     # You can use the TestPing API method to validate the
     # connection to all the nodes in a cluster on both 1G and 10G interfaces by using ICMP packets. The test uses the appropriate MTU sizes for each packet based on the MTU settings in the network configuration.
     # Note: This method is available only through the per-node API endpoint 5.0 or later.
     # param: Fixnum attempts:  Specifies the number of times the system should repeat the test ping. The default value is 5. 
-    
+
     # param: str hosts:  Specifies a comma-separated list of addresses or hostnames of devices to ping. 
-    
+
     # param: Fixnum totalTimeoutSec:  Specifies the length of time the ping should wait for a system response before issuing the next ping attempt or ending the process. 
-    
+
     # param: Fixnum packetSize:  Specifies the number of bytes to send in the ICMP packet that is sent to each IP. The number must be less than the maximum MTU specified in the network configuration. 
-    
+
     # param: Fixnum pingTimeoutMsec:  Specifies the number of milliseconds to wait for each individual ping response. The default value is 500 ms. 
-    
+
     # param: bool prohibitFragmentation:  Specifies that the Do not Fragment (DF) flag is enabled for the ICMP packets. 
     ######
 
     check_connection(5, 'Node')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'TestPing'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'TestPing'
     }
-    
+
     if attempts != nil
       check_parameter(attempts, 'attempts', Fixnum)
       payload['params']['attempts'] = attempts
@@ -4836,7 +4780,7 @@ class Element < ServiceBase
     test_ping(r.attempts, r.hosts, r.total_timeout_sec, r.packet_size, r.ping_timeout_msec, r.prohibit_fragmentation)
   end
 
-  def add_virtual_network(virtual_network_tag,name,address_blocks,netmask,svip,gateway = nil,namespace = nil,attributes = nil)
+  def add_virtual_network(virtual_network_tag, name, address_blocks, netmask, svip, gateway = nil, namespace = nil, attributes = nil)
     ######
     # You can use the AddVirtualNetwork method to add a new virtual network to a cluster configuration. When you add a virtual network,
     # an interface for each node is created and each interface will require a virtual network IP address. The number of IP addresses you
@@ -4847,45 +4791,45 @@ class Element < ServiceBase
     # existing virtual network, use ModifyVirtualNetwork.
     # Note: Virtual network parameters must be unique to each virtual network when setting the namespace parameter to false.
     # param: Fixnum virtualNetworkTag: [required] A unique virtual network (VLAN) tag. Supported values are 1 through 4094.The number zero (0) is not supported. 
-    
+
     # param: str name: [required] A user-defined name for the new virtual network. 
-    
+
     # param: AddressBlock addressBlocks: [required] Unique range of IP addresses to include in the virtual network. Attributes for this parameter are: start: The start of the IP address range. (String) size: The number of IP addresses to include in the block. (Integer) 
-    
+
     # param: str netmask: [required] Unique network mask for the virtual network being created. 
-    
+
     # param: str svip: [required] Unique storage IP address for the virtual network being created. 
-    
+
     # param: str gateway:  The IP address of a gateway of the virtual network. This parameter is only valid if the "namespace" parameter is set to true. 
-    
+
     # param: bool namespace:  When set to true, enables the Routable Storage VLANs functionality by creating and configuring a namespace and the virtual network contained by it. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(7, 'Cluster')
-    
+
     check_parameter(virtual_network_tag, 'virtual_network_tag', 'Fixnum')
-    
+
     check_parameter(name, 'name', 'str')
-    
+
     check_parameter(address_blocks, 'address_blocks', 'AddressBlock')
-    
+
     check_parameter(netmask, 'netmask', 'str')
-    
+
     check_parameter(svip, 'svip', 'str')
-    
-    payload ={
-      'params' => { 
-        'virtualNetworkTag' => virtual_network_tag, 
-        'name' => name, 
-        'addressBlocks' => address_blocks, 
-        'netmask' => netmask, 
-        'svip' => svip
-      },
-      'method' => 'AddVirtualNetwork'
+
+    payload = {
+        'params' => {
+            'virtualNetworkTag' => virtual_network_tag,
+            'name' => name,
+            'addressBlocks' => address_blocks,
+            'netmask' => netmask,
+            'svip' => svip
+        },
+        'method' => 'AddVirtualNetwork'
     }
-    
+
     if gateway != nil
       check_parameter(gateway, 'gateway', str)
       payload['params']['gateway'] = gateway
@@ -4931,29 +4875,29 @@ class Element < ServiceBase
     add_virtual_network(r.virtual_network_tag, r.name, r.address_blocks, r.netmask, r.svip, r.gateway, r.namespace, r.attributes)
   end
 
-  def list_virtual_networks(virtual_network_id = nil,virtual_network_tag = nil,virtual_network_ids = nil,virtual_network_tags = nil)
+  def list_virtual_networks(virtual_network_id = nil, virtual_network_tag = nil, virtual_network_ids = nil, virtual_network_tags = nil)
     ######
     # ListVirtualNetworks enables you to list all configured virtual networks for the cluster. You can use this method to verify the virtual
     # network settings in the cluster.
     # There are no required parameters for this method. However, to filter the results, you can pass one or more VirtualNetworkID or
     # VirtualNetworkTag values.
     # param: Fixnum virtualNetworkID:  Network ID to filter the list for a single virtual network. 
-    
+
     # param: Fixnum virtualNetworkTag:  Network tag to filter the list for a single virtual network. 
-    
+
     # param: Fixnum virtualNetworkIDs:  Network IDs to include in the list. 
-    
+
     # param: Fixnum virtualNetworkTags:  Network tag to include in the list. 
     ######
 
     check_connection(7, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListVirtualNetworks'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListVirtualNetworks'
     }
-    
+
     if virtual_network_id != nil
       check_parameter(virtual_network_id, 'virtual_network_id', Fixnum)
       payload['params']['virtualNetworkID'] = virtual_network_id
@@ -4991,7 +4935,7 @@ class Element < ServiceBase
     list_virtual_networks(r.virtual_network_id, r.virtual_network_tag, r.virtual_network_ids, r.virtual_network_tags)
   end
 
-  def modify_virtual_network(virtual_network_id = nil,virtual_network_tag = nil,name = nil,address_blocks = nil,netmask = nil,svip = nil,gateway = nil,namespace = nil,attributes = nil)
+  def modify_virtual_network(virtual_network_id = nil, virtual_network_tag = nil, name = nil, address_blocks = nil, netmask = nil, svip = nil, gateway = nil, namespace = nil, attributes = nil)
     ######
     # You can use ModifyVirtualNetwork to change the attributes of an existing virtual network. This method enables you to add or remove
     # address blocks, change the netmask, or modify the name or description of the virtual network. You can also use it to enable or
@@ -5001,32 +4945,32 @@ class Element < ServiceBase
     # "namespace" parameter disrupts any traffic handled by the virtual network. NetApp strongly recommends changing the
     # "namespace" parameter only during a scheduled maintenance window.
     # param: Fixnum virtualNetworkID:  The unique identifier of the virtual network to modify. This is the virtual network ID assigned by the cluster.  Note: This parameter is optional but either virtualNetworkID or virtualNetworkTag must be specified with this API method. 
-    
+
     # param: Fixnum virtualNetworkTag:  The network tag that identifies the virtual network to modify. Note: This parameter is optional but either virtualNetworkID or virtualNetworkTag must be specified with this API method. 
-    
+
     # param: str name:  The new name for the virtual network. 
-    
+
     # param: AddressBlock addressBlocks:  The new addressBlock to set for this virtual network. This might contain new address blocks to add to the existing object or omit unused address blocks that need to be removed. Alternatively, you can extend or reduce the size of existing address blocks. You can only increase the size of the starting addressBlocks for a virtual network object; you can never decrease it. Attributes for this parameter are: start: The start of the IP address range. (String) size: The number of IP addresses to include in the block. (Integer) 
-    
+
     # param: str netmask:  New network mask for this virtual network. 
-    
+
     # param: str svip:  The storage virtual IP address for this virtual network. The svip for a virtual network cannot be changed. You must create a new virtual network to use a different svip address. 
-    
+
     # param: str gateway:  The IP address of a gateway of the virtual network. This parameter is only valid if the "namespace" parameter is set to true. 
-    
+
     # param: bool namespace:  When set to true, enables Routable Storage VLANs functionality by recreating the virtual network and configuring a namespace to contain it. When set to false, disables the VRF functionality for the virtual network. Changing this value disrupts traffic running through this virtual network. 
-    
+
     # param: dict attributes:  A new list of name-value pairs in JSON object format. 
     ######
 
     check_connection(7, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ModifyVirtualNetwork'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ModifyVirtualNetwork'
     }
-    
+
     if virtual_network_id != nil
       check_parameter(virtual_network_id, 'virtual_network_id', Fixnum)
       payload['params']['virtualNetworkID'] = virtual_network_id
@@ -5099,23 +5043,23 @@ class Element < ServiceBase
     modify_virtual_network(r.virtual_network_id, r.virtual_network_tag, r.name, r.address_blocks, r.netmask, r.svip, r.gateway, r.namespace, r.attributes)
   end
 
-  def remove_virtual_network(virtual_network_id = nil,virtual_network_tag = nil)
+  def remove_virtual_network(virtual_network_id = nil, virtual_network_tag = nil)
     ######
     # RemoveVirtualNetwork enables you to remove a previously added virtual network.
     # Note: This method requires either the virtualNetworkID or the virtualNetworkTag as a parameter, but not both.
     # param: Fixnum virtualNetworkID:  Network ID that identifies the virtual network to remove. 
-    
+
     # param: Fixnum virtualNetworkTag:  Network tag that identifies the virtual network to remove. 
     ######
 
     check_connection(7, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'RemoveVirtualNetwork'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'RemoveVirtualNetwork'
     }
-    
+
     if virtual_network_id != nil
       check_parameter(virtual_network_id, 'virtual_network_id', Fixnum)
       payload['params']['virtualNetworkID'] = virtual_network_id
@@ -5139,33 +5083,33 @@ class Element < ServiceBase
     remove_virtual_network(r.virtual_network_id, r.virtual_network_tag)
   end
 
-  def bind_virtual_volumes(virtual_volume_ids,virtual_volume_host_id,bind_context)
+  def bind_virtual_volumes(virtual_volume_ids, virtual_volume_host_id, bind_context)
     ######
     # BindVirtualVolume binds a VVol with a Host.
     # param: UUID virtualVolumeIDs: [required] The UUID of the VVol to bind. 
-    
+
     # param: UUID virtualVolumeHostID: [required] The UUID of the ESX host. 
-    
+
     # param: str bindContext: [required] Normal or Start? 
     ######
 
     check_connection(None, 'Cluster')
-    
+
     check_parameter(virtual_volume_ids, 'virtual_volume_ids', 'UUID')
-    
+
     check_parameter(virtual_volume_host_id, 'virtual_volume_host_id', 'UUID')
-    
+
     check_parameter(bind_context, 'bind_context', 'str')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeIDs' => virtual_volume_ids, 
-        'virtualVolumeHostID' => virtual_volume_host_id, 
-        'bindContext' => bind_context
-      },
-      'method' => 'BindVirtualVolumes'
+
+    payload = {
+        'params' => {
+            'virtualVolumeIDs' => virtual_volume_ids,
+            'virtualVolumeHostID' => virtual_volume_host_id,
+            'bindContext' => bind_context
+        },
+        'method' => 'BindVirtualVolumes'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VirtualVolumeBindingListResult.new(raw_response) : nil
@@ -5191,16 +5135,16 @@ class Element < ServiceBase
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_task_id, 'virtual_volume_task_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeTaskID' => virtual_volume_task_id
-      },
-      'method' => 'CancelVirtualVolumeTask'
+
+    payload = {
+        'params' => {
+            'virtualVolumeTaskID' => virtual_volume_task_id
+        },
+        'method' => 'CancelVirtualVolumeTask'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VirtualVolumeNullResult.new(raw_response) : nil
@@ -5213,27 +5157,27 @@ class Element < ServiceBase
     cancel_virtual_volume_task(r.virtual_volume_task_id)
   end
 
-  def clone_virtual_volume(virtual_volume_id,name = nil,qos = nil)
+  def clone_virtual_volume(virtual_volume_id, name = nil, qos = nil)
     ######
     # CloneVirtualVolume is used to execute a VMware Virtual Volume clone.
     # param: UUID virtualVolumeID: [required] The ID of the Virtual Volume to clone. 
-    
+
     # param: str name:  The name for the newly-created volume. 
-    
+
     # param: QoS qos:  New quality of service settings for this volume. 
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_id, 'virtual_volume_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeID' => virtual_volume_id
-      },
-      'method' => 'CloneVirtualVolume'
+
+    payload = {
+        'params' => {
+            'virtualVolumeID' => virtual_volume_id
+        },
+        'method' => 'CloneVirtualVolume'
     }
-    
+
     if name != nil
       check_parameter(name, 'name', str)
       payload['params']['name'] = name
@@ -5260,33 +5204,33 @@ class Element < ServiceBase
     clone_virtual_volume(r.virtual_volume_id, r.name, r.qos)
   end
 
-  def copy_diffs_to_virtual_volume(virtual_volume_id,base_virtual_volume_id,dst_virtual_volume_id)
+  def copy_diffs_to_virtual_volume(virtual_volume_id, base_virtual_volume_id, dst_virtual_volume_id)
     ######
     # CopyDiffsToVirtualVolume is a three-way merge function.
     # param: UUID virtualVolumeID: [required] The ID of the snapshot Virtual Volume. 
-    
+
     # param: UUID baseVirtualVolumeID: [required] The ID of the base Virtual Volume. 
-    
+
     # param: UUID dstVirtualVolumeID: [required] The ID of the Virtual Volume to be overwritten. 
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_id, 'virtual_volume_id', 'UUID')
-    
+
     check_parameter(base_virtual_volume_id, 'base_virtual_volume_id', 'UUID')
-    
+
     check_parameter(dst_virtual_volume_id, 'dst_virtual_volume_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeID' => virtual_volume_id, 
-        'baseVirtualVolumeID' => base_virtual_volume_id, 
-        'dstVirtualVolumeID' => dst_virtual_volume_id
-      },
-      'method' => 'CopyDiffsToVirtualVolume'
+
+    payload = {
+        'params' => {
+            'virtualVolumeID' => virtual_volume_id,
+            'baseVirtualVolumeID' => base_virtual_volume_id,
+            'dstVirtualVolumeID' => dst_virtual_volume_id
+        },
+        'method' => 'CopyDiffsToVirtualVolume'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VirtualVolumeAsyncResult.new(raw_response) : nil
@@ -5305,43 +5249,43 @@ class Element < ServiceBase
     copy_diffs_to_virtual_volume(r.virtual_volume_id, r.base_virtual_volume_id, r.dst_virtual_volume_id)
   end
 
-  def create_virtual_volume(name,storage_container_id,virtual_volume_type,total_size,qos = nil,metadata = nil)
+  def create_virtual_volume(name, storage_container_id, virtual_volume_type, total_size, qos = nil, metadata = nil)
     ######
     # CreateVirtualVolume is used to create a new (empty) Virtual Volume on the cluster.
     # When the volume is created successfully it is available for connection via PE.
     # param: str name: [required] Name of the Virtual Volume. Not required to be unique, but it is recommended. May be 1 to 64 characters in length. 
-    
+
     # param: UUID storageContainerID: [required] UUID for the Storage Container of this volume. 
-    
+
     # param: str virtualVolumeType: [required] VMW_TYPE value for this volume. 
-    
+
     # param: Fixnum totalSize: [required] Total size of the volume, in bytes. Size is rounded up to the nearest 1MB size. 
-    
+
     # param: QoS qos:  Initial quality of service settings for this volume.  Volumes created without specified QoS values are created with the default values for QoS. Default values for a volume can be found by running the GetDefaultQoS method. 
-    
+
     # param: dict metadata:  List of name/value pairs to save in the volume's metadata. 
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(name, 'name', 'str')
-    
+
     check_parameter(storage_container_id, 'storage_container_id', 'UUID')
-    
+
     check_parameter(virtual_volume_type, 'virtual_volume_type', 'str')
-    
+
     check_parameter(total_size, 'total_size', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'name' => name, 
-        'storageContainerID' => storage_container_id, 
-        'virtualVolumeType' => virtual_volume_type, 
-        'totalSize' => total_size
-      },
-      'method' => 'CreateVirtualVolume'
+
+    payload = {
+        'params' => {
+            'name' => name,
+            'storageContainerID' => storage_container_id,
+            'virtualVolumeType' => virtual_volume_type,
+            'totalSize' => total_size
+        },
+        'method' => 'CreateVirtualVolume'
     }
-    
+
     if qos != nil
       check_parameter(qos, 'qos', QoS)
       payload['params']['qos'] = qos
@@ -5377,32 +5321,32 @@ class Element < ServiceBase
     create_virtual_volume(r.name, r.storage_container_id, r.virtual_volume_type, r.total_size, r.qos, r.metadata)
   end
 
-  def create_virtual_volume_host(virtual_volume_host_id,cluster_id,visible_protocol_endpoint_ids = nil,host_address = nil)
+  def create_virtual_volume_host(virtual_volume_host_id, cluster_id, visible_protocol_endpoint_ids = nil, host_address = nil)
     ######
     # CreateVirtualVolumeHost creates a new ESX host.
     # param: UUID virtualVolumeHostID: [required] The GUID of the ESX host. 
-    
+
     # param: UUID clusterID: [required] The GUID of the ESX Cluster. 
-    
+
     # param: UUID visibleProtocolEndpointIDs:  A list of PEs the host is aware of. 
-    
+
     # param: str hostAddress:  IP or DNS name for the host. 
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_host_id, 'virtual_volume_host_id', 'UUID')
-    
+
     check_parameter(cluster_id, 'cluster_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeHostID' => virtual_volume_host_id, 
-        'clusterID' => cluster_id
-      },
-      'method' => 'CreateVirtualVolumeHost'
+
+    payload = {
+        'params' => {
+            'virtualVolumeHostID' => virtual_volume_host_id,
+            'clusterID' => cluster_id
+        },
+        'method' => 'CreateVirtualVolumeHost'
     }
-    
+
     if visible_protocol_endpoint_ids != nil
       check_parameter(visible_protocol_endpoint_ids, 'visible_protocol_endpoint_ids', UUID)
       payload['params']['visibleProtocolEndpointIDs'] = visible_protocol_endpoint_ids
@@ -5453,16 +5397,16 @@ class Element < ServiceBase
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volumes, 'virtual_volumes', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumes' => virtual_volumes
-      },
-      'method' => 'DeleteVirtualVolumes'
+
+    payload = {
+        'params' => {
+            'virtualVolumes' => virtual_volumes
+        },
+        'method' => 'DeleteVirtualVolumes'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VirtualVolumeNullResult.new(raw_response) : nil
@@ -5482,16 +5426,16 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
+
     check_parameter(feature, 'feature', 'str')
-    
-    payload ={
-      'params' => { 
-        'feature' => feature
-      },
-      'method' => 'EnableFeature'
+
+    payload = {
+        'params' => {
+            'feature' => feature
+        },
+        'method' => 'EnableFeature'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? EnableFeatureResult.new(raw_response) : nil
@@ -5504,27 +5448,27 @@ class Element < ServiceBase
     enable_feature(r.feature)
   end
 
-  def fast_clone_virtual_volume(virtual_volume_id,name = nil,qos = nil)
+  def fast_clone_virtual_volume(virtual_volume_id, name = nil, qos = nil)
     ######
     # FastCloneVirtualVolume is used to execute a VMware Virtual Volume fast clone.
     # param: UUID virtualVolumeID: [required] The ID of the Virtual Volume to clone. 
-    
+
     # param: str name:  The name for the newly-created volume. 
-    
+
     # param: QoS qos:  New quality of service settings for this volume. 
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_id, 'virtual_volume_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeID' => virtual_volume_id
-      },
-      'method' => 'FastCloneVirtualVolume'
+
+    payload = {
+        'params' => {
+            'virtualVolumeID' => virtual_volume_id
+        },
+        'method' => 'FastCloneVirtualVolume'
     }
-    
+
     if name != nil
       check_parameter(name, 'name', str)
       payload['params']['name'] = name
@@ -5558,13 +5502,13 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetFeatureStatus'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetFeatureStatus'
     }
-    
+
     if feature != nil
       check_parameter(feature, 'feature', str)
       payload['params']['feature'] = feature
@@ -5586,54 +5530,53 @@ class Element < ServiceBase
     # Gets the Vasa Provider info######
 
     check_connection(9.0, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetVasaProviderInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetVasaProviderInfo'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VasaProviderInfoResult.new(raw_response) : nil
   end
 
 
-
-  def get_virtual_volume_allocated_bitmap(virtual_volume_id,segment_start,segment_length,chunk_size)
+  def get_virtual_volume_allocated_bitmap(virtual_volume_id, segment_start, segment_length, chunk_size)
     ######
     # GetVirtualVolumeAllocatedBitmap returns a b64-encoded block of data 
     # representing a bitmap where non-zero bits indicate the allocation of a 
     # segment (LBA range) of the volume.
     # param: UUID virtualVolumeID: [required] The ID of the Virtual Volume. 
-    
+
     # param: Fixnum segmentStart: [required] Byte offset. 
-    
+
     # param: Fixnum segmentLength: [required] Byte length adjusted to end on a chunk boundary. 
-    
+
     # param: Fixnum chunkSize: [required] Number of bytes represented by one bit in the bitmap. 
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_id, 'virtual_volume_id', 'UUID')
-    
+
     check_parameter(segment_start, 'segment_start', 'Fixnum')
-    
+
     check_parameter(segment_length, 'segment_length', 'Fixnum')
-    
+
     check_parameter(chunk_size, 'chunk_size', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeID' => virtual_volume_id, 
-        'segmentStart' => segment_start, 
-        'segmentLength' => segment_length, 
-        'chunkSize' => chunk_size
-      },
-      'method' => 'GetVirtualVolumeAllocatedBitmap'
+
+    payload = {
+        'params' => {
+            'virtualVolumeID' => virtual_volume_id,
+            'segmentStart' => segment_start,
+            'segmentLength' => segment_length,
+            'chunkSize' => chunk_size
+        },
+        'method' => 'GetVirtualVolumeAllocatedBitmap'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VirtualVolumeBitmapResult.new(raw_response) : nil
@@ -5660,18 +5603,17 @@ class Element < ServiceBase
     # Enables retrieval of the number of virtual volumes currently in the system.######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetVirtualVolumeCount'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetVirtualVolumeCount'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetVirtualVolumeCountResult.new(raw_response) : nil
   end
-
 
 
   def get_virtual_volume_task_update(virtual_volume_task_id)
@@ -5681,16 +5623,16 @@ class Element < ServiceBase
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_task_id, 'virtual_volume_task_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeTaskID' => virtual_volume_task_id
-      },
-      'method' => 'GetVirtualVolumeTaskUpdate'
+
+    payload = {
+        'params' => {
+            'virtualVolumeTaskID' => virtual_volume_task_id
+        },
+        'method' => 'GetVirtualVolumeTaskUpdate'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VirtualVolumeTaskResult.new(raw_response) : nil
@@ -5703,45 +5645,45 @@ class Element < ServiceBase
     get_virtual_volume_task_update(r.virtual_volume_task_id)
   end
 
-  def get_virtual_volume_unshared_bitmap(virtual_volume_id,base_virtual_volume_id,segment_start,segment_length,chunk_size)
+  def get_virtual_volume_unshared_bitmap(virtual_volume_id, base_virtual_volume_id, segment_start, segment_length, chunk_size)
     ######
     # GetVirtualVolumeAllocatedBitmap returns a b64-encoded block of data 
     # representing a bitmap where non-zero bits indicate that data is not the same 
     # between two volumes for a common segment (LBA range) of the volumes.
     # param: UUID virtualVolumeID: [required] The ID of the Virtual Volume. 
-    
+
     # param: UUID baseVirtualVolumeID: [required] The ID of the Virtual Volume to compare against. 
-    
+
     # param: Fixnum segmentStart: [required] Byte offset. 
-    
+
     # param: Fixnum segmentLength: [required] Byte length adjusted to end on a chunk boundary. 
-    
+
     # param: Fixnum chunkSize: [required] Number of bytes represented by one bit in the bitmap. 
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_id, 'virtual_volume_id', 'UUID')
-    
+
     check_parameter(base_virtual_volume_id, 'base_virtual_volume_id', 'UUID')
-    
+
     check_parameter(segment_start, 'segment_start', 'Fixnum')
-    
+
     check_parameter(segment_length, 'segment_length', 'Fixnum')
-    
+
     check_parameter(chunk_size, 'chunk_size', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeID' => virtual_volume_id, 
-        'baseVirtualVolumeID' => base_virtual_volume_id, 
-        'segmentStart' => segment_start, 
-        'segmentLength' => segment_length, 
-        'chunkSize' => chunk_size
-      },
-      'method' => 'GetVirtualVolumeUnsharedBitmap'
+
+    payload = {
+        'params' => {
+            'virtualVolumeID' => virtual_volume_id,
+            'baseVirtualVolumeID' => base_virtual_volume_id,
+            'segmentStart' => segment_start,
+            'segmentLength' => segment_length,
+            'chunkSize' => chunk_size
+        },
+        'method' => 'GetVirtualVolumeUnsharedBitmap'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VirtualVolumeBitmapResult.new(raw_response) : nil
@@ -5766,7 +5708,7 @@ class Element < ServiceBase
     get_virtual_volume_unshared_bitmap(r.virtual_volume_id, r.base_virtual_volume_id, r.segment_start, r.segment_length, r.chunk_size)
   end
 
-  def get_virtual_volume_unshared_chunks(virtual_volume_id,base_virtual_volume_id,segment_start,segment_length,chunk_size)
+  def get_virtual_volume_unshared_chunks(virtual_volume_id, base_virtual_volume_id, segment_start, segment_length, chunk_size)
     ######
     # GetVirtualVolumeAllocatedBitmap scans a VVol segment and returns the number of 
     # chunks not shared between two volumes. This call will return results in less 
@@ -5774,39 +5716,39 @@ class Element < ServiceBase
     # error is thrown. If the offset/length combination is invalid or out fo range 
     # an error is thrown.
     # param: UUID virtualVolumeID: [required] The ID of the Virtual Volume. 
-    
+
     # param: UUID baseVirtualVolumeID: [required] The ID of the Virtual Volume to compare against. 
-    
+
     # param: Fixnum segmentStart: [required] Start Byte offset. 
-    
+
     # param: Fixnum segmentLength: [required] Length of the scan segment in bytes. 
-    
+
     # param: Fixnum chunkSize: [required] Number of bytes represented by one bit in the bitmap. 
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_id, 'virtual_volume_id', 'UUID')
-    
+
     check_parameter(base_virtual_volume_id, 'base_virtual_volume_id', 'UUID')
-    
+
     check_parameter(segment_start, 'segment_start', 'Fixnum')
-    
+
     check_parameter(segment_length, 'segment_length', 'Fixnum')
-    
+
     check_parameter(chunk_size, 'chunk_size', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeID' => virtual_volume_id, 
-        'baseVirtualVolumeID' => base_virtual_volume_id, 
-        'segmentStart' => segment_start, 
-        'segmentLength' => segment_length, 
-        'chunkSize' => chunk_size
-      },
-      'method' => 'GetVirtualVolumeUnsharedChunks'
+
+    payload = {
+        'params' => {
+            'virtualVolumeID' => virtual_volume_id,
+            'baseVirtualVolumeID' => base_virtual_volume_id,
+            'segmentStart' => segment_start,
+            'segmentLength' => segment_length,
+            'chunkSize' => chunk_size
+        },
+        'method' => 'GetVirtualVolumeUnsharedChunks'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VirtualVolumeUnsharedChunkResult.new(raw_response) : nil
@@ -5838,13 +5780,13 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListVirtualVolumeBindings'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListVirtualVolumeBindings'
     }
-    
+
     if virtual_volume_binding_ids != nil
       check_parameter(virtual_volume_binding_ids, 'virtual_volume_binding_ids', Fixnum)
       payload['params']['virtualVolumeBindingIDs'] = virtual_volume_binding_ids
@@ -5869,13 +5811,13 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListVirtualVolumeHosts'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListVirtualVolumeHosts'
     }
-    
+
     if virtual_volume_host_ids != nil
       check_parameter(virtual_volume_host_ids, 'virtual_volume_host_ids', UUID)
       payload['params']['virtualVolumeHostIDs'] = virtual_volume_host_ids
@@ -5892,29 +5834,29 @@ class Element < ServiceBase
     list_virtual_volume_hosts(r.virtual_volume_host_ids)
   end
 
-  def list_virtual_volumes(details = nil,limit = nil,recursive = nil,start_virtual_volume_id = nil,virtual_volume_ids = nil)
+  def list_virtual_volumes(details = nil, limit = nil, recursive = nil, start_virtual_volume_id = nil, virtual_volume_ids = nil)
     ######
     # ListVirtualVolumes enables you to list the virtual volumes currently in the system. You can use this method to list all virtual volumes,
     # or only list a subset.
     # param: bool details:  Specifies the level of detail about each virtual volume that is returned. Possible values are: true: Include more details about each virtual volume in the response. false: Include the standard level of detail about each virtual volume in the response. 
-    
+
     # param: Fixnum limit:  The maximum number of virtual volumes to list. 
-    
+
     # param: bool recursive:  Specifies whether to include information about the children of each virtual volume in the response. Possible values are: true: Include information about the children of each virtual volume in the response. false: Do not include information about the children of each virtual volume in the response. 
-    
+
     # param: UUID startVirtualVolumeID:  The ID of the virtual volume at which to begin the list. 
-    
+
     # param: UUID virtualVolumeIDs:  A list of virtual volume IDs for which to retrieve information. If you specify this parameter, the method returns information about only these virtual volumes. 
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListVirtualVolumes'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListVirtualVolumes'
     }
-    
+
     if details != nil
       check_parameter(details, 'details', bool)
       payload['params']['details'] = details
@@ -5966,13 +5908,13 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListVirtualVolumeTasks'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListVirtualVolumeTasks'
     }
-    
+
     if virtual_volume_task_ids != nil
       check_parameter(virtual_volume_task_ids, 'virtual_volume_task_ids', UUID)
       payload['params']['virtualVolumeTaskIDs'] = virtual_volume_task_ids
@@ -5989,22 +5931,22 @@ class Element < ServiceBase
     list_virtual_volume_tasks(r.virtual_volume_task_ids)
   end
 
-  def modify_vasa_provider_info(keystore = nil,vasa_provider_id = nil)
+  def modify_vasa_provider_info(keystore = nil, vasa_provider_id = nil)
     ######
     # Update the Vasa Provider info
     # param: str keystore:  Signed SSL certificate for the Vasa Provider 
-    
+
     # param: UUID vasaProviderID:  UUID identifying the vasa provider 
     ######
 
     check_connection(9.0, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ModifyVasaProviderInfo'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ModifyVasaProviderInfo'
     }
-    
+
     if keystore != nil
       check_parameter(keystore, 'keystore', str)
       payload['params']['keystore'] = keystore
@@ -6028,27 +5970,27 @@ class Element < ServiceBase
     modify_vasa_provider_info(r.keystore, r.vasa_provider_id)
   end
 
-  def modify_virtual_volume(virtual_volume_id,qos = nil,total_size = nil)
+  def modify_virtual_volume(virtual_volume_id, qos = nil, total_size = nil)
     ######
     # ModifyVirtualVolume is used to modify settings on an existing virtual volume.
     # param: UUID virtualVolumeID: [required] VvolVolumeID for the volume to be modified. 
-    
+
     # param: QoS qos:  New quality of service settings for this volume. 
-    
+
     # param: Fixnum totalSize:  New size of the volume in bytes. Size is rounded up to the nearest 1MiB size. This parameter can only be used to *increase* the size of a volume. 
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_id, 'virtual_volume_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeID' => virtual_volume_id
-      },
-      'method' => 'ModifyVirtualVolume'
+
+    payload = {
+        'params' => {
+            'virtualVolumeID' => virtual_volume_id
+        },
+        'method' => 'ModifyVirtualVolume'
     }
-    
+
     if qos != nil
       check_parameter(qos, 'qos', QoS)
       payload['params']['qos'] = qos
@@ -6075,31 +6017,31 @@ class Element < ServiceBase
     modify_virtual_volume(r.virtual_volume_id, r.qos, r.total_size)
   end
 
-  def modify_virtual_volume_host(virtual_volume_host_id,cluster_id = nil,visible_protocol_endpoint_ids = nil,initiator_names = nil,host_address = nil)
+  def modify_virtual_volume_host(virtual_volume_host_id, cluster_id = nil, visible_protocol_endpoint_ids = nil, initiator_names = nil, host_address = nil)
     ######
     # ModifyVirtualVolumeHost changes an existing ESX host.
     # param: UUID virtualVolumeHostID: [required] The GUID of the ESX host. 
-    
+
     # param: UUID clusterID:  The GUID of the ESX Cluster. 
-    
+
     # param: UUID visibleProtocolEndpointIDs:  A list of PEs the host is aware of. 
-    
+
     # param: str initiatorNames:  List of iSCSI initiator IQNs for the host. 
-    
+
     # param: str hostAddress:  IP or DNS name for the host. 
     ######
 
     check_connection(None, 'Cluster')
-    
+
     check_parameter(virtual_volume_host_id, 'virtual_volume_host_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeHostID' => virtual_volume_host_id
-      },
-      'method' => 'ModifyVirtualVolumeHost'
+
+    payload = {
+        'params' => {
+            'virtualVolumeHostID' => virtual_volume_host_id
+        },
+        'method' => 'ModifyVirtualVolumeHost'
     }
-    
+
     if cluster_id != nil
       check_parameter(cluster_id, 'cluster_id', UUID)
       payload['params']['clusterID'] = cluster_id
@@ -6147,16 +6089,16 @@ class Element < ServiceBase
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_id, 'virtual_volume_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeID' => virtual_volume_id
-      },
-      'method' => 'ModifyVirtualVolumeMetadata'
+
+    payload = {
+        'params' => {
+            'virtualVolumeID' => virtual_volume_id
+        },
+        'method' => 'ModifyVirtualVolumeMetadata'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VirtualVolumeNullResult.new(raw_response) : nil
@@ -6169,27 +6111,27 @@ class Element < ServiceBase
     modify_virtual_volume_metadata(r.virtual_volume_id)
   end
 
-  def prepare_virtual_snapshot(virtual_volume_id,name = nil,writable_snapshot = nil)
+  def prepare_virtual_snapshot(virtual_volume_id, name = nil, writable_snapshot = nil)
     ######
     # PrepareVirtualSnapshot is used to set up VMware Virtual Volume snapshot.
     # param: UUID virtualVolumeID: [required] The ID of the Virtual Volume to clone. 
-    
+
     # param: str name:  The name for the newly-created volume. 
-    
+
     # param: bool writableSnapshot:  Will the snapshot be writable? 
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_id, 'virtual_volume_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeID' => virtual_volume_id
-      },
-      'method' => 'PrepareVirtualSnapshot'
+
+    payload = {
+        'params' => {
+            'virtualVolumeID' => virtual_volume_id
+        },
+        'method' => 'PrepareVirtualSnapshot'
     }
-    
+
     if name != nil
       check_parameter(name, 'name', str)
       payload['params']['name'] = name
@@ -6221,42 +6163,41 @@ class Element < ServiceBase
     # QueryVirtualVolumeMetadata returns a list of VVols matching a metadata query.######
 
     check_connection(9.0, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'QueryVirtualVolumeMetadata'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'QueryVirtualVolumeMetadata'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? QueryVirtualVolumeMetadataResult.new(raw_response) : nil
   end
 
 
-
-  def rollback_virtual_volume(src_virtual_volume_id,dst_virtual_volume_id)
+  def rollback_virtual_volume(src_virtual_volume_id, dst_virtual_volume_id)
     ######
     # RollbackVirtualVolume is used to restore a VMware Virtual Volume snapshot.
     # param: UUID srcVirtualVolumeID: [required] The ID of the Virtual Volume snapshot. 
-    
+
     # param: UUID dstVirtualVolumeID: [required] The ID of the Virtual Volume to restore to. 
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(src_virtual_volume_id, 'src_virtual_volume_id', 'UUID')
-    
+
     check_parameter(dst_virtual_volume_id, 'dst_virtual_volume_id', 'UUID')
-    
-    payload ={
-      'params' => { 
-        'srcVirtualVolumeID' => src_virtual_volume_id, 
-        'dstVirtualVolumeID' => dst_virtual_volume_id
-      },
-      'method' => 'RollbackVirtualVolume'
+
+    payload = {
+        'params' => {
+            'srcVirtualVolumeID' => src_virtual_volume_id,
+            'dstVirtualVolumeID' => dst_virtual_volume_id
+        },
+        'method' => 'RollbackVirtualVolume'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VirtualVolumeAsyncResult.new(raw_response) : nil
@@ -6272,28 +6213,28 @@ class Element < ServiceBase
     rollback_virtual_volume(r.src_virtual_volume_id, r.dst_virtual_volume_id)
   end
 
-  def snapshot_virtual_volume(virtual_volume_id,timeout)
+  def snapshot_virtual_volume(virtual_volume_id, timeout)
     ######
     # SnapshotVirtualVolume is used to take a VMware Virtual Volume snapshot.
     # param: UUID virtualVolumeID: [required] The ID of the Virtual Volume to clone. 
-    
+
     # param: Fixnum timeout: [required] Number of seconds to complete or fail. 
     ######
 
     check_connection(9.0, 'Cluster')
-    
+
     check_parameter(virtual_volume_id, 'virtual_volume_id', 'UUID')
-    
+
     check_parameter(timeout, 'timeout', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'virtualVolumeID' => virtual_volume_id, 
-        'timeout' => timeout
-      },
-      'method' => 'SnapshotVirtualVolume'
+
+    payload = {
+        'params' => {
+            'virtualVolumeID' => virtual_volume_id,
+            'timeout' => timeout
+        },
+        'method' => 'SnapshotVirtualVolume'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? SnapshotVirtualVolumeResult.new(raw_response) : nil
@@ -6314,18 +6255,17 @@ class Element < ServiceBase
     # UnbindAllVirtualVolumesFromHost removes all VVol <-> Host binding.######
 
     check_connection(None, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'UnbindAllVirtualVolumesFromHost'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'UnbindAllVirtualVolumesFromHost'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? UnbindAllVirtualVolumesFromHostResult.new(raw_response) : nil
   end
-
 
 
   def unbind_virtual_volumes(unbind_context)
@@ -6335,16 +6275,16 @@ class Element < ServiceBase
     ######
 
     check_connection(None, 'Cluster')
-    
+
     check_parameter(unbind_context, 'unbind_context', 'str')
-    
-    payload ={
-      'params' => { 
-        'unbindContext' => unbind_context
-      },
-      'method' => 'UnbindVirtualVolumes'
+
+    payload = {
+        'params' => {
+            'unbindContext' => unbind_context
+        },
+        'method' => 'UnbindVirtualVolumes'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VirtualVolumeUnbindResult.new(raw_response) : nil
@@ -6365,16 +6305,16 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
+
     check_parameter(clone_id, 'clone_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'cloneID' => clone_id
-      },
-      'method' => 'CancelClone'
+
+    payload = {
+        'params' => {
+            'cloneID' => clone_id
+        },
+        'method' => 'CancelClone'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? CancelCloneResult.new(raw_response) : nil
@@ -6395,16 +6335,16 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
+
     check_parameter(group_clone_id, 'group_clone_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'groupCloneID' => group_clone_id
-      },
-      'method' => 'CancelGroupClone'
+
+    payload = {
+        'params' => {
+            'groupCloneID' => group_clone_id
+        },
+        'method' => 'CancelGroupClone'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? CancelGroupCloneResult.new(raw_response) : nil
@@ -6417,7 +6357,7 @@ class Element < ServiceBase
     cancel_group_clone(r.group_clone_id)
   end
 
-  def clone_multiple_volumes(volumes,access = nil,group_snapshot_id = nil,new_account_id = nil)
+  def clone_multiple_volumes(volumes, access = nil, group_snapshot_id = nil, new_account_id = nil)
     ######
     # CloneMultipleVolumes enables you to create a clone of a group of specified volumes. You can assign a consistent set of characteristics
     # to a group of multiple volumes when they are cloned together.
@@ -6426,25 +6366,25 @@ class Element < ServiceBase
     # Note: Cloning multiple volumes is allowed if cluster fullness is at stage 2 or 3. Clones are not created when cluster fullness is
     # at stage 4 or 5.
     # param: CloneMultipleVolumeParams volumes: [required] Unique ID for each volume to include in the clone. If optional parameters are not specified, the values are inherited from the source volumes. Required parameter for "volumes" array: volumeID Optional parameters for "volumes" array: access: Can be one of readOnly, readWrite, locked, or replicationTarget attributes: List of name-value pairs in JSON object format. name: New name for the clone. newAccountID: Account ID for the new volumes. newSize: New size Total size of the volume, in bytes. Size is rounded up to the nearest 1MB. 
-    
+
     # param: str access:  New default access method for the new volumes if not overridden by information passed in the volume's array. 
-    
+
     # param: Fixnum groupSnapshotID:  ID of the group snapshot to use as a basis for the clone. 
-    
+
     # param: Fixnum newAccountID:  New account ID for the volumes if not overridden by information passed in the volumes array. 
     ######
 
     check_connection(7, 'Cluster')
-    
+
     check_parameter(volumes, 'volumes', 'CloneMultipleVolumeParams')
-    
-    payload ={
-      'params' => { 
-        'volumes' => volumes
-      },
-      'method' => 'CloneMultipleVolumes'
+
+    payload = {
+        'params' => {
+            'volumes' => volumes
+        },
+        'method' => 'CloneMultipleVolumes'
     }
-    
+
     if access != nil
       check_parameter(access, 'access', str)
       payload['params']['access'] = access
@@ -6478,42 +6418,42 @@ class Element < ServiceBase
     clone_multiple_volumes(r.volumes, r.access, r.group_snapshot_id, r.new_account_id)
   end
 
-  def clone_volume(volume_id,name,new_account_id = nil,new_size = nil,access = nil,snapshot_id = nil,attributes = nil,enable512e = nil)
+  def clone_volume(volume_id, name, new_account_id = nil, new_size = nil, access = nil, snapshot_id = nil, attributes = nil, enable512e = nil)
     ######
     # CloneVolume enables you to create a copy of a volume. This method is asynchronous and might take a variable amount of time to complete. The cloning process begins immediately when you make the CloneVolume request and is representative of the state of the volume when the API method is issued. You can use the GetAsyncResult method to determine when the cloning process is complete and the new volume is available for connections. You can use ListSyncJobs to see the progress of creating the clone.
     # Note: The initial attributes and QoS settings for the volume are inherited from the volume being cloned. You can change these settings with ModifyVolume.
     # Note: Cloned volumes do not inherit volume access group memberships from the source volume.
     # param: Fixnum volumeID: [required] VolumeID for the volume to be cloned. 
-    
+
     # param: str name: [required] The name of the new cloned volume. Might be 1 to 64 characters in length. 
-    
+
     # param: Fixnum newAccountID:  AccountID for the owner of the new volume. If unspecified, the accountID of the owner of the volume being cloned is used. 
-    
+
     # param: Fixnum newSize:  New size of the volume, in bytes. Might be greater or less than the size of the volume being cloned. If unspecified, the volume size is not changed. Size is rounded to the nearest 1MB. 
-    
+
     # param: str access:  Specifies the level of access allowed for the new volume. Possible values are: readOnly: Only read operations are allowed. readWrite: Reads and writes are allowed. locked: No reads or writes are allowed. If unspecified, the level of access of the volume being cloned is used. replicationTarget: Identify a volume as the target volume for a paired set of volumes. If the volume is not paired, the access status is locked. If a value is not specified, the access value does not change. 
-    
+
     # param: Fixnum snapshotID:  ID of the snapshot that is used as the source of the clone. If no ID is provided, the current active volume is used. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
-    
+
     # param: bool enable512e:  Should the volume provide 512-byte sector emulation? 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
+
     check_parameter(name, 'name', 'str')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id, 
-        'name' => name
-      },
-      'method' => 'CloneVolume'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id,
+            'name' => name
+        },
+        'method' => 'CloneVolume'
     }
-    
+
     if new_account_id != nil
       check_parameter(new_account_id, 'new_account_id', Fixnum)
       payload['params']['newAccountID'] = new_account_id
@@ -6571,7 +6511,7 @@ class Element < ServiceBase
     clone_volume(r.volume_id, r.name, r.new_account_id, r.new_size, r.access, r.snapshot_id, r.attributes, r.enable512e)
   end
 
-  def copy_volume(volume_id,dst_volume_id,snapshot_id = nil)
+  def copy_volume(volume_id, dst_volume_id, snapshot_id = nil)
     ######
     # CopyVolume enables you to overwrite the data contents of an existing volume with the data contents of another volume (or
     # snapshot). Attributes of the destination volume such as IQN, QoS settings, size, account, and volume access group membership are
@@ -6581,26 +6521,26 @@ class Element < ServiceBase
     # This method is asynchronous and may take a variable amount of time to complete. You can use the GetAsyncResult method to
     # determine when the process has finished, and ListSyncJobs to see the progress of the copy.
     # param: Fixnum volumeID: [required] VolumeID of the volume to be read from. 
-    
+
     # param: Fixnum dstVolumeID: [required] VolumeID of the volume to be overwritten. 
-    
+
     # param: Fixnum snapshotID:  ID of the snapshot that is used as the source of the clone. If no ID is provided, the current active volume is used. 
     ######
 
     check_connection(9, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
+
     check_parameter(dst_volume_id, 'dst_volume_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id, 
-        'dstVolumeID' => dst_volume_id
-      },
-      'method' => 'CopyVolume'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id,
+            'dstVolumeID' => dst_volume_id
+        },
+        'method' => 'CopyVolume'
     }
-    
+
     if snapshot_id != nil
       check_parameter(snapshot_id, 'snapshot_id', Fixnum)
       payload['params']['snapshotID'] = snapshot_id
@@ -6623,43 +6563,43 @@ class Element < ServiceBase
     copy_volume(r.volume_id, r.dst_volume_id, r.snapshot_id)
   end
 
-  def create_volume(name,account_id,total_size,enable512e,qos = nil,attributes = nil)
+  def create_volume(name, account_id, total_size, enable512e, qos = nil, attributes = nil)
     ######
     # CreateVolume enables you to create a new (empty) volume on the cluster. As soon as the volume creation is complete, the volume is
     # available for connection via iSCSI.
     # param: str name: [required] The name of the volume access group (might be user specified). Not required to be unique, but recommended. Might be 1 to 64 characters in length. 
-    
+
     # param: Fixnum accountID: [required] AccountID for the owner of this volume. 
-    
+
     # param: Fixnum totalSize: [required] Total size of the volume, in bytes. Size is rounded up to the nearest 1MB size. 
-    
+
     # param: bool enable512e: [required] Specifies whether 512e emulation is enabled or not. Possible values are: true: The volume provides 512-byte sector emulation. false: 512e emulation is not enabled. 
-    
+
     # param: QoS qos:  Initial quality of service settings for this volume. Default values are used if none are specified. Valid settings are: minIOPS maxIOPS burstIOPS You can get the default values for a volume by using the GetDefaultQoS method. 
-    
+
     # param: dict attributes:  The list of name-value pairs in JSON object format. Total attribute size must be less than 1000B, or 1KB, including JSON formatting characters. 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(name, 'name', 'str')
-    
+
     check_parameter(account_id, 'account_id', 'Fixnum')
-    
+
     check_parameter(total_size, 'total_size', 'Fixnum')
-    
+
     check_parameter(enable512e, 'enable512e', 'bool')
-    
-    payload ={
-      'params' => { 
-        'name' => name, 
-        'accountID' => account_id, 
-        'totalSize' => total_size, 
-        'enable512e' => enable512e
-      },
-      'method' => 'CreateVolume'
+
+    payload = {
+        'params' => {
+            'name' => name,
+            'accountID' => account_id,
+            'totalSize' => total_size,
+            'enable512e' => enable512e
+        },
+        'method' => 'CreateVolume'
     }
-    
+
     if qos != nil
       check_parameter(qos, 'qos', QoS)
       payload['params']['qos'] = qos
@@ -6711,16 +6651,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id
-      },
-      'method' => 'DeleteVolume'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id
+        },
+        'method' => 'DeleteVolume'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DeleteVolumeResult.new(raw_response) : nil
@@ -6733,24 +6673,24 @@ class Element < ServiceBase
     delete_volume(r.volume_id)
   end
 
-  def delete_volumes(account_ids = nil,volume_access_group_ids = nil,volume_ids = nil)
+  def delete_volumes(account_ids = nil, volume_access_group_ids = nil, volume_ids = nil)
     ######
     # DeleteVolumes marks multiple (up to 500) active volumes for deletion. Once marked, the volumes are purged (permanently deleted) after the cleanup interval elapses.The cleanup interval can be set in the SetClusterSettings method. For more information on using this method, see SetClusterSettings on page 1. After making a request to delete volumes, any active iSCSI connections to the volumes are immediately terminated and no further connections are allowed while the volumes are in this state. A marked volume is not returned in target discovery requests. Any snapshots of a volume that has been marked for deletion are not affected. Snapshots are kept until the volume is purged from the system. If a volume is marked for deletion and has a bulk volume read or bulk volume write operation in progress, the bulk volume read or write operation is stopped. If the volumes you delete are paired with a volume, replication between the paired volumes is suspended and no data is transferred to them or from them while in a deleted state. The remote volumes the deleted volumes were paired with enter into a PausedMisconfigured state and data is no integerer sent to them or from the deleted volumes. Until the deleted volumes are purged, they can be restored and data transfers resume. If the deleted volumes are purged from the system, the volumes they were paired with enter into a StoppedMisconfigured state and the volume pairing status is removed. The purged volumes become permanently unavailable.
     # param: Fixnum accountIDs:  A list of account IDs. All volumes from these accounts are deleted from the system.  
-    
+
     # param: Fixnum volumeAccessGroupIDs:  A list of volume access group IDs. All of the volumes from all of the volume access groups you specify in this list are deleted from the system. 
-    
+
     # param: Fixnum volumeIDs:  The list of IDs of the volumes to delete from the system. 
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'DeleteVolumes'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'DeleteVolumes'
     }
-    
+
     if account_ids != nil
       check_parameter(account_ids, 'account_ids', Fixnum)
       payload['params']['accountIDs'] = account_ids
@@ -6781,7 +6721,7 @@ class Element < ServiceBase
     delete_volumes(r.account_ids, r.volume_access_group_ids, r.volume_ids)
   end
 
-  def get_async_result(async_handle,keep_result = nil)
+  def get_async_result(async_handle, keep_result = nil)
     ######
     # You can use GetAsyncResult to retrieve the result of asynchronous method calls. Some method calls require some time to run, and
     # might not be finished when the system sends the initial response. To obtain the status or result of the method call, use
@@ -6789,21 +6729,21 @@ class Element < ServiceBase
     # GetAsyncResult returns the overall status of the operation (in progress, completed, or error) in a standard fashion, but the actual
     # data returned for the operation depends on the original method call and the return data is documented with each method.
     # param: Fixnum asyncHandle: [required] A value that was returned from the original asynchronous method call. 
-    
+
     # param: bool keepResult:  If true, GetAsyncResult does not remove the asynchronous result upon returning it, enabling future queries to that asyncHandle. 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(async_handle, 'async_handle', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'asyncHandle' => async_handle
-      },
-      'method' => 'GetAsyncResult'
+
+    payload = {
+        'params' => {
+            'asyncHandle' => async_handle
+        },
+        'method' => 'GetAsyncResult'
     }
-    
+
     if keep_result != nil
       check_parameter(keep_result, 'keep_result', bool)
       payload['params']['keepResult'] = keep_result
@@ -6828,18 +6768,17 @@ class Element < ServiceBase
     # GetDefaultQoS enables you to retrieve the default QoS values for a newly created volume.######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetDefaultQoS'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetDefaultQoS'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? VolumeQOS.new(raw_response) : nil
   end
-
 
 
   def get_volume_count()
@@ -6847,18 +6786,17 @@ class Element < ServiceBase
     # GetVolumeCount enables you to retrieve the number of volumes currently in the system.######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'GetVolumeCount'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'GetVolumeCount'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetVolumeCountResult.new(raw_response) : nil
   end
-
 
 
   def get_volume_efficiency(volume_id)
@@ -6868,16 +6806,16 @@ class Element < ServiceBase
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id
-      },
-      'method' => 'GetVolumeEfficiency'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id
+        },
+        'method' => 'GetVolumeEfficiency'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetVolumeEfficiencyResult.new(raw_response) : nil
@@ -6897,16 +6835,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id
-      },
-      'method' => 'GetVolumeStats'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id
+        },
+        'method' => 'GetVolumeStats'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetVolumeStatsResult.new(raw_response) : nil
@@ -6919,25 +6857,25 @@ class Element < ServiceBase
     get_volume_stats(r.volume_id)
   end
 
-  def list_active_volumes(start_volume_id = nil,limit = nil,include_virtual_volumes = nil)
+  def list_active_volumes(start_volume_id = nil, limit = nil, include_virtual_volumes = nil)
     ######
     # ListActiveVolumes enables you to return the list of active volumes currently in the system. The list of volumes is returned sorted in
     # VolumeID order and can be returned in multiple parts (pages).
     # param: Fixnum startVolumeID:  Starting VolumeID to return. If no volume exists with this VolumeID, the next volume by VolumeID order is used as the start of the list. To page through the list, pass the VolumeID of the last volume in the previous response + 1. 
-    
+
     # param: Fixnum limit:  Maximum number of Volume Info objects to return. A value of 0 (zero) returns all volumes (unlimited). 
-    
+
     # param: bool includeVirtualVolumes:  Specifies that virtual volumes are included in the response by default. To exclude virtual volumes, set to false. 
     ######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListActiveVolumes'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListActiveVolumes'
     }
-    
+
     if start_volume_id != nil
       check_parameter(start_volume_id, 'start_volume_id', Fixnum)
       payload['params']['startVolumeID'] = start_volume_id
@@ -6977,13 +6915,13 @@ class Element < ServiceBase
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListAsyncResults'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListAsyncResults'
     }
-    
+
     if async_result_types != nil
       check_parameter(async_result_types, 'async_result_types', str)
       payload['params']['asyncResultTypes'] = async_result_types
@@ -7006,18 +6944,17 @@ class Element < ServiceBase
     # system.######
 
     check_connection(6, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListBulkVolumeJobs'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListBulkVolumeJobs'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ListBulkVolumeJobsResult.new(raw_response) : nil
   end
-
 
 
   def list_deleted_volumes(include_virtual_volumes = nil)
@@ -7027,13 +6964,13 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListDeletedVolumes'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListDeletedVolumes'
     }
-    
+
     if include_virtual_volumes != nil
       check_parameter(include_virtual_volumes, 'include_virtual_volumes', bool)
       payload['params']['includeVirtualVolumes'] = include_virtual_volumes
@@ -7050,35 +6987,35 @@ class Element < ServiceBase
     list_deleted_volumes(r.include_virtual_volumes)
   end
 
-  def list_volumes(start_volume_id = nil,limit = nil,volume_status = nil,accounts = nil,is_paired = nil,volume_ids = nil,volume_name = nil,include_virtual_volumes = nil)
+  def list_volumes(start_volume_id = nil, limit = nil, volume_status = nil, accounts = nil, is_paired = nil, volume_ids = nil, volume_name = nil, include_virtual_volumes = nil)
     ######
     # The ListVolumes method enables you to retrieve a list of volumes that are in a cluster. You can specify the volumes you want to
     # return in the list by using the available parameters.
     # param: Fixnum startVolumeID:  Only volumes with an ID greater than or equal to this value are returned. Mutually exclusive with the volumeIDs parameter. 
-    
+
     # param: Fixnum limit:  Specifies the maximum number of volume results that are returned. Mutually exclusive with the volumeIDs parameter. 
-    
+
     # param: str volumeStatus:  Only volumes with a status equal to the status value are returned. Possible values are: creating snapshotting active deleted 
-    
+
     # param: Fixnum accounts:  Returns only the volumes owned by the accounts you specify here. Mutually exclusive with the volumeIDs parameter. 
-    
+
     # param: bool isPaired:  Returns volumes that are paired or not paired. Possible values are: true: Returns all paired volumes. false: Returns all volumes that are not paired. 
-    
+
     # param: Fixnum volumeIDs:  A list of volume IDs. If you supply this parameter, other parameters operate only on this set of volumes. Mutually exclusive with the accounts, startVolumeID, and limit parameters. 
-    
+
     # param: str volumeName:  Only volume object information matching the volume name is returned. 
-    
+
     # param: bool includeVirtualVolumes:  Specifies that virtual volumes are included in the response by default. To exclude virtual volumes, set to false. 
     ######
 
     check_connection(8, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListVolumes'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListVolumes'
     }
-    
+
     if start_volume_id != nil
       check_parameter(start_volume_id, 'start_volume_id', Fixnum)
       payload['params']['startVolumeID'] = start_volume_id
@@ -7144,29 +7081,29 @@ class Element < ServiceBase
     list_volumes(r.start_volume_id, r.limit, r.volume_status, r.accounts, r.is_paired, r.volume_ids, r.volume_name, r.include_virtual_volumes)
   end
 
-  def list_volumes_for_account(account_id,start_volume_id = nil,limit = nil,include_virtual_volumes = nil)
+  def list_volumes_for_account(account_id, start_volume_id = nil, limit = nil, include_virtual_volumes = nil)
     ######
     # ListVolumesForAccount returns the list of active and (pending) deleted volumes for an account.
     # param: Fixnum accountID: [required] Returns all volumes owned by this AccountID. 
-    
+
     # param: Fixnum startVolumeID:  The ID of the first volume to list. This can be useful for paging results. By default, this starts at the lowest VolumeID. 
-    
+
     # param: Fixnum limit:  The maximum number of volumes to return from the API. 
-    
+
     # param: bool includeVirtualVolumes:  Specifies that virtual volumes are included in the response by default. To exclude virtual volumes, set to false. 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(account_id, 'account_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'accountID' => account_id
-      },
-      'method' => 'ListVolumesForAccount'
+
+    payload = {
+        'params' => {
+            'accountID' => account_id
+        },
+        'method' => 'ListVolumesForAccount'
     }
-    
+
     if start_volume_id != nil
       check_parameter(start_volume_id, 'start_volume_id', Fixnum)
       payload['params']['startVolumeID'] = start_volume_id
@@ -7200,22 +7137,22 @@ class Element < ServiceBase
     list_volumes_for_account(r.account_id, r.start_volume_id, r.limit, r.include_virtual_volumes)
   end
 
-  def list_volume_stats_by_account(accounts = nil,include_virtual_volumes = nil)
+  def list_volume_stats_by_account(accounts = nil, include_virtual_volumes = nil)
     ######
     # ListVolumeStatsByAccount returns high-level activity measurements for every account. Values are summed from all the volumes owned by the account.
     # param: Fixnum accounts:  One or more account ids by which to filter the result. 
-    
+
     # param: bool includeVirtualVolumes:  Includes virtual volumes in the response by default. To exclude virtual volumes, set to false. 
     ######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListVolumeStatsByAccount'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListVolumeStatsByAccount'
     }
-    
+
     if accounts != nil
       check_parameter(accounts, 'accounts', Fixnum)
       payload['params']['accounts'] = accounts
@@ -7247,13 +7184,13 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListVolumeStatsByVolume'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListVolumeStatsByVolume'
     }
-    
+
     if include_virtual_volumes != nil
       check_parameter(include_virtual_volumes, 'include_virtual_volumes', bool)
       payload['params']['includeVirtualVolumes'] = include_virtual_volumes
@@ -7270,23 +7207,23 @@ class Element < ServiceBase
     list_volume_stats_by_volume(r.include_virtual_volumes)
   end
 
-  def list_volume_stats_by_volume_access_group(volume_access_groups = nil,include_virtual_volumes = nil)
+  def list_volume_stats_by_volume_access_group(volume_access_groups = nil, include_virtual_volumes = nil)
     ######
     # ListVolumeStatsByVolumeAccessGroup enables you to get total activity measurements for all of the volumes that are a member of the
     # specified volume access group(s).
     # param: Fixnum volumeAccessGroups:  An array of VolumeAccessGroupIDs for which volume activity is returned. If omitted, statistics for all volume access groups are returned. 
-    
+
     # param: bool includeVirtualVolumes:  Specifies that virtual volumes are included in the response by default. To exclude virtual volumes, set to false. 
     ######
 
     check_connection(5, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListVolumeStatsByVolumeAccessGroup'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListVolumeStatsByVolumeAccessGroup'
     }
-    
+
     if volume_access_groups != nil
       check_parameter(volume_access_groups, 'volume_access_groups', Fixnum)
       payload['params']['volumeAccessGroups'] = volume_access_groups
@@ -7310,7 +7247,7 @@ class Element < ServiceBase
     list_volume_stats_by_volume_access_group(r.volume_access_groups, r.include_virtual_volumes)
   end
 
-  def modify_volume(volume_id,account_id = nil,access = nil,qos = nil,total_size = nil,set_create_time = nil,create_time = nil,attributes = nil)
+  def modify_volume(volume_id, account_id = nil, access = nil, qos = nil, total_size = nil, set_create_time = nil, create_time = nil, attributes = nil)
     ######
     # ModifyVolume enables you to modify settings on an existing volume. You can make modifications to one volume at a time and
     # changes take place immediately. If you do not specify QoS values when you modify a volume, they remain the same as before the modification. You can retrieve
@@ -7321,33 +7258,33 @@ class Element < ServiceBase
     # NetApp recommends that both the target and source volumes are the same size.
     # Note: If you change the "access" status to locked or target, all existing iSCSI connections are terminated.
     # param: Fixnum volumeID: [required] VolumeID for the volume to be modified. 
-    
+
     # param: Fixnum accountID:  AccountID to which the volume is reassigned. If unspecified, the previous account name is used. 
-    
+
     # param: str access:  Specifies the access allowed for the volume. Possible values are: readOnly: Only read operations are allowed. readWrite: Reads and writes are allowed. locked: No reads or writes are allowed. If not specified, the access value does not change. replicationTarget: Identify a volume as the target volume for a paired set of volumes. If the volume is not paired, the access status is locked. If a value is not specified, the access value does not change. 
-    
+
     # param: QoS qos:  New QoS settings for this volume. If not specified, the QoS settings are not changed. 
-    
+
     # param: Fixnum totalSize:  New size of the volume in bytes. 1000000000 is equal to 1GB. Size is rounded up to the nearest 1MB. This parameter can only be used to increase the size of a volume. 
-    
+
     # param: bool setCreateTime:  If set to true, changes the recorded date of volume creation. 
-    
+
     # param: str createTime:  An ISO 8601 date string to set as the new volume creation date. Required if "setCreateTime" is set to true. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id
-      },
-      'method' => 'ModifyVolume'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id
+        },
+        'method' => 'ModifyVolume'
     }
-    
+
     if account_id != nil
       check_parameter(account_id, 'account_id', Fixnum)
       payload['params']['accountID'] = account_id
@@ -7409,33 +7346,33 @@ class Element < ServiceBase
     modify_volume(r.volume_id, r.account_id, r.access, r.qos, r.total_size, r.set_create_time, r.create_time, r.attributes)
   end
 
-  def modify_volumes(volume_ids,account_id = nil,access = nil,qos = nil,total_size = nil,attributes = nil)
+  def modify_volumes(volume_ids, account_id = nil, access = nil, qos = nil, total_size = nil, attributes = nil)
     ######
     # ModifyVolumes allows you to configure up to 500 existing volumes at one time. Changes take place immediately. If ModifyVolumes fails to modify any of the specified volumes, none of the specified volumes are changed.If you do not specify QoS values when you modify volumes, the QoS values for each volume remain unchanged. You can retrieve default QoS values for a newly created volume by running the GetDefaultQoS method.When you need to increase the size of volumes that are being replicated, do so in the following order to prevent replication errors:Increase the size of the "Replication Target" volume.Increase the size of the source or "Read / Write" volume. recommends that both the target and source volumes be the same size.NOTE: If you change access status to locked or replicationTarget all existing iSCSI connections are terminated.
     # param: Fixnum volumeIDs: [required] A list of volumeIDs for the volumes to be modified. 
-    
+
     # param: Fixnum accountID:  AccountID to which the volume is reassigned. If none is specified, the previous account name is used. 
-    
+
     # param: str access:  Access allowed for the volume. Possible values:readOnly: Only read operations are allowed.readWrite: Reads and writes are allowed.locked: No reads or writes are allowed.If not specified, the access value does not change.replicationTarget: Identify a volume as the target volume for a paired set of volumes. If the volume is not paired, the access status is locked.If a value is not specified, the access value does not change.  
-    
+
     # param: QoS qos:  New quality of service settings for this volume.If not specified, the QoS settings are not changed. 
-    
+
     # param: Fixnum totalSize:  New size of the volume in bytes. 1000000000 is equal to 1GB. Size is rounded up to the nearest 1MB in size. This parameter can only be used to increase the size of a volume. 
-    
+
     # param: dict attributes:  List of name/value pairs in JSON object format. 
     ######
 
     check_connection(9, 'Cluster')
-    
+
     check_parameter(volume_ids, 'volume_ids', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeIDs' => volume_ids
-      },
-      'method' => 'ModifyVolumes'
+
+    payload = {
+        'params' => {
+            'volumeIDs' => volume_ids
+        },
+        'method' => 'ModifyVolumes'
     }
-    
+
     if account_id != nil
       check_parameter(account_id, 'account_id', Fixnum)
       payload['params']['accountID'] = account_id
@@ -7492,16 +7429,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id
-      },
-      'method' => 'PurgeDeletedVolume'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id
+        },
+        'method' => 'PurgeDeletedVolume'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? PurgeDeletedVolumeResult.new(raw_response) : nil
@@ -7514,24 +7451,24 @@ class Element < ServiceBase
     purge_deleted_volume(r.volume_id)
   end
 
-  def purge_deleted_volumes(volume_ids = nil,account_ids = nil,volume_access_group_ids = nil)
+  def purge_deleted_volumes(volume_ids = nil, account_ids = nil, volume_access_group_ids = nil)
     ######
     # PurgeDeletedVolumes immediately and permanently purges volumes that have been deleted; you can use this method to purge up to 500 volumes at one time. You must delete volumes using DeleteVolumes before they can be purged. Volumes are purged by the system automatically after a period of time, so usage of this method is not typically required.
     # param: Fixnum volumeIDs:  A list of volumeIDs of volumes to be purged from the system. 
-    
+
     # param: Fixnum accountIDs:  A list of accountIDs. All of the volumes from all of the specified accounts are purged from the system. 
-    
+
     # param: Fixnum volumeAccessGroupIDs:  A list of volumeAccessGroupIDs. All of the volumes from all of the specified Volume Access Groups are purged from the system. 
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'PurgeDeletedVolumes'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'PurgeDeletedVolumes'
     }
-    
+
     if volume_ids != nil
       check_parameter(volume_ids, 'volume_ids', Fixnum)
       payload['params']['volumeIDs'] = volume_ids
@@ -7569,16 +7506,16 @@ class Element < ServiceBase
     ######
 
     check_connection(1, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id
-      },
-      'method' => 'RestoreDeletedVolume'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id
+        },
+        'method' => 'RestoreDeletedVolume'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? RestoreDeletedVolumeResult.new(raw_response) : nil
@@ -7591,25 +7528,25 @@ class Element < ServiceBase
     restore_deleted_volume(r.volume_id)
   end
 
-  def set_default_qos(min_iops = nil,max_iops = nil,burst_iops = nil)
+  def set_default_qos(min_iops = nil, max_iops = nil, burst_iops = nil)
     ######
     # SetDefaultQoS enables you to configure the default Quality of Service (QoS) values (measured in inputs and outputs per second, or
     # IOPS) for a volume. For more information about QoS in a SolidFire cluster, see the User Guide.
     # param: Fixnum minIOPS:  The minimum number of sustained IOPS provided by the cluster to a volume. 
-    
+
     # param: Fixnum maxIOPS:  The maximum number of sustained IOPS provided by the cluster to a volume. 
-    
+
     # param: Fixnum burstIOPS:  The maximum number of IOPS allowed in a short burst scenario. 
     ######
 
     check_connection(9, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'SetDefaultQoS'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'SetDefaultQoS'
     }
-    
+
     if min_iops != nil
       check_parameter(min_iops, 'min_iops', Fixnum)
       payload['params']['minIOPS'] = min_iops
@@ -7640,7 +7577,7 @@ class Element < ServiceBase
     set_default_qos(r.min_iops, r.max_iops, r.burst_iops)
   end
 
-  def start_bulk_volume_read(volume_id,format,snapshot_id = nil,script = nil,script_parameters = nil,attributes = nil)
+  def start_bulk_volume_read(volume_id, format, snapshot_id = nil, script = nil, script_parameters = nil, attributes = nil)
     ######
     # StartBulkVolumeRead enables you to initialize a bulk volume read session on a specified volume. Only two bulk volume processes
     # can run simultaneously on a volume. When you initialize the session, data is read from a SolidFire storage volume for the purposes
@@ -7651,32 +7588,32 @@ class Element < ServiceBase
     # read completes.
     # Note: This process creates a new snapshot if the ID of an existing snapshot is not provided. Snapshots can be created if cluster fullness is at stage 2 or 3. Snapshots are not created when cluster fullness is at stage 4 or 5.
     # param: Fixnum volumeID: [required] The ID of the volume to be read. 
-    
+
     # param: str format: [required] The format of the volume data. It can be either of the following formats: uncompressed: Every byte of the volume is returned without any compression. native: Opaque data is returned that is smaller and more efficiently stored and written on a subsequent bulk volume write. 
-    
+
     # param: Fixnum snapshotID:  The ID of a previously created snapshot used for bulk volume reads. If no ID is entered, a snapshot of the current active volume image is made. 
-    
+
     # param: str script:  The executable name of a script. If unspecified, the key and URL is necessary to access SF-series nodes. The script is run on the primary node and the key and URL is returned to the script so the local web server can be contacted. 
-    
+
     # param: dict scriptParameters:  JSON parameters to pass to the script. 
-    
+
     # param: dict attributes:  JSON attributes for the bulk volume job. 
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
+
     check_parameter(format, 'format', 'str')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id, 
-        'format' => format
-      },
-      'method' => 'StartBulkVolumeRead'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id,
+            'format' => format
+        },
+        'method' => 'StartBulkVolumeRead'
     }
-    
+
     if snapshot_id != nil
       check_parameter(snapshot_id, 'snapshot_id', Fixnum)
       payload['params']['snapshotID'] = snapshot_id
@@ -7720,35 +7657,35 @@ class Element < ServiceBase
     start_bulk_volume_read(r.volume_id, r.format, r.snapshot_id, r.script, r.script_parameters, r.attributes)
   end
 
-  def start_bulk_volume_write(volume_id,format,script = nil,script_parameters = nil,attributes = nil)
+  def start_bulk_volume_write(volume_id, format, script = nil, script_parameters = nil, attributes = nil)
     ######
     # StartBulkVolumeWrite enables you to initialize a bulk volume write session on a specified volume. Only two bulk volume processes can run simultaneously on a volume. When you initialize the write session, data is written to a SolidFire storage volume from an external backup source. The external data is accessed by a web server running on an SF-series node. Communications and server
     # interaction information for external data access is passed by a script running on the storage system.
     # param: Fixnum volumeID: [required] The ID of the volume to be written to. 
-    
+
     # param: str format: [required] The format of the volume data. It can be either of the following formats: uncompressed: Every byte of the volume is returned without any compression. native: Opaque data is returned that is smaller and more efficiently stored and written on a subsequent bulk volume write. 
-    
+
     # param: str script:  The executable name of a script. If unspecified, the key and URL are necessary to access SF-series nodes. The script runs on the primary node and the key and URL is returned to the script, so the local web server can be contacted. 
-    
+
     # param: dict scriptParameters:  JSON parameters to pass to the script. 
-    
+
     # param: dict attributes:  JSON attributes for the bulk volume job. 
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(volume_id, 'volume_id', 'Fixnum')
-    
+
     check_parameter(format, 'format', 'str')
-    
-    payload ={
-      'params' => { 
-        'volumeID' => volume_id, 
-        'format' => format
-      },
-      'method' => 'StartBulkVolumeWrite'
+
+    payload = {
+        'params' => {
+            'volumeID' => volume_id,
+            'format' => format
+        },
+        'method' => 'StartBulkVolumeWrite'
     }
-    
+
     if script != nil
       check_parameter(script, 'script', str)
       payload['params']['script'] = script
@@ -7785,35 +7722,35 @@ class Element < ServiceBase
     start_bulk_volume_write(r.volume_id, r.format, r.script, r.script_parameters, r.attributes)
   end
 
-  def update_bulk_volume_status(key,status,percent_complete = nil,message = nil,attributes = nil)
+  def update_bulk_volume_status(key, status, percent_complete = nil, message = nil, attributes = nil)
     ######
     # You can use UpdateBulkVolumeStatus in a script to update the status of a bulk volume job that you started with the
     # StartBulkVolumeRead or StartBulkVolumeWrite methods.
     # param: str key: [required] The key assigned during initialization of a StartBulkVolumeRead or StartBulkVolumeWrite session. 
-    
+
     # param: str status: [required] The status of the given bulk volume job. The system sets the status. Possible values are:  running: Jobs that are still active. complete: Jobs that are done. failed: Jobs that failed. 
-    
+
     # param: str percentComplete:  The completed progress of the bulk volume job as a percentage value. 
-    
+
     # param: str message:  The message returned indicating the status of the bulk volume job after the job is complete. 
-    
+
     # param: dict attributes:  JSON attributes; updates what is on the bulk volume job. 
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(key, 'key', 'str')
-    
+
     check_parameter(status, 'status', 'str')
-    
-    payload ={
-      'params' => { 
-        'key' => key, 
-        'status' => status
-      },
-      'method' => 'UpdateBulkVolumeStatus'
+
+    payload = {
+        'params' => {
+            'key' => key,
+            'status' => status
+        },
+        'method' => 'UpdateBulkVolumeStatus'
     }
-    
+
     if percent_complete != nil
       check_parameter(percent_complete, 'percent_complete', str)
       payload['params']['percentComplete'] = percent_complete
@@ -7850,29 +7787,29 @@ class Element < ServiceBase
     update_bulk_volume_status(r.key, r.status, r.percent_complete, r.message, r.attributes)
   end
 
-  def add_initiators_to_volume_access_group(volume_access_group_id,initiators)
+  def add_initiators_to_volume_access_group(volume_access_group_id, initiators)
     ######
     # AddInitiatorsToVolumeAccessGroup enables you
     # to add initiators to a specified volume access group.
     # param: Fixnum volumeAccessGroupID: [required] The ID of the volume access group to modify. 
-    
+
     # param: str initiators: [required] The list of initiators to add to the volume access group. 
     ######
 
     check_connection(5, 'Cluster')
-    
+
     check_parameter(volume_access_group_id, 'volume_access_group_id', 'Fixnum')
-    
+
     check_parameter(initiators, 'initiators', 'str')
-    
-    payload ={
-      'params' => { 
-        'volumeAccessGroupID' => volume_access_group_id, 
-        'initiators' => initiators
-      },
-      'method' => 'AddInitiatorsToVolumeAccessGroup'
+
+    payload = {
+        'params' => {
+            'volumeAccessGroupID' => volume_access_group_id,
+            'initiators' => initiators
+        },
+        'method' => 'AddInitiatorsToVolumeAccessGroup'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil
@@ -7888,29 +7825,29 @@ class Element < ServiceBase
     add_initiators_to_volume_access_group(r.volume_access_group_id, r.initiators)
   end
 
-  def add_volumes_to_volume_access_group(volume_access_group_id,volumes)
+  def add_volumes_to_volume_access_group(volume_access_group_id, volumes)
     ######
     # AddVolumesToVolumeAccessGroup enables you to add
     # volumes to a specified volume access group.
     # param: Fixnum volumeAccessGroupID: [required] The ID of the volume access group to which volumes are added. 
-    
+
     # param: Fixnum volumes: [required] The list of volumes to add to the volume access group. 
     ######
 
     check_connection(5, 'Cluster')
-    
+
     check_parameter(volume_access_group_id, 'volume_access_group_id', 'Fixnum')
-    
+
     check_parameter(volumes, 'volumes', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeAccessGroupID' => volume_access_group_id, 
-        'volumes' => volumes
-      },
-      'method' => 'AddVolumesToVolumeAccessGroup'
+
+    payload = {
+        'params' => {
+            'volumeAccessGroupID' => volume_access_group_id,
+            'volumes' => volumes
+        },
+        'method' => 'AddVolumesToVolumeAccessGroup'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil
@@ -7926,33 +7863,33 @@ class Element < ServiceBase
     add_volumes_to_volume_access_group(r.volume_access_group_id, r.volumes)
   end
 
-  def create_volume_access_group(name,initiators = nil,volumes = nil,virtual_network_id = nil,virtual_network_tags = nil,attributes = nil)
+  def create_volume_access_group(name, initiators = nil, volumes = nil, virtual_network_id = nil, virtual_network_tags = nil, attributes = nil)
     ######
     # You can use CreateVolumeAccessGroup to create a new volume access group. When you create the volume access group, you need to give it a name, and you can optionally enter initiators and volumes. After you create the group, you can add volumes and initiator IQNs. Any initiator IQN that you add to the volume access group is able to access any volume in the group without CHAP authentication.
     # param: str name: [required] The name for this volume access group. Not required to be unique, but recommended. 
-    
+
     # param: str initiators:  List of initiators to include in the volume access group. If unspecified, the access group's configured initiators are not modified. 
-    
+
     # param: Fixnum volumes:  List of volumes to initially include in the volume access group. If unspecified, the access group's volumes are not modified. 
-    
+
     # param: Fixnum virtualNetworkID:  The ID of the SolidFire virtual network to associate the volume access group with. 
-    
+
     # param: Fixnum virtualNetworkTags:  The ID of the SolidFire virtual network to associate the volume access group with. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(5, 'Cluster')
-    
+
     check_parameter(name, 'name', 'str')
-    
-    payload ={
-      'params' => { 
-        'name' => name
-      },
-      'method' => 'CreateVolumeAccessGroup'
+
+    payload = {
+        'params' => {
+            'name' => name
+        },
+        'method' => 'CreateVolumeAccessGroup'
     }
-    
+
     if initiators != nil
       check_parameter(initiators, 'initiators', str)
       payload['params']['initiators'] = initiators
@@ -8008,16 +7945,16 @@ class Element < ServiceBase
     ######
 
     check_connection(5, 'Cluster')
-    
+
     check_parameter(volume_access_group_id, 'volume_access_group_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeAccessGroupID' => volume_access_group_id
-      },
-      'method' => 'DeleteVolumeAccessGroup'
+
+    payload = {
+        'params' => {
+            'volumeAccessGroupID' => volume_access_group_id
+        },
+        'method' => 'DeleteVolumeAccessGroup'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? DeleteVolumeAccessGroupResult.new(raw_response) : nil
@@ -8041,16 +7978,16 @@ class Element < ServiceBase
     ######
 
     check_connection(6, 'Cluster')
-    
+
     check_parameter(volume_access_group_id, 'volume_access_group_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeAccessGroupID' => volume_access_group_id
-      },
-      'method' => 'GetVolumeAccessGroupEfficiency'
+
+    payload = {
+        'params' => {
+            'volumeAccessGroupID' => volume_access_group_id
+        },
+        'method' => 'GetVolumeAccessGroupEfficiency'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetEfficiencyResult.new(raw_response) : nil
@@ -8072,16 +8009,16 @@ class Element < ServiceBase
     ######
 
     check_connection(7, 'Cluster')
-    
+
     check_parameter(volume_access_group_id, 'volume_access_group_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeAccessGroupID' => volume_access_group_id
-      },
-      'method' => 'GetVolumeAccessGroupLunAssignments'
+
+    payload = {
+        'params' => {
+            'volumeAccessGroupID' => volume_access_group_id
+        },
+        'method' => 'GetVolumeAccessGroupLunAssignments'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? GetVolumeAccessGroupLunAssignmentsResult.new(raw_response) : nil
@@ -8094,24 +8031,24 @@ class Element < ServiceBase
     get_volume_access_group_lun_assignments(r.volume_access_group_id)
   end
 
-  def list_volume_access_groups(start_volume_access_group_id = nil,limit = nil)
+  def list_volume_access_groups(start_volume_access_group_id = nil, limit = nil)
     ######
     # ListVolumeAccessGroups enables you to return
     # information about the volume access groups that are
     # currently in the system.
     # param: Fixnum startVolumeAccessGroupID:  The volume access group ID at which to begin the listing. If unspecified, there is no lower limit (implicitly 0). 
-    
+
     # param: Fixnum limit:  The maximum number of results to return. This can be useful for paging. 
     ######
 
     check_connection(5, 'Cluster')
-    
-    payload ={
-      'params' => { 
-      },
-      'method' => 'ListVolumeAccessGroups'
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListVolumeAccessGroups'
     }
-    
+
     if start_volume_access_group_id != nil
       check_parameter(start_volume_access_group_id, 'start_volume_access_group_id', Fixnum)
       payload['params']['startVolumeAccessGroupID'] = start_volume_access_group_id
@@ -8135,37 +8072,37 @@ class Element < ServiceBase
     list_volume_access_groups(r.start_volume_access_group_id, r.limit)
   end
 
-  def modify_volume_access_group(volume_access_group_id,virtual_network_id = nil,virtual_network_tags = nil,name = nil,initiators = nil,volumes = nil,delete_orphan_initiators = nil,attributes = nil)
+  def modify_volume_access_group(volume_access_group_id, virtual_network_id = nil, virtual_network_tags = nil, name = nil, initiators = nil, volumes = nil, delete_orphan_initiators = nil, attributes = nil)
     ######
     # You can use ModifyVolumeAccessGroup to update initiators and add or remove volumes from a volume access group. If a specified initiator or volume is a duplicate of what currently exists, the volume access group is left as-is. If you do not specify a value for volumes or initiators, the current list of initiators and volumes is not changed.
     # param: Fixnum volumeAccessGroupID: [required] The ID of the volume access group to modify. 
-    
+
     # param: Fixnum virtualNetworkID:  The ID of the SolidFire virtual network to associate the volume access group with. 
-    
+
     # param: Fixnum virtualNetworkTags:  The ID of the SolidFire virtual network to associate the volume access group with. 
-    
+
     # param: str name:  The new name for this volume access group. Not required to be unique, but recommended. 
-    
+
     # param: str initiators:  List of initiators to include in the volume access group. If unspecified, the access group's configured initiators are not modified. 
-    
+
     # param: Fixnum volumes:  List of volumes to initially include in the volume access group. If unspecified, the access group's volumes are not modified. 
-    
+
     # param: bool deleteOrphanInitiators:  true: Delete initiator objects after they are removed from a volume access group. false: Do not delete initiator objects after they are removed from a volume access group. 
-    
+
     # param: dict attributes:  List of name-value pairs in JSON object format. 
     ######
 
     check_connection(5, 'Cluster')
-    
+
     check_parameter(volume_access_group_id, 'volume_access_group_id', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeAccessGroupID' => volume_access_group_id
-      },
-      'method' => 'ModifyVolumeAccessGroup'
+
+    payload = {
+        'params' => {
+            'volumeAccessGroupID' => volume_access_group_id
+        },
+        'method' => 'ModifyVolumeAccessGroup'
     }
-    
+
     if virtual_network_id != nil
       check_parameter(virtual_network_id, 'virtual_network_id', Fixnum)
       payload['params']['virtualNetworkID'] = virtual_network_id
@@ -8227,7 +8164,7 @@ class Element < ServiceBase
     modify_volume_access_group(r.volume_access_group_id, r.virtual_network_id, r.virtual_network_tags, r.name, r.initiators, r.volumes, r.delete_orphan_initiators, r.attributes)
   end
 
-  def modify_volume_access_group_lun_assignments(volume_access_group_id,lun_assignments)
+  def modify_volume_access_group_lun_assignments(volume_access_group_id, lun_assignments)
     ######
     # The ModifyVolumeAccessGroupLunAssignments
     # method enables you to define custom LUN assignments
@@ -8238,24 +8175,24 @@ class Element < ServiceBase
     # Note: Correct LUN values are 0 through 16383. The system generates an exception if you pass a LUN value outside of this range. None of the specified LUN assignments are modified if there is an exception. 
     # Caution: If you change a LUN assignment for a volume with active I/O, the I/O can be disrupted. You might need to change the server configuration before changing volume LUN assignments.
     # param: Fixnum volumeAccessGroupID: [required] The ID of the volume access group for which the LUN assignments will be modified. 
-    
+
     # param: LunAssignment lunAssignments: [required] The volume IDs with new assigned LUN values. 
     ######
 
     check_connection(7, 'Cluster')
-    
+
     check_parameter(volume_access_group_id, 'volume_access_group_id', 'Fixnum')
-    
+
     check_parameter(lun_assignments, 'lun_assignments', 'LunAssignment')
-    
-    payload ={
-      'params' => { 
-        'volumeAccessGroupID' => volume_access_group_id, 
-        'lunAssignments' => lun_assignments
-      },
-      'method' => 'ModifyVolumeAccessGroupLunAssignments'
+
+    payload = {
+        'params' => {
+            'volumeAccessGroupID' => volume_access_group_id,
+            'lunAssignments' => lun_assignments
+        },
+        'method' => 'ModifyVolumeAccessGroupLunAssignments'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ModifyVolumeAccessGroupLunAssignmentsResult.new(raw_response) : nil
@@ -8271,32 +8208,32 @@ class Element < ServiceBase
     modify_volume_access_group_lun_assignments(r.volume_access_group_id, r.lun_assignments)
   end
 
-  def remove_initiators_from_volume_access_group(volume_access_group_id,initiators,delete_orphan_initiators = nil)
+  def remove_initiators_from_volume_access_group(volume_access_group_id, initiators, delete_orphan_initiators = nil)
     ######
     # RemoveInitiatorsFromVolumeAccessGroup enables
     # you to remove initiators from a specified volume access
     # group.
     # param: Fixnum volumeAccessGroupID: [required] The ID of the volume access group from which the initiators are removed. 
-    
+
     # param: str initiators: [required] The list of initiators to remove from the volume access group. 
-    
+
     # param: bool deleteOrphanInitiators:  true: Delete initiator objects after they are removed from a volume access group. false: Do not delete initiator objects after they are removed from a volume access group. 
     ######
 
     check_connection(5, 'Cluster')
-    
+
     check_parameter(volume_access_group_id, 'volume_access_group_id', 'Fixnum')
-    
+
     check_parameter(initiators, 'initiators', 'str')
-    
-    payload ={
-      'params' => { 
-        'volumeAccessGroupID' => volume_access_group_id, 
-        'initiators' => initiators
-      },
-      'method' => 'RemoveInitiatorsFromVolumeAccessGroup'
+
+    payload = {
+        'params' => {
+            'volumeAccessGroupID' => volume_access_group_id,
+            'initiators' => initiators
+        },
+        'method' => 'RemoveInitiatorsFromVolumeAccessGroup'
     }
-    
+
     if delete_orphan_initiators != nil
       check_parameter(delete_orphan_initiators, 'delete_orphan_initiators', bool)
       payload['params']['deleteOrphanInitiators'] = delete_orphan_initiators
@@ -8319,28 +8256,28 @@ class Element < ServiceBase
     remove_initiators_from_volume_access_group(r.volume_access_group_id, r.initiators, r.delete_orphan_initiators)
   end
 
-  def remove_volumes_from_volume_access_group(volume_access_group_id,volumes)
+  def remove_volumes_from_volume_access_group(volume_access_group_id, volumes)
     ######
     # The RemoveVolumeFromVolumeAccessGroup method enables you to remove volumes from a volume access group.
     # param: Fixnum volumeAccessGroupID: [required] The ID of the volume access group to remove volumes from. 
-    
+
     # param: Fixnum volumes: [required] The ID of the volume access group to remove volumes from. 
     ######
 
     check_connection(5, 'Cluster')
-    
+
     check_parameter(volume_access_group_id, 'volume_access_group_id', 'Fixnum')
-    
+
     check_parameter(volumes, 'volumes', 'Fixnum')
-    
-    payload ={
-      'params' => { 
-        'volumeAccessGroupID' => volume_access_group_id, 
-        'volumes' => volumes
-      },
-      'method' => 'RemoveVolumesFromVolumeAccessGroup'
+
+    payload = {
+        'params' => {
+            'volumeAccessGroupID' => volume_access_group_id,
+            'volumes' => volumes
+        },
+        'method' => 'RemoveVolumesFromVolumeAccessGroup'
     }
-    
+
     json_payload = payload
     raw_response = send_request(json_payload)
     return raw_response ? ModifyVolumeAccessGroupResult.new(raw_response) : nil

@@ -19,7 +19,7 @@ class ElementFactory
     art += "           /__/__/       \__\__\__\__/__/    \n"
     art += "          /__/            \__\__\__\/__/     \n"
     art += "                                             \n"
-    art += "             NetApp SolidFire Version "+version.to_s+"    \n"
+    art += "             NetApp SolidFire Version " + version.to_s + "    \n"
     art += "                                             \n"
     return art
   end
@@ -53,10 +53,10 @@ class ElementFactory
       begin
         version_actual = version.to_f
       rescue
-        raise SdkOperationError.new('Unable to determine version to connect from value: '+version)
+        raise SdkOperationError.new('Unable to determine version to connect from value: ' + version)
       end
       if version_actual < min_sdk_version
-        raise SdkOperationError.new('Cannot connect to a version lower than supported by the SDK. Connect at '+min_sdk_version.to_s+' or higher.')
+        raise SdkOperationError.new('Cannot connect to a version lower than supported by the SDK. Connect at ' + min_sdk_version.to_s + ' or higher.')
       end
       supported_versions = []
       version_is_unsupported = true
@@ -70,7 +70,7 @@ class ElementFactory
       end
 
       if version_is_unsupported
-        raise SdkOperationError.new('Invalid version to connect on this cluster. Valid versions are '+supported_versions.join(','))
+        raise SdkOperationError.new('Invalid version to connect on this cluster. Valid versions are ' + supported_versions.join(','))
       else
         element = Element.new(target, port, username, password, version_actual, verify_ssl)
         if version_actual > @max_sdk_version
@@ -78,7 +78,7 @@ class ElementFactory
         end
       end
     end
-    @logger.info("Established connection to "+target)
+    @logger.info("Established connection to " + target)
     return element
   end
 end

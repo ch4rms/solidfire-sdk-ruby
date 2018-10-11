@@ -2,6 +2,7 @@ require_relative 'errors'
 
 class ServiceBase
   attr_accessor :connection_version
+
   def initialize(host, port, username, password, connection_version, verify_ssl)
     @user = username
     @pass = password
@@ -17,9 +18,9 @@ class ServiceBase
     @url = 'https://' + @host + ':' + @port.to_s + '/json-rpc/' + self.connection_version.to_s
     @uri = URI.parse(@url)
     begin
-      @https = Net::HTTP.new(@uri.host,@uri.port)
+      @https = Net::HTTP.new(@uri.host, @uri.port)
     rescue Timeout::Error
-      raise ApiConnectionError.new('Timed out trying to connect to '+@host+'.')
+      raise ApiConnectionError.new('Timed out trying to connect to ' + @host + '.')
     end
     @https.use_ssl = true
     @https.verify_mode = @verify_mode
@@ -31,7 +32,7 @@ class ServiceBase
 
   # Posts the request hand handles errors.
   def send_request(payload)
-    req = Net::HTTP::Post.new(@uri.path, initheader = {'Content-Type' =>'application/json'})
+    req = Net::HTTP::Post.new(@uri.path, initheader = {'Content-Type' => 'application/json'})
     req.body = payload.to_json
     req.basic_auth @user, @pass
 
@@ -71,8 +72,8 @@ class ServiceBase
     end
   end
 
-  def check_parameter(param, param_name, expected_type, version=7)
-    raise ParameterError.new(param_name+' should be of type '+expected_type+'.') unless param.is_a?(expected_type)
-    raise ParameterError.new(param_name+' is only available after version, '+version.to_s) unless self.connection_version >= version
+  def check_parameter(param, param_name, expected_type, version = 7)
+    raise ParameterError.new(param_name + ' should be of type ' + expected_type + '.') unless param.is_a?(expected_type)
+    raise ParameterError.new(param_name + ' is only available after version, ' + version.to_s) unless self.connection_version >= version
   end
 end
