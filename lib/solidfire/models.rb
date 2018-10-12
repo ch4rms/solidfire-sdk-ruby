@@ -3563,6 +3563,14 @@ class QoS
     # param Fixnum burst_time:  The length of time burst IOPS is allowed. The value returned is represented in time units of seconds. Note: this value is calculated by the system based on IOPS set for QoS.
     self.burst_time = objectHash["burstTime"]
   end
+
+  def to_hash
+    objectHash = {}
+    objectHash["minIOPS"] = @min_iops
+    objectHash["maxIOPS"] = @max_iops
+    objectHash["burstIOPS"] = @burst_iops
+    objectHash
+  end
 end
 
 class QoSPolicy
@@ -3587,6 +3595,9 @@ class QoSPolicy
   end
 end
 
+class CreateQoSPolicyResult < QoSPolicy
+
+end
 class NetworkConfig
   attr_accessor :_default, :bond_master, :virtual_network_tag, :address, :auto, :bond_downdelay, :bond_fail_over_mac, :bond_primary_reselect, :bond_lacp_rate, :bond_miimon, :bond_mode, :bond_slaves, :bond_updelay, :dns_nameservers, :dns_search, :family, :gateway, :mac_address, :mac_address_permanent, :method, :mtu, :netmask, :network, :physical, :routes, :status, :symmetric_route_rules, :up_and_running, :bond_xmit_hash_policy, :bond_ad_num_ports
 

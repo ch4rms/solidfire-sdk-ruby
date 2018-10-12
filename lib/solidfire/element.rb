@@ -7883,6 +7883,32 @@ class Element < ServiceBase
     add_volumes_to_volume_access_group(r.volume_access_group_id, r.volumes)
   end
 
+  def create_qos_policy(name, qos)
+    ######
+    # CreateQoSPolicy enables you to create a QoS Policy.
+    #
+    # param: str name: [required] The name of the QoS Policy Might be 1 to 64 characters in length.
+    #
+    # param: QoS qos:  Initial quality of service settings for this volume. Default values are used if none are specified. Valid settings are: minIOPS maxIOPS burstIOPS You can get the default values for a volume by using the GetDefaultQoS method.
+
+    check_connection(5, 'Cluster')
+
+    check_parameter(name, 'name', String)
+
+    check_parameter(qos, 'qos', QoS)
+
+    payload = {
+        'params' => {
+            'name' => name,
+            'qos' => qos.to_hash
+        },
+        'method' => 'CreateQoSPolicy'
+    }
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? CreateQoSPolicyResult.new(raw_response) : nil
+  end
+
   def create_volume_access_group(name, initiators = nil, volumes = nil, virtual_network_id = nil, virtual_network_tags = nil, attributes = nil)
     ######
     # You can use CreateVolumeAccessGroup to create a new volume access group. When you create the volume access group, you need to give it a name, and you can optionally enter initiators and volumes. After you create the group, you can add volumes and initiator IQNs. Any initiator IQN that you add to the volume access group is able to access any volume in the group without CHAP authentication.
