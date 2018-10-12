@@ -6785,7 +6785,10 @@ class Element < ServiceBase
   end
 
   def list_qos_policies()
-    check_connection(1, 'Cluster')
+    ######
+    # ListQoSPolicies enables you to retrieve the a list of all QoS Policies.######
+
+  check_connection(1, 'Cluster')
 
     payload = {
         'params' => {

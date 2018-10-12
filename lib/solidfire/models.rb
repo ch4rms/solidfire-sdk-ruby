@@ -1455,8 +1455,8 @@ class ListQoSPoliciesResult
     if (objectHash == nil)
       return
     end
-    # ListVolumesResult
-    # param Volume volumes: [required] List of volumes.
+    # ListQosPoliciesResult
+    # param qos_policies qos_policies: [required] List of QoSPolicy.
     self.qos_policies = Array.new(objectHash["qosPolicies"].length) {|i| QoSPolicy.new(objectHash["qosPolicies"][i])}
   end
 end
@@ -3572,21 +3572,17 @@ class QoSPolicy
     if (objectHash == nil)
       return
     end
-    # QoS
+    # QoSPolicy
     # Quality of Service (QoS) values are used on SolidFire volumes to provision performance expectations.
-    # Minimum, maximum and burst QoS values can be set within the ranges specified in the QoS table below.
+    # Using a policy allows reuse of a set of QoS values across many volumes
     #
-    # Volumes created without specified QoS values are created with the Default values listed below.
-    # Default values can be found by running the GetDefaultQoS method.
-    #
-    # minIOPS Min: 100/50 (v7.0/v8.0), Default: 100, Max: 15,000
-    # maxIOPS Min: 100/50 (v7.0/v8.0), Default: 15,000, Max: 100,000
-    # burstIOPS Min: 100/50 (v7.0/v8.0), Default: 15,000, Max: 100,000
-    # param Fixnum min_iops:  Desired minimum 4KB IOPS to guarantee. The allowed IOPS will only drop below this level if all volumes have been capped at their minimum IOPS value and there is still insufficient performance capacity.
+    # param QoS qos:  Desired QoS to associate with this policy
     self.qos = QoS.new(objectHash["qos"])
 
+    # param String name: Name of the QoS policy
     self.name = objectHash["name"]
 
+    # param Fixnum qos_policy_id: ID of the QoSPolicy
     self.qos_policy_id = objectHash["qosPolicyID"]
   end
 end
