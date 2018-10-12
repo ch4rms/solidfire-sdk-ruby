@@ -24,7 +24,7 @@ class Element < ServiceBase
 
     check_connection(1, 'Cluster')
 
-    check_parameter(username, 'username', 'str')
+    check_parameter(username, 'username', String)
 
     payload = {
         'params' => {
@@ -103,7 +103,7 @@ class Element < ServiceBase
 
     check_connection(1, 'Cluster')
 
-    check_parameter(username, 'username', 'str')
+    check_parameter(username, 'username', String)
 
     payload = {
         'params' => {
@@ -321,7 +321,7 @@ class Element < ServiceBase
 
     check_connection(6, 'Cluster')
 
-    check_parameter(name, 'name', 'str')
+    check_parameter(name, 'name', String)
 
     payload = {
         'params' => {
@@ -490,11 +490,11 @@ class Element < ServiceBase
 
     check_connection(1, 'Cluster')
 
-    check_parameter(username, 'username', 'str')
+    check_parameter(username, 'username', String)
 
-    check_parameter(password, 'password', 'str')
+    check_parameter(password, 'password', String)
 
-    check_parameter(access, 'access', 'str')
+    check_parameter(access, 'access', String)
 
     payload = {
         'params' => {
@@ -592,17 +592,17 @@ class Element < ServiceBase
 
     check_connection(None, 'Both')
 
-    check_parameter(mvip, 'mvip', 'str')
+    check_parameter(mvip, 'mvip', String)
 
-    check_parameter(svip, 'svip', 'str')
+    check_parameter(svip, 'svip', String)
 
     check_parameter(rep_count, 'rep_count', 'Fixnum')
 
-    check_parameter(username, 'username', 'str')
+    check_parameter(username, 'username', String)
 
-    check_parameter(password, 'password', 'str')
+    check_parameter(password, 'password', String)
 
-    check_parameter(nodes, 'nodes', 'str')
+    check_parameter(nodes, 'nodes', String)
 
     payload = {
         'params' => {
@@ -1443,7 +1443,7 @@ class Element < ServiceBase
 
     check_connection(1, 'Cluster')
 
-    check_parameter(servers, 'servers', 'str')
+    check_parameter(servers, 'servers', String)
 
     payload = {
         'params' => {
@@ -1878,7 +1878,7 @@ class Element < ServiceBase
 
     check_connection(6, 'Node')
 
-    check_parameter(drives, 'drives', 'str')
+    check_parameter(drives, 'drives', String)
 
     check_parameter(force, 'force', 'bool')
 
@@ -2242,9 +2242,9 @@ class Element < ServiceBase
 
     check_connection(8, 'Cluster')
 
-    check_parameter(username, 'username', 'str')
+    check_parameter(username, 'username', String)
 
-    check_parameter(access, 'access', 'str')
+    check_parameter(access, 'access', String)
 
     payload = {
         'params' => {
@@ -2327,7 +2327,7 @@ class Element < ServiceBase
 
     check_connection(7, 'Cluster')
 
-    check_parameter(server_uris, 'server_uris', 'str')
+    check_parameter(server_uris, 'server_uris', String)
 
     payload = {
         'params' => {
@@ -2442,9 +2442,9 @@ class Element < ServiceBase
 
     check_connection(7, 'Cluster')
 
-    check_parameter(username, 'username', 'str')
+    check_parameter(username, 'username', String)
 
-    check_parameter(password, 'password', 'str')
+    check_parameter(password, 'password', String)
 
     payload = {
         'params' => {
@@ -2520,7 +2520,7 @@ class Element < ServiceBase
 
     check_connection(7, 'Cluster')
 
-    check_parameter(timeout, 'timeout', 'str')
+    check_parameter(timeout, 'timeout', String)
 
     payload = {
         'params' => {
@@ -3011,7 +3011,7 @@ class Element < ServiceBase
 
     check_connection(6, 'Cluster')
 
-    check_parameter(cluster_pairing_key, 'cluster_pairing_key', 'str')
+    check_parameter(cluster_pairing_key, 'cluster_pairing_key', String)
 
     payload = {
         'params' => {
@@ -3042,7 +3042,7 @@ class Element < ServiceBase
 
     check_connection(6, 'Cluster')
 
-    check_parameter(volume_pairing_key, 'volume_pairing_key', 'str')
+    check_parameter(volume_pairing_key, 'volume_pairing_key', String)
 
     check_parameter(volume_id, 'volume_id', 'Fixnum')
 
@@ -3349,7 +3349,7 @@ class Element < ServiceBase
 
     check_connection(5, 'Node')
 
-    check_parameter(build, 'build', 'str')
+    check_parameter(build, 'build', String)
 
     check_parameter(force, 'force', 'bool')
 
@@ -3587,7 +3587,7 @@ class Element < ServiceBase
 
     check_connection(1.0, 'Both')
 
-    check_parameter(method, 'method', 'str')
+    check_parameter(method, 'method', String)
 
     payload = {
         'params' => {
@@ -4393,7 +4393,7 @@ class Element < ServiceBase
 
     check_connection(9, 'Cluster')
 
-    check_parameter(name, 'name', 'str')
+    check_parameter(name, 'name', String)
 
     payload = {
         'params' => {
@@ -4811,13 +4811,13 @@ class Element < ServiceBase
 
     check_parameter(virtual_network_tag, 'virtual_network_tag', 'Fixnum')
 
-    check_parameter(name, 'name', 'str')
+    check_parameter(name, 'name', String)
 
     check_parameter(address_blocks, 'address_blocks', 'AddressBlock')
 
-    check_parameter(netmask, 'netmask', 'str')
+    check_parameter(netmask, 'netmask', String)
 
-    check_parameter(svip, 'svip', 'str')
+    check_parameter(svip, 'svip', String)
 
     payload = {
         'params' => {
@@ -5099,7 +5099,7 @@ class Element < ServiceBase
 
     check_parameter(virtual_volume_host_id, 'virtual_volume_host_id', 'UUID')
 
-    check_parameter(bind_context, 'bind_context', 'str')
+    check_parameter(bind_context, 'bind_context', String)
 
     payload = {
         'params' => {
@@ -5268,11 +5268,11 @@ class Element < ServiceBase
 
     check_connection(9.0, 'Cluster')
 
-    check_parameter(name, 'name', 'str')
+    check_parameter(name, 'name', String)
 
     check_parameter(storage_container_id, 'storage_container_id', 'UUID')
 
-    check_parameter(virtual_volume_type, 'virtual_volume_type', 'str')
+    check_parameter(virtual_volume_type, 'virtual_volume_type', String)
 
     check_parameter(total_size, 'total_size', 'Fixnum')
 
@@ -5427,7 +5427,7 @@ class Element < ServiceBase
 
     check_connection(9, 'Cluster')
 
-    check_parameter(feature, 'feature', 'str')
+    check_parameter(feature, 'feature', String)
 
     payload = {
         'params' => {
@@ -6276,7 +6276,7 @@ class Element < ServiceBase
 
     check_connection(None, 'Cluster')
 
-    check_parameter(unbind_context, 'unbind_context', 'str')
+    check_parameter(unbind_context, 'unbind_context', String)
 
     payload = {
         'params' => {
@@ -6444,7 +6444,7 @@ class Element < ServiceBase
 
     check_parameter(volume_id, 'volume_id', 'Fixnum')
 
-    check_parameter(name, 'name', 'str')
+    check_parameter(name, 'name', String)
 
     payload = {
         'params' => {
@@ -6582,7 +6582,7 @@ class Element < ServiceBase
 
     check_connection(1, 'Cluster')
 
-    check_parameter(name, 'name', 'str')
+    check_parameter(name, 'name', String)
 
     check_parameter(account_id, 'account_id', 'Fixnum')
 
@@ -7604,7 +7604,7 @@ class Element < ServiceBase
 
     check_parameter(volume_id, 'volume_id', 'Fixnum')
 
-    check_parameter(format, 'format', 'str')
+    check_parameter(format, 'format', String)
 
     payload = {
         'params' => {
@@ -7676,7 +7676,7 @@ class Element < ServiceBase
 
     check_parameter(volume_id, 'volume_id', 'Fixnum')
 
-    check_parameter(format, 'format', 'str')
+    check_parameter(format, 'format', String)
 
     payload = {
         'params' => {
@@ -7739,9 +7739,9 @@ class Element < ServiceBase
 
     check_connection(6, 'Cluster')
 
-    check_parameter(key, 'key', 'str')
+    check_parameter(key, 'key', String)
 
-    check_parameter(status, 'status', 'str')
+    check_parameter(status, 'status', String)
 
     payload = {
         'params' => {
@@ -7800,7 +7800,7 @@ class Element < ServiceBase
 
     check_parameter(volume_access_group_id, 'volume_access_group_id', 'Fixnum')
 
-    check_parameter(initiators, 'initiators', 'str')
+    check_parameter(initiators, 'initiators', String)
 
     payload = {
         'params' => {
@@ -7881,7 +7881,7 @@ class Element < ServiceBase
 
     check_connection(5, 'Cluster')
 
-    check_parameter(name, 'name', 'str')
+    check_parameter(name, 'name', String)
 
     payload = {
         'params' => {
@@ -8224,7 +8224,7 @@ class Element < ServiceBase
 
     check_parameter(volume_access_group_id, 'volume_access_group_id', 'Fixnum')
 
-    check_parameter(initiators, 'initiators', 'str')
+    check_parameter(initiators, 'initiators', String)
 
     payload = {
         'params' => {
