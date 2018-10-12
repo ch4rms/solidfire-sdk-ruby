@@ -6563,7 +6563,7 @@ class Element < ServiceBase
     copy_volume(r.volume_id, r.dst_volume_id, r.snapshot_id)
   end
 
-  def create_volume(name, account_id, total_size, enable512e, qos = nil, attributes = nil)
+  def create_volume(name, account_id, total_size, enable512e, qos = nil, attributes = nil, qos_policy_id = nil)
     ######
     # CreateVolume enables you to create a new (empty) volume on the cluster. As soon as the volume creation is complete, the volume is
     # available for connection via iSCSI.
@@ -6603,6 +6603,10 @@ class Element < ServiceBase
     if qos != nil
       check_parameter(qos, 'qos', QoS)
       payload['params']['qos'] = qos
+    end
+    if qos_policy_id != nil
+      check_parameter(qos_policy_id, 'qos_policy_id', Fixnum)
+      payload['params']['qosPolicyID'] = qos_policy_id
     end
     if attributes != nil
       check_parameter(attributes, 'attributes', dict)
@@ -6780,6 +6784,19 @@ class Element < ServiceBase
     return raw_response ? VolumeQOS.new(raw_response) : nil
   end
 
+  def list_qos_policies()
+    check_connection(1, 'Cluster')
+
+    payload = {
+        'params' => {
+        },
+        'method' => 'ListQoSPolicies'
+    }
+
+    json_payload = payload
+    raw_response = send_request(json_payload)
+    return raw_response ? ListQoSPoliciesResult.new(raw_response) : nil
+  end
 
   def get_volume_count()
     ######

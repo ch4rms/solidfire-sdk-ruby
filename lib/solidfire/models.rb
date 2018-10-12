@@ -1448,6 +1448,19 @@ class VolumeQOS
   end
 end
 
+class ListQoSPoliciesResult
+  attr_accessor :qos_policies
+
+  def initialize(objectHash = nil)
+    if (objectHash == nil)
+      return
+    end
+    # ListVolumesResult
+    # param Volume volumes: [required] List of volumes.
+    self.qos_policies = Array.new(objectHash["qosPolicies"].length) {|i| QoSPolicy.new(objectHash["qosPolicies"][i])}
+  end
+end
+
 class SnapshotReplication
   attr_accessor :state, :state_details
 
@@ -3549,6 +3562,32 @@ class QoS
 
     # param Fixnum burst_time:  The length of time burst IOPS is allowed. The value returned is represented in time units of seconds. Note: this value is calculated by the system based on IOPS set for QoS.
     self.burst_time = objectHash["burstTime"]
+  end
+end
+
+class QoSPolicy
+  attr_accessor :name, :qos_policy_id, :qos
+
+  def initialize(objectHash = nil)
+    if (objectHash == nil)
+      return
+    end
+    # QoS
+    # Quality of Service (QoS) values are used on SolidFire volumes to provision performance expectations.
+    # Minimum, maximum and burst QoS values can be set within the ranges specified in the QoS table below.
+    #
+    # Volumes created without specified QoS values are created with the Default values listed below.
+    # Default values can be found by running the GetDefaultQoS method.
+    #
+    # minIOPS Min: 100/50 (v7.0/v8.0), Default: 100, Max: 15,000
+    # maxIOPS Min: 100/50 (v7.0/v8.0), Default: 15,000, Max: 100,000
+    # burstIOPS Min: 100/50 (v7.0/v8.0), Default: 15,000, Max: 100,000
+    # param Fixnum min_iops:  Desired minimum 4KB IOPS to guarantee. The allowed IOPS will only drop below this level if all volumes have been capped at their minimum IOPS value and there is still insufficient performance capacity.
+    self.qos = QoS.new(objectHash["qos"])
+
+    self.name = objectHash["name"]
+
+    self.qos_policy_id = objectHash["qosPolicyID"]
   end
 end
 
