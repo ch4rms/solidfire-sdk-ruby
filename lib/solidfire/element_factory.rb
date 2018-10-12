@@ -5,7 +5,7 @@ require 'logger'
 
 class ElementFactory
   @min_version = 7.0
-  @max_sdk_version = 9.0
+  @max_sdk_version = 10.1
   @logger = Logger.new(STDOUT)
 
   def self.ascii_art(version)
