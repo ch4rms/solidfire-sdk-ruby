@@ -3566,9 +3566,10 @@ class QoS
 
   def to_hash
     objectHash = {}
-    objectHash["minIOPS"] = @min_iops
-    objectHash["maxIOPS"] = @max_iops
-    objectHash["burstIOPS"] = @burst_iops
+    objectHash["minIOPS"] = @min_iops.to_i
+    objectHash["maxIOPS"] = @max_iops.to_i
+    objectHash["burstIOPS"] = @burst_iops.to_i
+    puts objectHash
     objectHash
   end
 end

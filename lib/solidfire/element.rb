@@ -6584,11 +6584,9 @@ class Element < ServiceBase
 
     check_parameter(name, 'name', String)
 
-    check_parameter(account_id, 'account_id', 'Fixnum')
+    check_parameter(account_id, 'account_id', Fixnum)
 
-    check_parameter(total_size, 'total_size', 'Fixnum')
-
-    check_parameter(enable512e, 'enable512e', 'bool')
+    check_parameter(total_size, 'total_size', Fixnum)
 
     payload = {
         'params' => {
